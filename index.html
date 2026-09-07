@@ -908,7 +908,7 @@
   <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Галерея объявления">
     <button class="lightbox-close" type="button" data-lightbox="close" aria-label="Закрыть"><svg class="icon"><use href="#i-close"></use></svg></button>
     <button class="lightbox-nav lightbox-nav--prev" type="button" data-lightbox="prev" aria-label="Предыдущее фото"><svg class="icon"><use href="#i-left"></use></svg></button>
-    <img class="lightbox-image" id="lightboxImage" alt="Фото автомобиля">
+    <img class="lightbox-image" id="lightboxImage" alt="Фото автомобиля" referrerpolicy="no-referrer">
     <button class="lightbox-nav lightbox-nav--next" type="button" data-lightbox="next" aria-label="Следующее фото"><svg class="icon"><use href="#i-right"></use></svg></button>
     <div class="lightbox-count" id="lightboxCount"></div>
   </div>
@@ -957,6 +957,9 @@
       try {
         const url = new URL(value, location.origin);
         if (url.origin === location.origin) return `${url.pathname}${url.search}`;
+        // AV.BY returns HTTP 423 to shared Render egress addresses. Let the
+        // visitor's browser load this strictly allowlisted public CDN directly.
+        if (url.protocol === 'https:' && url.hostname === 'avcdn.av.by') return url.href;
         if (url.protocol === 'https:' && (mediaHosts.has(url.hostname) || /^rms\d+\.kufar\.by$/i.test(url.hostname))) {
           return `/api/media?url=${encodeURIComponent(url.href)}`;
         }
@@ -1071,7 +1074,7 @@
       els.generationTrack.innerHTML = anyCard + state.generations.map(generation => `
         <button class="generation-card" type="button" data-generation="${Number(generation.id)}">
           <span class="generation-check">${icon('check')}</span>
-          <div class="generation-card__image"><img src="${mediaUrl(generation.image)}" alt="${escapeHTML(generation.name)}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'"></div>
+          <div class="generation-card__image"><img src="${mediaUrl(generation.image)}" alt="${escapeHTML(generation.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'"></div>
           <div class="generation-card__body"><strong>${escapeHTML(generation.name)}</strong><small>${escapeHTML(formatYears({ from: generation.yearFrom, to: generation.yearTo })) || 'Годы не указаны'}</small></div>
         </button>`).join('');
     }
@@ -1216,7 +1219,7 @@
         : `<div class="detail-loading"><span class="mini-spinner"></span><span>Загружаем данные источника…</span></div>`;
       return `<article class="listing-card" data-id="${escapeHTML(item.id)}" data-source="${escapeHTML(item.source)}" data-detail-loaded="${item.detailLoaded === true ? '1' : '0'}" data-auto-detail="${item.source === 'av' ? '0' : '1'}">
         <div class="listing-card__media" data-action="open-gallery" data-index="0">
-          <img src="${mediaUrl(images[0])}" alt="${escapeHTML(item.title)}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'">
+          <img src="${mediaUrl(images[0])}" alt="${escapeHTML(item.title)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'">
           <span class="source-badge source-badge--${sourceClass(item)}">${escapeHTML(item.sourceLabel)}</span>
           <button class="favorite-button ${state.favorites.has(item.id) ? 'active' : ''}" type="button" data-action="favorite" aria-label="Добавить в избранное">${icon('heart')}</button>
           ${images.length > 1 ? `<button class="gallery-arrow gallery-arrow--prev" type="button" data-action="prev-image" aria-label="Предыдущее фото">${icon('left')}</button><button class="gallery-arrow gallery-arrow--next" type="button" data-action="next-image" aria-label="Следующее фото">${icon('right')}</button>` : ''}
@@ -1232,7 +1235,7 @@
             ${specHTML('Коробка', item.transmission || '—')}${specHTML('Кузов', item.body || '—')}${specHTML('Привод', item.drivetrain || '—')}
           </div>
           <div class="generation-mini">
-            <div class="generation-mini__image"><img src="${mediaUrl(item.generationImage || images[0])}" alt="Поколение ${escapeHTML(item.generation)}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'"></div>
+            <div class="generation-mini__image"><img src="${mediaUrl(item.generationImage || images[0])}" alt="Поколение ${escapeHTML(item.generation)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'"></div>
             <div class="generation-mini__info"><span>Карточка поколения</span><strong>${escapeHTML(generationTitle || item.title)}</strong><small>${escapeHTML(years || item.generation || 'Поколение не указано площадкой')}</small></div>
           </div>
           <div class="seller-comment" data-comment><div class="seller-comment__label">${escapeHTML(commentLabel)}</div><div data-comment-content>${comment}</div></div>
@@ -1474,5 +1477,5 @@
       await runSearch({ scroll: false });
     })();
   </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a37364b05eca0b98',t:'MTc4ODc1OTc3OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
