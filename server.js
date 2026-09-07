@@ -15,7 +15,7 @@ const { performance } = require('node:perf_hooks');
 
 const PORT = Number(process.env.PORT || 8080);
 const ROOT = __dirname;
-const APP_VERSION = '1.3.1';
+const APP_VERSION = '1.3.3';
 const USER_AGENT = process.env.SOURCE_USER_AGENT ||
   `MotorBY-Aggregator/${APP_VERSION} (+https://render.com; low-rate cached public catalogue reader)`;
 const SEARCH_TTL = clampInt(process.env.SEARCH_CACHE_TTL, 30, 900, 180);
@@ -222,6 +222,19 @@ function normaliseSearch(url) {
   const defaultSources = ['onliner', 'kufar', 'av', 'dealer', 'autohouse'];
   const sources = [...new Set(sourceValues.length ? sourceValues : defaultSources)]
     .filter((source) => defaultSources.includes(source));
+  const rawGenerationIds = url.searchParams.getAll('generation')
+    .flatMap((value) => value.split(','));
+  const rawGenerationNames = url.searchParams.getAll('generationName');
+  const generationSelections = [];
+  const seenGenerationIds = new Set();
+  rawGenerationIds.slice(0, 24).forEach((value, index) => {
+    const id = asNumber(value);
+    if (id === null || seenGenerationIds.has(id)) return;
+    seenGenerationIds.add(id);
+    generationSelections.push({ id, name: cleanText(rawGenerationNames[index]) });
+  });
+  const generationIds = generationSelections.map((item) => item.id);
+  const generationNames = generationSelections.map((item) => item.name);
 
   return {
     sources: sources.length ? sources : defaultSources,
@@ -231,8 +244,10 @@ function normaliseSearch(url) {
     modelId: asNumber(url.searchParams.get('model')),
     modelName: cleanText(url.searchParams.get('modelName')),
     modelSlug: cleanText(url.searchParams.get('modelSlug')),
-    generationId: asNumber(url.searchParams.get('generation')),
-    generationName: cleanText(url.searchParams.get('generationName')),
+    generationIds,
+    generationNames,
+    generationId: generationIds[0] ?? null,
+    generationName: generationNames[0] || '',
     priceFrom: asNumber(url.searchParams.get('priceFrom')),
     priceTo: asNumber(url.searchParams.get('priceTo')),
     yearFrom: asNumber(url.searchParams.get('yearFrom')),
@@ -492,7 +507,9 @@ function buildOnlinerUrl(filters) {
 
   if (filters.brandId) params.set('car[0][manufacturer]', String(filters.brandId));
   if (filters.modelId) params.set('car[0][model]', String(filters.modelId));
-  if (filters.generationId) params.append('car[0][generation][]', String(filters.generationId));
+  const generationIds = filters.generationIds?.length ? filters.generationIds
+    : filters.generationId ? [filters.generationId] : [];
+  generationIds.forEach((id) => params.append('car[0][generation][]', String(id)));
 
   appendRange(params, 'price', filters.priceFrom, filters.priceTo);
   if (filters.priceFrom !== null || filters.priceTo !== null) params.set('price[currency]', 'BYN');
@@ -742,14 +759,27 @@ async function resolveKufarTaxonomy(filters) {
     }
     resolved.model = modelOption.value;
 
-    if (filters.generationName) {
+    const generationNames = (filters.generationNames?.length ? filters.generationNames : [filters.generationName]).filter(Boolean);
+    if (generationNames.length) {
       const modelUrl = new URL(KUFAR_ROOT);
       modelUrl.searchParams.set('cbnd2', resolved.brand);
       modelUrl.searchParams.set('cmdl2', resolved.model);
       const modelState = await getKufarState(modelUrl.toString(), CATALOG_TTL);
-      const generationOption = findTaxonomyOption(kufarOptions(modelState, 'cgen2'), filters.generationName, { generation: true });
-      if (generationOption) resolved.generation = generationOption.value;
-      else resolved.warning = `Поколение «${filters.generationName}» не сопоставлено: Kufar отфильтрован до модели`;
+      const options = kufarOptions(modelState, 'cgen2');
+      const mapped = [];
+      const missed = [];
+      for (const name of generationNames) {
+        const option = findTaxonomyOption(options, name, { generation: true });
+        if (option) mapped.push(option.value);
+        else missed.push(name);
+      }
+      resolved.generations = [...new Set(mapped)];
+      resolved.generation = resolved.generations[0] || '';
+      if (!resolved.generations.length) {
+        resolved.unmapped = `Выбранные поколения не сопоставлены с каталогом Kufar`;
+      } else if (missed.length) {
+        resolved.warning = `${missed.length} из ${generationNames.length} поколений не сопоставлено; показаны совпавшие поколения`;
+      }
     }
   }
   return resolved;
@@ -772,7 +802,8 @@ async function buildKufarUrl(filters) {
   const url = new URL(KUFAR_ROOT);
   if (taxonomy.brand) url.searchParams.set('cbnd2', taxonomy.brand);
   if (taxonomy.model) url.searchParams.set('cmdl2', taxonomy.model);
-  if (taxonomy.generation) url.searchParams.set('cgen2', taxonomy.generation);
+  if (taxonomy.generations?.length > 1) addKufarEnum(url.searchParams, 'cgen2', taxonomy.generations);
+  else if (taxonomy.generation) url.searchParams.set('cgen2', taxonomy.generation);
 
   const price = kufarRange(filters.priceFrom, filters.priceTo, 100);
   const year = kufarRange(filters.yearFrom, filters.yearTo);
@@ -791,7 +822,7 @@ async function buildKufarUrl(filters) {
   const city = CITY_MAP[filters.city]?.kufar;
   if (city?.rgn) url.searchParams.set('rgn', city.rgn);
   if (city?.ar) url.searchParams.set('ar', city.ar);
-  return { url, warning: taxonomy.warning || '' };
+  return { url, warning: taxonomy.warning || '', unmapped: taxonomy.unmapped || '' };
 }
 
 function kufarParamMap(ad) {
@@ -883,6 +914,16 @@ function locallyMatchesKufar(item, filters) {
 async function searchKufar(filters) {
   const started = performance.now();
   const built = await buildKufarUrl(filters);
+  if (built.unmapped) {
+    return {
+      items: [],
+      status: {
+        source: 'kufar', label: 'Kufar', state: 'empty', count: 0, total: 0,
+        latencyMs: Math.round(performance.now() - started), sourceUrl: built.url.toString(),
+        message: `${built.unmapped}; неподходящие объявления не подставлены`, notice: true,
+      },
+    };
+  }
   let state = await getKufarState(built.url.toString(), SEARCH_TTL);
   if (filters.page > 1) {
     const token = state?.listing?.pagination?.find((page) => Number(page.num) === filters.page)?.token;
@@ -1098,14 +1139,23 @@ async function resolveAvTaxonomy(filters) {
   if (!model) return { ...result, unmapped: `Модель «${wantedModel}» не сопоставлена с каталогом AV.BY` };
   result.model = model.value;
 
-  if (!filters.generationName) return result;
-  const generation = findTaxonomyOption(avTaxonomyOptions(await getAvGenerations(result.model)),
-    filters.generationName, { generation: true });
-  if (!generation) {
-    return { ...result, unmapped: `Поколение «${filters.generationName}» не сопоставлено с каталогом AV.BY` };
+  const generationNames = (filters.generationNames?.length ? filters.generationNames : [filters.generationName]).filter(Boolean);
+  if (!generationNames.length) return result;
+  const options = avTaxonomyOptions(await getAvGenerations(result.model));
+  const generations = [];
+  const missed = [];
+  for (const name of generationNames) {
+    const generation = findTaxonomyOption(options, name, { generation: true });
+    if (generation) generations.push(generation);
+    else missed.push(name);
   }
-  result.generation = generation.value;
-  result.generationData = generation.raw;
+  result.generations = [...new Map(generations.map((item) => [String(item.value), item])).values()];
+  if (!result.generations.length) {
+    return { ...result, unmapped: 'Выбранные поколения не сопоставлены с каталогом AV.BY' };
+  }
+  result.generation = result.generations[0].value;
+  result.generationData = result.generations[0].raw;
+  if (missed.length) result.warning = `${missed.length} из ${generationNames.length} поколений не сопоставлено; показаны совпавшие поколения`;
   return result;
 }
 
@@ -1142,9 +1192,16 @@ async function buildAvRequest(filters) {
   const params = new URLSearchParams();
   params.set('page', String(filters.page));
   params.set('sort', '4');
-  if (taxonomy.brand) params.set('brands[0][brand]', String(taxonomy.brand));
-  if (taxonomy.model) params.set('brands[0][model]', String(taxonomy.model));
-  if (taxonomy.generation) params.set('brands[0][generation]', String(taxonomy.generation));
+  if (taxonomy.generations?.length) {
+    taxonomy.generations.forEach((generation, index) => {
+      params.set(`brands[${index}][brand]`, String(taxonomy.brand));
+      params.set(`brands[${index}][model]`, String(taxonomy.model));
+      params.set(`brands[${index}][generation]`, String(generation.value));
+    });
+  } else {
+    if (taxonomy.brand) params.set('brands[0][brand]', String(taxonomy.brand));
+    if (taxonomy.model) params.set('brands[0][model]', String(taxonomy.model));
+  }
 
   setAvRange(params, 'price_byn', filters.priceFrom, filters.priceTo);
   if (filters.priceFrom !== null || filters.priceTo !== null) params.set('price_currency', '1');
@@ -1311,8 +1368,13 @@ async function searchAv(filters) {
   if (!Array.isArray(data?.adverts)) {
     throw new SourceError('av', 'format_changed', 'AV.BY изменил формат каталога объявлений');
   }
+  const generationData = new Map((built.taxonomy?.generations || [])
+    .map((generation) => [String(generation.value), generation.raw]));
   const items = data.adverts
-    .map((ad) => normaliseAv(ad, { generationData: built.taxonomy?.generationData || null }))
+    .map((ad) => normaliseAv(ad, {
+      generationData: generationData.get(String(ad.metadata?.generationId))
+        || built.taxonomy?.generationData || null,
+    }))
     // Do not replace a missing source photo with a card that looks complete.
     // AV.BY occasionally returns just-published records before media processing.
     .filter((item) => item.images.length && item.priceByn !== null)
@@ -1323,10 +1385,10 @@ async function searchAv(filters) {
   return {
     items,
     status: {
-      source: 'av', label: 'AV.BY', state: items.length ? 'ok' : 'empty',
+      source: 'av', label: 'AV.BY', state: items.length ? (built.taxonomy?.warning ? 'partial' : 'ok') : 'empty',
       count: items.length, total: asNumber(data.count, 0),
       latencyMs: Math.round(performance.now() - started), sourceUrl: built.publicUrl,
-      message: items.length ? `Живые объявления получены ${transportMessage}` : 'По этим фильтрам объявлений AV.BY нет',
+      message: [items.length ? `Живые объявления получены ${transportMessage}` : 'По этим фильтрам объявлений AV.BY нет', built.taxonomy?.warning].filter(Boolean).join('. '),
       transport: response.transport,
     },
   };
@@ -1472,13 +1534,6 @@ async function buildAtlantRequest(filters, source) {
       publicUrl: atlantPublicUrl(config.type),
     };
   }
-  if (source === 'autohouse' && filters.generationName) {
-    return {
-      unmapped: `Автохаус не публикует поколение «${filters.generationName}» в структурированном каталоге; более широкая выдача не подставлена`,
-      publicUrl: atlantPublicUrl(config.type),
-    };
-  }
-
   const taxonomy = await resolveAtlantTaxonomy(filters, source);
   if (taxonomy.unmapped) return { unmapped: taxonomy.unmapped, publicUrl: atlantPublicUrl(config.type) };
 
@@ -1811,6 +1866,46 @@ async function getAtlantDetail(id, source) {
   return normaliseAtlantDetail(data, source, inferredGeneration);
 }
 
+function selectedGenerationNames(filters) {
+  return [...new Set((filters.generationNames?.length ? filters.generationNames : [filters.generationName])
+    .map(cleanText).filter(Boolean))];
+}
+
+function matchesSelectedGeneration(actualName, wantedNames) {
+  const actual = taxonomyText(actualName);
+  return Boolean(actual) && wantedNames.some((name) => taxonomyText(name) === actual);
+}
+
+async function filterAtlantGenerations(records, filters, source) {
+  const wantedNames = selectedGenerationNames(filters);
+  if (!wantedNames.length) {
+    return { items: records.map((item) => normaliseAtlantList(item, source)), failures: 0, filtered: false };
+  }
+  const config = atlantConfig(source);
+  const checked = await Promise.all(records.map(async (record) => {
+    try {
+      const detail = await getAtlantRawDetail(record.id, source);
+      if (!isLiveAtlantCar(detail, config.type, true)) return { item: null, failed: false };
+      let inferredGeneration = null;
+      if (!detail.catalog?.generation) {
+        inferredGeneration = await inferUnambiguousGeneration(
+          detail.catalog?.brand?.name, detail.catalog?.model?.name, detail.params?.year,
+        );
+      }
+      const generation = detail.catalog?.generation || inferredGeneration;
+      if (!matchesSelectedGeneration(generation?.name, wantedNames)) return { item: null, failed: false };
+      return { item: normaliseAtlantDetail(detail, source, inferredGeneration), failed: false };
+    } catch (_) {
+      return { item: null, failed: true };
+    }
+  }));
+  return {
+    items: checked.map((result) => result.item).filter(Boolean),
+    failures: checked.filter((result) => result.failed).length,
+    filtered: true,
+  };
+}
+
 async function searchAtlant(filters, source) {
   const started = performance.now();
   const config = atlantConfig(source);
@@ -1822,36 +1917,31 @@ async function searchAtlant(filters, source) {
   }
 
   const liveRecords = data.items.filter((item) => isLiveAtlantCar(item, config.type));
-  let generationData = null;
-  if (source === 'dealer' && filters.generationName && liveRecords.length) {
-    const detail = await getAtlantRawDetail(liveRecords[0].id, source);
-    const actualGeneration = detail.catalog?.generation;
-    const matches = actualGeneration?.name
-      && taxonomyText(actualGeneration.name) === taxonomyText(filters.generationName);
-    if (!matches) {
-      return atlantEmptyResult(source, started,
-        `Поколение «${filters.generationName}» не подтверждено дилерским каталогом; более широкая выдача не подставлена`,
-        built.publicUrl);
-    }
-    generationData = actualGeneration;
-  }
-
-  const items = liveRecords.map((item) => normaliseAtlantList(item, source, generationData));
-  const booked = liveRecords.filter((item) => item.status?.id === 'BOOKED').length;
+  const generationResult = await filterAtlantGenerations(liveRecords, filters, source);
+  const items = generationResult.items;
+  const booked = items.filter((item) => item.state?.toLowerCase().includes('забронирован')).length;
+  const selectedCount = selectedGenerationNames(filters).length;
   const message = items.length
     ? [
-      'Актуальные автомобили получены из публичного stock-каталога Атлант-М',
+      generationResult.filtered
+        ? `Подтверждены автомобили выбранных поколений (${selectedCount})`
+        : 'Актуальные автомобили получены из публичного stock-каталога Атлант-М',
       booked ? `${booked} из показанных помечено как забронировано` : '',
+      generationResult.failures ? `${generationResult.failures} карточек не удалось проверить` : '',
     ].filter(Boolean).join('. ')
-    : data.total ? 'На этой странице нет карточек с подтверждённой ценой, фотографией и активным статусом'
-      : 'По этим фильтрам автомобилей нет';
+    : generationResult.filtered
+      ? 'На этой странице нет автомобилей выбранных поколений; более широкая выдача не подставлена'
+      : data.total ? 'На этой странице нет карточек с подтверждённой ценой, фотографией и активным статусом'
+        : 'По этим фильтрам автомобилей нет';
   return {
     items,
     status: {
-      source, label: config.label, state: items.length ? 'ok' : 'empty',
-      count: items.length, total: Number(data.total || 0),
+      source, label: config.label,
+      state: items.length ? (generationResult.failures ? 'partial' : 'ok') : 'empty',
+      count: items.length, total: generationResult.filtered ? null : Number(data.total || 0),
       latencyMs: Math.round(performance.now() - started), sourceUrl: built.publicUrl,
       message, provider: 'Атлант-М', catalog: config.catalogLabel,
+      notice: Boolean(generationResult.failures),
     },
   };
 }
