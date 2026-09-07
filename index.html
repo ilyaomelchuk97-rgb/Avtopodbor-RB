@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#080a0d">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -49,7 +49,7 @@
     }
 
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: pan-x pan-y; }
     body {
       margin: 0;
       min-width: 320px;
@@ -60,11 +60,12 @@
       color: var(--text);
       font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       -webkit-font-smoothing: antialiased;
+      touch-action: pan-x pan-y;
       overflow-x: hidden;
     }
     body.modal-open { overflow: hidden; }
     button, input, select { font: inherit; }
-    button, a, label, select { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    button, a, label, input, select { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
     a { color: inherit; text-decoration: none; }
     img { display: block; max-width: 100%; }
     button { color: inherit; }
@@ -220,9 +221,12 @@
     .results-title h2 { margin: 7px 0 0; font-size: clamp(28px, 3vw, 42px); letter-spacing: -.052em; }
     .results-title h2 span { color: var(--muted-2); font-weight: 500; }
     .results-tools { display: flex; align-items: center; gap: 9px; }
-    .results-sort { position: relative; }
-    .results-sort select { height: 42px; padding: 0 36px 0 13px; border: 1px solid var(--line); border-radius: 10px; color: #c6cbd2; background: #0d1014; appearance: none; outline: 0; font-size: 11px; }
-    .results-sort .select-arrow { right: 11px; width: 14px; height: 14px; }
+    .results-sort { position: relative; min-width: 250px; height: 46px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,.3); border-radius: 12px; background: linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,255,255,.025)); box-shadow: 0 0 20px rgba(255,255,255,.04); overflow: hidden; }
+    .sort-icon { width: 17px; height: 17px; margin-left: 13px; color: white; pointer-events: none; }
+    .sort-caption { margin-left: 8px; color: #f2f3f5; font-size: 10px; font-weight: 720; pointer-events: none; }
+    .results-sort select { min-width: 0; height: 100%; flex: 1; padding: 0 36px 0 8px; border: 0; color: #d8dbe0; background: transparent; appearance: none; outline: 0; cursor: pointer; font-size: 11px; }
+    .results-sort:focus-within { border-color: rgba(255,255,255,.72); box-shadow: 0 0 0 2px rgba(255,255,255,.1), 0 0 26px rgba(255,255,255,.08); }
+    .results-sort .select-arrow { right: 11px; width: 14px; height: 14px; pointer-events: none; }
     .source-statuses { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
     .source-status { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.025); color: #abb1ba; font-size: 10px; }
     .source-status__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted-2); }
@@ -236,8 +240,8 @@
     .results-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
 
     /* Listing card */
-    .listing-card { position: relative; min-width: 0; border: 1px solid var(--line); border-radius: var(--radius-lg); background: linear-gradient(155deg, #12161c, #0e1116); overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.16); transition: transform .23s, border-color .23s, box-shadow .23s; }
-    .listing-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.17); box-shadow: 0 20px 45px rgba(0,0,0,.3); }
+    .listing-card { position: relative; min-width: 0; border: 1px solid rgba(255,255,255,.34); border-radius: var(--radius-lg); background: linear-gradient(155deg, #12161c, #0e1116); overflow: hidden; box-shadow: 0 0 0 1px rgba(255,255,255,.035), 0 0 25px rgba(255,255,255,.045), 0 12px 34px rgba(0,0,0,.24); transition: transform .23s, border-color .23s, box-shadow .23s; }
+    .listing-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.78); box-shadow: 0 0 0 1px rgba(255,255,255,.13), 0 0 38px rgba(255,255,255,.12), 0 22px 48px rgba(0,0,0,.34); }
     .listing-card__media { position: relative; height: 310px; overflow: hidden; background: #171b20; cursor: zoom-in; }
     .listing-card__media::after { content: ""; position: absolute; inset: auto 0 0; height: 46%; background: linear-gradient(transparent, rgba(6,8,10,.72)); pointer-events: none; }
     .listing-card__media > img { width: 100%; height: 100%; object-fit: cover; transition: transform .55s ease, opacity .2s; }
@@ -342,15 +346,18 @@
     .footer-bottom { display: flex; justify-content: space-between; gap: 20px; padding-top: 20px; border-top: 1px solid var(--line); color: #555d68; font-size: 9px; }
 
     /* Lightbox and toast */
-    .lightbox { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 35px; background: rgba(3,4,6,.94); backdrop-filter: blur(16px); }
+    .lightbox { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 35px; overflow: hidden; touch-action: none; background: rgba(3,4,6,.94); backdrop-filter: blur(16px); }
     .lightbox.open { display: flex; }
-    .lightbox-image { max-width: min(1200px, 90vw); max-height: 84vh; object-fit: contain; border-radius: 12px; box-shadow: 0 30px 100px black; }
-    .lightbox-close, .lightbox-nav { position: absolute; display: grid; place-items: center; border: 1px solid var(--line-strong); background: rgba(16,19,24,.82); color: white; cursor: pointer; backdrop-filter: blur(9px); }
+    .lightbox-image { max-width: min(1200px, 90vw); max-height: 84vh; object-fit: contain; border-radius: 12px; box-shadow: 0 30px 100px black; cursor: zoom-in; user-select: none; -webkit-user-drag: none; -webkit-touch-callout: none; transform: translate3d(0,0,0) scale(1); transform-origin: center; will-change: transform; }
+    .lightbox-image.zoomed { cursor: grab; }
+    .lightbox-image.dragging { cursor: grabbing; }
+    .lightbox-close, .lightbox-nav, .lightbox-count { touch-action: manipulation; }
+    .lightbox-close, .lightbox-nav { position: absolute; z-index: 4; display: grid; place-items: center; border: 1px solid var(--line-strong); background: rgba(16,19,24,.82); color: white; cursor: pointer; backdrop-filter: blur(9px); }
     .lightbox-close { top: 24px; right: 24px; width: 43px; height: 43px; border-radius: 50%; }
     .lightbox-nav { top: 50%; width: 48px; height: 64px; border-radius: 12px; transform: translateY(-50%); }
     .lightbox-nav--prev { left: 24px; }
     .lightbox-nav--next { right: 24px; }
-    .lightbox-count { position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); padding: 8px 12px; border-radius: 8px; background: rgba(16,19,24,.82); color: #c4c9d0; font-size: 10px; }
+    .lightbox-count { position: absolute; z-index: 4; bottom: 22px; left: 50%; transform: translateX(-50%); padding: 8px 12px; border-radius: 8px; background: rgba(16,19,24,.82); color: #c4c9d0; font-size: 10px; }
     .toast-stack { position: fixed; z-index: 300; right: 20px; bottom: 20px; display: grid; gap: 9px; width: min(360px, calc(100% - 40px)); pointer-events: none; }
     .toast { display: flex; gap: 11px; align-items: flex-start; padding: 14px 15px; border: 1px solid var(--line-strong); border-radius: 12px; background: rgba(18,22,28,.96); box-shadow: 0 18px 50px rgba(0,0,0,.45); color: #d9dce1; font-size: 10px; line-height: 1.45; animation: toastIn .25s ease-out; }
     .toast .icon { width: 17px; height: 17px; color: var(--accent); }
@@ -403,11 +410,12 @@
       .field, .field--wide, .field--half, .search-actions { grid-column: 1; }
       .filter-meta { align-items: flex-start; flex-direction: column; }
       .results-section { padding-top: 21px; }
-      .results-header { gap: 14px; }
+      .results-header { align-items: stretch; flex-direction: column; gap: 14px; }
       .results-title h2 { font-size: 29px; }
-      .results-sort select { width: 46px; padding: 0; font-size: 0; }
-      .results-sort::before { content: "↕"; position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; color: #c6cbd2; font-size: 17px; }
-      .results-sort .select-arrow { display: none; }
+      .results-tools, .results-sort { width: 100%; }
+      .results-sort { min-width: 0; }
+      .results-sort select { width: auto; min-width: 0; font-size: 16px; }
+      .results-sort .select-arrow { display: block; }
       .listing-card__media, .skeleton-media { height: 235px; }
       .listing-card__body { padding: 18px 16px 17px; }
       .listing-head { grid-template-columns: 1fr; gap: 10px; }
@@ -423,9 +431,9 @@
       .footer-top, .footer-bottom { flex-direction: column; }
       .footer-links { flex-wrap: wrap; }
       .lightbox { padding: 14px; }
-      .lightbox-nav { top: auto; bottom: 20px; width: 44px; height: 44px; border-radius: 50%; transform: none; }
-      .lightbox-nav--prev { left: 20px; }
-      .lightbox-nav--next { right: 20px; }
+      .lightbox-nav { top: 50%; bottom: auto; width: 44px; height: 52px; border-radius: 12px; transform: translateY(-50%); }
+      .lightbox-nav--prev { left: 14px; }
+      .lightbox-nav--next { right: 14px; }
     }
     /* iPhone 13 mini and other compact 375–430 px screens */
     @media (max-width: 430px) {
@@ -473,13 +481,13 @@
       .generation-track { grid-auto-columns: 164px; }
 
       .results-section { padding-top: 24px; padding-bottom: 74px; }
-      .results-header { align-items: center; gap: 10px; margin-bottom: 18px; }
-      .results-title { min-width: 0; flex: 1; }
+      .results-header { align-items: stretch; gap: 11px; margin-bottom: 18px; }
+      .results-title { min-width: 0; width: 100%; }
       .results-title h2 { font-size: 27px; line-height: 1.05; }
-      .results-tools { flex: 0 0 auto; }
+      .results-tools { width: 100%; flex: 0 0 auto; }
       input, select, textarea { font-size: 16px; }
-      .results-sort { width: 46px; flex: 0 0 46px; overflow: hidden; border-radius: 10px; }
-      .results-sort select { width: 46px; max-width: 46px; height: 46px; font-size: 16px; color: transparent; }
+      .results-sort { width: 100%; min-width: 0; flex: 1 1 auto; overflow: hidden; border-radius: 11px; }
+      .results-sort select { width: auto; max-width: none; height: 46px; font-size: 16px; color: #d8dbe0; }
       .results-sort select option { color: #c6cbd2; }
       .source-statuses { gap: 7px; margin-bottom: 16px; }
       .source-status { max-width: 100%; min-height: 44px; flex-wrap: wrap; padding: 9px 11px; font-size: 11px; overflow-wrap: anywhere; }
@@ -533,9 +541,9 @@
       .lightbox { min-height: 100dvh; padding: calc(64px + var(--safe-top)) calc(10px + var(--safe-right)) calc(82px + var(--safe-bottom)) calc(10px + var(--safe-left)); }
       .lightbox-image { max-width: 100%; max-height: calc(100dvh - 164px - var(--safe-top) - var(--safe-bottom)); }
       .lightbox-close { top: calc(10px + var(--safe-top)); right: calc(10px + var(--safe-right)); width: 44px; height: 44px; }
-      .lightbox-nav { bottom: calc(12px + var(--safe-bottom)); }
-      .lightbox-nav--prev { left: calc(12px + var(--safe-left)); }
-      .lightbox-nav--next { right: calc(12px + var(--safe-right)); }
+      .lightbox-nav { top: 50%; bottom: auto; transform: translateY(-50%); }
+      .lightbox-nav--prev { left: calc(10px + var(--safe-left)); }
+      .lightbox-nav--next { right: calc(10px + var(--safe-right)); }
       .lightbox-count { bottom: calc(70px + var(--safe-bottom)); }
       .toast-stack { left: calc(10px + var(--safe-left)); right: calc(10px + var(--safe-right)); bottom: calc(10px + var(--safe-bottom)); width: auto; }
       .toast { font-size: 12px; }
@@ -678,6 +686,10 @@
       }
     }
 
+    @media (max-width: 430px) {
+      body.mobile-results-mode .results-section { padding-top: 74px; }
+    }
+
     @media (max-height: 430px) and (orientation: landscape) {
       :root { --mobile-header-height: 58px; }
       .search-section { padding-top: calc(var(--mobile-header-height) + var(--safe-top) + 6px); }
@@ -703,6 +715,7 @@
     <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="2.5"/></symbol>
     <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 13v6H5V6h6"/></symbol>
     <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10m4 0h2M4 17h2m4 0h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></symbol>
+    <symbol id="i-sort" viewBox="0 0 24 24"><path d="M8 4v16m0 0-4-4m4 4 4-4M16 20V4m0 0-4 4m4-4 4 4"/></symbol>
     <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.2"/></symbol>
     <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 9v5m0 3v.2"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
@@ -765,8 +778,8 @@
               <label class="source-toggle" style="--source-color:var(--onliner)"><input type="checkbox" name="source" value="onliner" checked><span data-short="Onlíner">Onlíner</span></label>
               <label class="source-toggle" style="--source-color:var(--kufar)"><input type="checkbox" name="source" value="kufar" checked><span data-short="Kufar">Kufar</span></label>
               <label class="source-toggle" style="--source-color:var(--av)"><input type="checkbox" name="source" value="av" checked><span data-short="AV.BY">AV.BY <b class="beta">LIVE</b></span></label>
-              <label class="source-toggle" style="--source-color:var(--dealer)" title="Новые автомобили официальных дилеров Атлант-М"><input type="checkbox" name="source" value="dealer" checked><span data-short="Дилеры">Дилеры <b class="beta">LIVE</b></span></label>
-              <label class="source-toggle" style="--source-color:var(--autohouse)" title="Автомобили с пробегом из автохауса Атлант-М"><input type="checkbox" name="source" value="autohouse" checked><span data-short="Авто">Автохаусы <b class="beta">LIVE</b></span></label>
+              <label class="source-toggle" style="--source-color:var(--dealer)" title="Новые автомобили Атлант-М и компаний AV.BY по всей Беларуси"><input type="checkbox" name="source" value="dealer" checked><span data-short="Дилеры">Дилеры <b class="beta">LIVE</b></span></label>
+              <label class="source-toggle" style="--source-color:var(--autohouse)" title="Автомобили с пробегом Атлант-М и компаний AV.BY по всей Беларуси"><input type="checkbox" name="source" value="autohouse" checked><span data-short="Авто">Автохаусы <b class="beta">LIVE</b></span></label>
             </div>
 
             <div class="form-grid-shell">
@@ -894,9 +907,11 @@
           </div>
           <div class="results-tools">
             <div class="results-sort">
-              <label class="sr-only" for="sortSelect">Сортировка</label>
-              <select id="sortSelect"><option value="fresh">Сначала свежие</option><option value="priceAsc">Сначала дешевле</option><option value="priceDesc">Сначала дороже</option><option value="yearDesc">Сначала новее</option><option value="mileageAsc">Меньше пробег</option></select>
-              <svg class="icon select-arrow"><use href="#i-chevron"></use></svg>
+              <svg class="icon sort-icon" aria-hidden="true"><use href="#i-sort"></use></svg>
+              <span class="sort-caption">Сортировка</span>
+              <label class="sr-only" for="sortSelect">Сортировка объявлений</label>
+              <select id="sortSelect" aria-label="Сортировка объявлений"><option value="fresh">Сначала свежие</option><option value="yearDesc">Год: сначала новые</option><option value="yearAsc">Год: сначала старые</option><option value="priceAsc">Цена: сначала дешевле</option><option value="priceDesc">Цена: сначала дороже</option><option value="mileageAsc">Пробег: сначала меньше</option><option value="mileageDesc">Пробег: сначала больше</option></select>
+              <svg class="icon select-arrow" aria-hidden="true"><use href="#i-chevron"></use></svg>
             </div>
           </div>
         </div>
@@ -949,6 +964,11 @@
       lastParams: null, favorites: new Set(), detailQueue: [], detailActive: 0,
       detailQueued: new Set(), observer: null,
       lightbox: { id: null, index: 0 },
+    };
+    const lightboxZoom = {
+      scale: 1, x: 0, y: 0, startScale: 1, startX: 0, startY: 0,
+      startDistance: 0, startCenterX: 0, startCenterY: 0,
+      pointerX: 0, pointerY: 0, dragging: false, pointers: new Map(),
     };
 
     const els = {
@@ -1078,7 +1098,7 @@
       if (from !== null) params.set(`${name}[min]`, String(from));
       if (to !== null) params.set(`${name}[max]`, String(to));
     }
-    async function buildAvBrowserRequest(filters) {
+    async function buildAvBrowserRequest(filters, { condition = null, sellerType = null } = {}) {
       const taxonomy = {};
       const brandName = filters.get('brandName');
       const modelName = filters.get('modelName');
@@ -1136,7 +1156,9 @@
       avBrowserSetRange(query, 'year', yearFrom, yearTo);
       avBrowserSetRange(query, 'mileage_km', null, mileageTo);
       const mode = filters.get('mode') || 'all';
-      if (mode === 'owned' || mode === 'new') avBrowserSetArray(query, 'condition', AV_BROWSER_ENUMS.state[mode]);
+      if (condition?.length) avBrowserSetArray(query, 'condition', condition);
+      else if (mode === 'owned' || mode === 'new') avBrowserSetArray(query, 'condition', AV_BROWSER_ENUMS.state[mode]);
+      if (sellerType?.length) avBrowserSetArray(query, 'seller_type', sellerType);
       const body = filters.get('body'), fuel = filters.get('fuel'), transmission = filters.get('transmission'), drivetrain = filters.get('drivetrain');
       if (body) avBrowserSetArray(query, 'body_type', AV_BROWSER_ENUMS.body[body]);
       if (mode === 'electric') avBrowserSetArray(query, 'engine_type', AV_BROWSER_ENUMS.fuel.electric);
@@ -1215,6 +1237,38 @@
         .filter(item => item.images.length && item.priceByn !== null).slice(0, limit);
       return { items, status: { source: 'av', label: 'AV.BY', state: items.length ? (built.taxonomy.warning ? 'partial' : 'ok') : 'empty', count: items.length, total: avBrowserNumber(data.count) || 0, latencyMs: Math.round(performance.now() - started), sourceUrl: built.publicUrl, message: [items.length ? 'Живые объявления получены браузером напрямую с AV.BY' : 'По этим фильтрам объявлений AV.BY нет', built.taxonomy.warning].filter(Boolean).join('. '), transport: 'browser-direct' } };
     }
+    function avBusinessEmpty(source, started, message) {
+      return { items: [], status: { source, label: source === 'dealer' ? 'Дилеры' : 'Автохаусы', state: 'empty', count: 0, total: 0, latencyMs: Math.round(performance.now() - started), sourceUrl: 'https://cars.av.by/filter', message, transport: 'browser-direct', provider: 'Компании AV.BY по Беларуси' } };
+    }
+    async function searchAvBusinessBrowser(filters, source) {
+      const started = performance.now();
+      const mode = filters.get('mode') || 'all';
+      if (source === 'dealer' && mode === 'owned') return avBusinessEmpty(source, started, 'В разделе дилеров показываются новые автомобили');
+      if (source === 'autohouse' && mode === 'new') return avBusinessEmpty(source, started, 'В разделе автохаусов показываются автомобили с пробегом');
+      const condition = source === 'dealer' ? [5] : [2];
+      const built = await buildAvBrowserRequest(filters, { condition, sellerType: [2] });
+      if (built.unmapped) return avBusinessEmpty(source, started, `${built.unmapped}; неподходящие объявления не подставлены`);
+      const data = await avBrowserJson(built.resource, { cache: false });
+      if (!Array.isArray(data?.adverts)) throw new Error('AV.BY изменил формат каталога компаний');
+      const generationMap = new Map((built.taxonomy.generations || []).map(item => [String(item.value), item.raw]));
+      const limit = Math.max(4, Math.min(16, Number(filters.get('limit') || 8)));
+      const items = data.adverts.filter(ad => ad.organizationId).map(ad => {
+        const item = normaliseAvBrowser(ad, { generationData: generationMap.get(String(ad.metadata?.generationId)) || null });
+        const organization = avBrowserText(ad.organizationTitle) || (source === 'dealer' ? 'Автосалон' : 'Автохаус');
+        return {
+          ...item,
+          source,
+          sourceLabel: `${source === 'dealer' ? 'Дилер' : 'Автохаус'} · ${organization}`,
+          sourceCatalog: `${source === 'dealer' ? 'Новые автомобили компаний' : 'Автомобили с пробегом компаний'} AV.BY по Беларуси`,
+          provider: organization,
+          marketplace: 'AV.BY',
+          descriptionLabel: source === 'dealer' ? 'Описание дилера' : 'Комментарий автохауса',
+          seller: { ...item.seller, type: source === 'dealer' ? 'dealer' : 'autohaus', name: organization },
+        };
+      }).filter(item => item.images.length && item.priceByn !== null).slice(0, limit);
+      const label = source === 'dealer' ? 'Дилеры' : 'Автохаусы';
+      return { items, status: { source, label, state: items.length ? (built.taxonomy.warning ? 'partial' : 'ok') : 'empty', count: items.length, total: avBrowserNumber(data.count) || 0, latencyMs: Math.round(performance.now() - started), sourceUrl: built.publicUrl, message: [items.length ? `${label} и автосалоны со всей Беларуси получены из каталога компаний AV.BY` : `У компаний AV.BY нет автомобилей по этим фильтрам`, built.taxonomy.warning].filter(Boolean).join('. '), transport: 'browser-direct', provider: 'Компании AV.BY по Беларуси' } };
+    }
     async function avBrowserDetail(id) {
       const data = await avBrowserJson(`offers/${encodeURIComponent(id)}`);
       if (!data?.id) throw new Error('AV.BY изменил формат карточки');
@@ -1281,7 +1335,7 @@
       if (collapsed) els.mobileSummary.textContent = mobileSummaryText();
       if (scrollToResults) {
         clearTimeout(mobileScrollTimer);
-        mobileScrollTimer = setTimeout(() => $('#results').scrollIntoView({ behavior: 'smooth', block: 'start' }), 430);
+        mobileScrollTimer = setTimeout(() => $('#results').scrollIntoView({ behavior: 'smooth', block: 'start' }), 680);
       }
     }
 
@@ -1491,15 +1545,53 @@
       const urls = { onliner: 'https://ab.onliner.by/', kufar: 'https://auto.kufar.by/l/cars', av: 'https://cars.av.by/filter', dealer: 'https://atlantm.by/cars/new', autohouse: 'https://atlantm.by/cars/amp' };
       return { source, label: labels[source] || source, state: 'error', count: 0, total: null, latencyMs: 0, sourceUrl: urls[source], message };
     }
+    function interleaveProviderItems(primary, secondary, limit) {
+      const result = [], seen = new Set();
+      const lists = [primary || [], secondary || []];
+      for (let index = 0; result.length < limit && lists.some(list => index < list.length); index++) {
+        for (const list of lists) {
+          const item = list[index];
+          if (!item?.id || seen.has(item.id)) continue;
+          seen.add(item.id); result.push(item);
+          if (result.length >= limit) break;
+        }
+      }
+      return result;
+    }
+    function combineProviderStatus(source, primary, secondary, count) {
+      if (!primary) return secondary ? { ...secondary, count } : clientSourceFailure(source, 'Источник временно не ответил');
+      if (!secondary) return { ...primary, count };
+      const failed = [primary, secondary].some(status => ['error', 'blocked'].includes(status.state));
+      const successful = [primary, secondary].some(status => ['ok', 'partial'].includes(status.state));
+      const state = count ? (failed ? 'partial' : 'ok') : failed ? (successful ? 'partial' : 'error') : 'empty';
+      const totals = [primary.total, secondary.total].filter(Number.isFinite);
+      return {
+        ...primary,
+        state,
+        count,
+        total: totals.length ? totals.reduce((sum, value) => sum + value, 0) : null,
+        latencyMs: Math.max(Number(primary.latencyMs || 0), Number(secondary.latencyMs || 0)),
+        sourceUrl: secondary.sourceUrl || primary.sourceUrl,
+        message: [primary.message, secondary.message].filter(Boolean).join('. '),
+        provider: 'Атлант-М + компании AV.BY по Беларуси',
+        notice: failed,
+      };
+    }
     async function searchWithBrowserAv(params) {
       const sources = params.getAll('source');
       const wantsAv = sources.includes('av');
+      const wantsDealer = sources.includes('dealer');
+      const wantsAutohouse = sources.includes('autohouse');
       const serverSources = sources.filter(source => source !== 'av');
       const serverPromise = serverSources.length
         ? api(`/api/search?${paramsForSources(params, serverSources)}`)
         : Promise.resolve({ live: true, mock: false, items: [], sourceStatus: [], fetchedAt: new Date().toISOString() });
       const avPromise = wantsAv ? searchAvBrowser(params) : Promise.resolve(null);
-      const [serverOutcome, avOutcome] = await Promise.allSettled([serverPromise, avPromise]);
+      const dealerPromise = wantsDealer ? searchAvBusinessBrowser(params, 'dealer') : Promise.resolve(null);
+      const autohousePromise = wantsAutohouse ? searchAvBusinessBrowser(params, 'autohouse') : Promise.resolve(null);
+      const [serverOutcome, avOutcome, dealerOutcome, autohouseOutcome] = await Promise.allSettled([
+        serverPromise, avPromise, dealerPromise, autohousePromise,
+      ]);
 
       const serverData = serverOutcome.status === 'fulfilled' ? serverOutcome.value : {
         live: true, mock: false, items: [],
@@ -1524,13 +1616,39 @@
         }
       }
 
+      const businessFailure = (source) => ({
+        items: [], status: clientSourceFailure(source, 'Дополнительный каталог компаний AV.BY по Беларуси временно не ответил'),
+      });
+      const dealerResult = wantsDealer
+        ? dealerOutcome.status === 'fulfilled' ? dealerOutcome.value : businessFailure('dealer')
+        : null;
+      const autohouseResult = wantsAutohouse
+        ? autohouseOutcome.status === 'fulfilled' ? autohouseOutcome.value : businessFailure('autohouse')
+        : null;
+      const limit = Math.max(4, Math.min(16, Number(params.get('limit') || 8)));
+      const serverItems = serverData.items || [];
+      const dealerItems = wantsDealer ? interleaveProviderItems(
+        serverItems.filter(item => item.source === 'dealer'), dealerResult?.items, limit,
+      ) : [];
+      const autohouseItems = wantsAutohouse ? interleaveProviderItems(
+        serverItems.filter(item => item.source === 'autohouse'), autohouseResult?.items, limit,
+      ) : [];
+      const ordinaryItems = serverItems.filter(item => !['dealer', 'autohouse'].includes(item.source));
+
+      // Give the dedicated company categories first claim on duplicate AV.BY IDs.
+      // If the general AV.BY source is enabled too, the same advert is still shown once.
       const seen = new Set(), items = [];
-      for (const item of [...(serverData.items || []), ...(avResult?.items || [])]) {
+      for (const item of [...dealerItems, ...autohouseItems, ...ordinaryItems, ...(avResult?.items || [])]) {
         if (!item?.id || seen.has(item.id)) continue;
         seen.add(item.id); items.push(item);
       }
-      const statuses = [...(serverData.sourceStatus || []), ...(avResult ? [avResult.status] : [])]
-        .sort((a, b) => sources.indexOf(a.source) - sources.indexOf(b.source));
+
+      const primaryStatuses = new Map((serverData.sourceStatus || []).map(status => [status.source, status]));
+      const statuses = (serverData.sourceStatus || []).filter(status => !['dealer', 'autohouse'].includes(status.source));
+      if (wantsDealer) statuses.push(combineProviderStatus('dealer', primaryStatuses.get('dealer'), dealerResult?.status, dealerItems.length));
+      if (wantsAutohouse) statuses.push(combineProviderStatus('autohouse', primaryStatuses.get('autohouse'), autohouseResult?.status, autohouseItems.length));
+      if (avResult) statuses.push(avResult.status);
+      statuses.sort((a, b) => sources.indexOf(a.source) - sources.indexOf(b.source));
       return { live: true, mock: false, items, sourceStatus: statuses, fetchedAt: serverData.fetchedAt || new Date().toISOString() };
     }
 
@@ -1599,7 +1717,9 @@
         if (value === 'priceAsc') return number(a, 'priceByn', Infinity) - number(b, 'priceByn', Infinity);
         if (value === 'priceDesc') return number(b, 'priceByn', -Infinity) - number(a, 'priceByn', -Infinity);
         if (value === 'yearDesc') return number(b, 'year', -Infinity) - number(a, 'year', -Infinity);
+        if (value === 'yearAsc') return number(a, 'year', Infinity) - number(b, 'year', Infinity);
         if (value === 'mileageAsc') return number(a, 'mileage', Infinity) - number(b, 'mileage', Infinity);
+        if (value === 'mileageDesc') return number(b, 'mileage', -Infinity) - number(a, 'mileage', -Infinity);
         return (Date.parse(b?.updatedAt || b?.createdAt || 0) || 0) - (Date.parse(a?.updatedAt || a?.createdAt || 0) || 0);
       });
       return ids;
@@ -1638,7 +1758,7 @@
       const comment = item.descriptionLoaded
         ? `<p class="seller-comment__text">${escapeHTML(item.description || 'Описание не добавлено продавцом.')}</p><button class="comment-more" type="button" data-action="comment-toggle">Показать полностью</button>`
         : `<div class="detail-loading"><span class="mini-spinner"></span><span>Загружаем данные источника…</span></div>`;
-      return `<article class="listing-card" data-id="${escapeHTML(item.id)}" data-source="${escapeHTML(item.source)}" data-detail-loaded="${item.detailLoaded === true ? '1' : '0'}" data-auto-detail="${item.source === 'av' ? '0' : '1'}">
+      return `<article class="listing-card" data-id="${escapeHTML(item.id)}" data-source="${escapeHTML(item.source)}" data-detail-loaded="${item.detailLoaded === true ? '1' : '0'}" data-auto-detail="${item.source === 'av' || item.marketplace === 'AV.BY' ? '0' : '1'}">
         <div class="listing-card__media" data-action="open-gallery" data-index="0">
           <img src="${mediaUrl(images[0])}" alt="${escapeHTML(item.title)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'">
           <span class="source-badge source-badge--${sourceClass(item)}">${escapeHTML(item.sourceLabel)}</span>
@@ -1737,7 +1857,16 @@
           detailItem = data.item;
         }
         const previous = state.items.get(id) || {};
-        const merged = { ...previous, ...detailItem, id };
+        const categoryIdentity = ['dealer', 'autohouse'].includes(previous.source) ? {
+          source: previous.source,
+          sourceLabel: previous.sourceLabel,
+          sourceCatalog: previous.sourceCatalog,
+          provider: previous.provider,
+          marketplace: previous.marketplace,
+          descriptionLabel: previous.descriptionLabel,
+          seller: { ...detailItem.seller, ...previous.seller },
+        } : {};
+        const merged = { ...previous, ...detailItem, ...categoryIdentity, id };
         state.items.set(id, merged);
         updateCardDetail(merged);
       } catch (error) {
@@ -1800,16 +1929,52 @@
       const current = $('[data-photo-current]', card); if (current) current.textContent = String(index + 1);
     }
 
+    function applyLightboxZoom() {
+      const image = els.lightboxImage;
+      const maxX = Math.max(0, image.clientWidth * (lightboxZoom.scale - 1) / 2);
+      const maxY = Math.max(0, image.clientHeight * (lightboxZoom.scale - 1) / 2);
+      lightboxZoom.x = Math.max(-maxX, Math.min(maxX, lightboxZoom.x));
+      lightboxZoom.y = Math.max(-maxY, Math.min(maxY, lightboxZoom.y));
+      if (lightboxZoom.scale <= 1.001) { lightboxZoom.scale = 1; lightboxZoom.x = 0; lightboxZoom.y = 0; }
+      image.style.transform = `translate3d(${lightboxZoom.x}px,${lightboxZoom.y}px,0) scale(${lightboxZoom.scale})`;
+      image.classList.toggle('zoomed', lightboxZoom.scale > 1.001);
+      image.classList.toggle('dragging', lightboxZoom.dragging);
+    }
+    function setLightboxZoom(scale, centerX = 0, centerY = 0) {
+      const previous = lightboxZoom.scale;
+      lightboxZoom.scale = Math.max(1, Math.min(5, scale));
+      if (previous > 0 && lightboxZoom.scale !== previous) {
+        const rect = els.lightboxImage.getBoundingClientRect();
+        const offsetX = centerX ? centerX - (rect.left + rect.width / 2) : 0;
+        const offsetY = centerY ? centerY - (rect.top + rect.height / 2) : 0;
+        const ratio = lightboxZoom.scale / previous;
+        lightboxZoom.x = lightboxZoom.x * ratio - offsetX * (ratio - 1);
+        lightboxZoom.y = lightboxZoom.y * ratio - offsetY * (ratio - 1);
+      }
+      applyLightboxZoom();
+    }
+    function resetLightboxZoom() {
+      lightboxZoom.scale = 1; lightboxZoom.x = 0; lightboxZoom.y = 0;
+      lightboxZoom.dragging = false; lightboxZoom.pointers.clear();
+      applyLightboxZoom();
+    }
+    function zoomPointerDistance(points) {
+      return Math.hypot(points[0].clientX - points[1].clientX, points[0].clientY - points[1].clientY);
+    }
+    function zoomPointerCenter(points) {
+      return { x: (points[0].clientX + points[1].clientX) / 2, y: (points[0].clientY + points[1].clientY) / 2 };
+    }
     function openLightbox(id, index = 0) {
       const item = state.items.get(id); if (!item?.images?.length) return;
       state.lightbox = { id, index: Math.max(0, Math.min(index, item.images.length - 1)) };
-      renderLightbox(); els.lightbox.classList.add('open'); document.body.classList.add('modal-open');
+      resetLightboxZoom(); renderLightbox(); els.lightbox.classList.add('open'); document.body.classList.add('modal-open');
       $('.lightbox-close', els.lightbox)?.focus();
     }
-    function closeLightbox() { els.lightbox.classList.remove('open'); document.body.classList.remove('modal-open'); }
+    function closeLightbox() { resetLightboxZoom(); els.lightbox.classList.remove('open'); document.body.classList.remove('modal-open'); }
     function stepLightbox(direction) {
       const item = state.items.get(state.lightbox.id); if (!item?.images?.length) return;
-      state.lightbox.index = (state.lightbox.index + direction + item.images.length) % item.images.length; renderLightbox();
+      state.lightbox.index = (state.lightbox.index + direction + item.images.length) % item.images.length;
+      resetLightboxZoom(); renderLightbox();
     }
     function renderLightbox() {
       const item = state.items.get(state.lightbox.id); if (!item) return;
@@ -1921,7 +2086,70 @@
       if (action === 'prev') stepLightbox(-1);
       if (action === 'next') stepLightbox(1);
     });
+    els.lightboxImage.addEventListener('dblclick', event => {
+      event.preventDefault();
+      setLightboxZoom(lightboxZoom.scale > 1 ? 1 : 2.5, event.clientX, event.clientY);
+    });
+    els.lightboxImage.addEventListener('wheel', event => {
+      event.preventDefault();
+      setLightboxZoom(lightboxZoom.scale * (event.deltaY < 0 ? 1.16 : .86), event.clientX, event.clientY);
+    }, { passive: false });
+    els.lightboxImage.addEventListener('pointerdown', event => {
+      event.preventDefault();
+      try { els.lightboxImage.setPointerCapture?.(event.pointerId); } catch (_) {}
+      lightboxZoom.pointers.set(event.pointerId, event);
+      const points = [...lightboxZoom.pointers.values()];
+      if (points.length === 2) {
+        lightboxZoom.startDistance = zoomPointerDistance(points);
+        const center = zoomPointerCenter(points);
+        lightboxZoom.startCenterX = center.x; lightboxZoom.startCenterY = center.y;
+        lightboxZoom.startScale = lightboxZoom.scale; lightboxZoom.startX = lightboxZoom.x; lightboxZoom.startY = lightboxZoom.y;
+      } else if (points.length === 1 && lightboxZoom.scale > 1) {
+        lightboxZoom.dragging = true; lightboxZoom.pointerX = event.clientX; lightboxZoom.pointerY = event.clientY;
+        lightboxZoom.startX = lightboxZoom.x; lightboxZoom.startY = lightboxZoom.y; applyLightboxZoom();
+      }
+    });
+    els.lightboxImage.addEventListener('pointermove', event => {
+      if (!lightboxZoom.pointers.has(event.pointerId)) return;
+      lightboxZoom.pointers.set(event.pointerId, event);
+      const points = [...lightboxZoom.pointers.values()];
+      if (points.length >= 2 && lightboxZoom.startDistance) {
+        const center = zoomPointerCenter(points);
+        lightboxZoom.scale = Math.max(1, Math.min(5, lightboxZoom.startScale * zoomPointerDistance(points) / lightboxZoom.startDistance));
+        lightboxZoom.x = lightboxZoom.startX + center.x - lightboxZoom.startCenterX;
+        lightboxZoom.y = lightboxZoom.startY + center.y - lightboxZoom.startCenterY;
+        applyLightboxZoom();
+      } else if (points.length === 1 && lightboxZoom.dragging) {
+        lightboxZoom.x = lightboxZoom.startX + event.clientX - lightboxZoom.pointerX;
+        lightboxZoom.y = lightboxZoom.startY + event.clientY - lightboxZoom.pointerY;
+        applyLightboxZoom();
+      }
+    });
+    const finishZoomPointer = event => {
+      lightboxZoom.pointers.delete(event.pointerId);
+      if (!lightboxZoom.pointers.size) { lightboxZoom.dragging = false; applyLightboxZoom(); }
+      else {
+        const point = [...lightboxZoom.pointers.values()][0];
+        lightboxZoom.pointerX = point.clientX; lightboxZoom.pointerY = point.clientY;
+        lightboxZoom.startX = lightboxZoom.x; lightboxZoom.startY = lightboxZoom.y;
+        lightboxZoom.dragging = lightboxZoom.scale > 1;
+      }
+    };
+    els.lightboxImage.addEventListener('pointerup', finishZoomPointer);
+    els.lightboxImage.addEventListener('pointercancel', finishZoomPointer);
+    document.addEventListener('gesturestart', event => event.preventDefault(), { passive: false });
+    document.addEventListener('gesturechange', event => event.preventDefault(), { passive: false });
+    document.addEventListener('wheel', event => { if (event.ctrlKey) event.preventDefault(); }, { passive: false });
     document.addEventListener('keydown', event => {
+      const zoomKey = (event.ctrlKey || event.metaKey) && ['+', '=', '-', '0'].includes(event.key);
+      if (zoomKey) {
+        event.preventDefault();
+        if (els.lightbox.classList.contains('open')) {
+          if (event.key === '0') setLightboxZoom(1);
+          else setLightboxZoom(lightboxZoom.scale * (event.key === '-' ? .8 : 1.25));
+        }
+        return;
+      }
       if (!els.lightbox.classList.contains('open')) return;
       if (event.key === 'Escape') closeLightbox();
       if (event.key === 'ArrowLeft') stepLightbox(-1);
@@ -1936,7 +2164,7 @@
       await loadBrands();
       if (location.search) {
         await restoreUrlFilters();
-        if (mobileFilterMedia.matches) enterMobileResultsMode({ scroll: false });
+        if (mobileFilterMedia.matches) enterMobileResultsMode({ scroll: true });
         await runSearch({ scroll: false });
         return;
       }
@@ -1947,5 +2175,5 @@
       await runSearch({ scroll: false });
     })();
   </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3742eef4e58a116',t:'MTc4ODc2ODA2Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
