@@ -15,7 +15,7 @@ const { performance } = require('node:perf_hooks');
 
 const PORT = Number(process.env.PORT || 8080);
 const ROOT = __dirname;
-const APP_VERSION = '1.3.5';
+const APP_VERSION = '1.3.6';
 const USER_AGENT = process.env.SOURCE_USER_AGENT ||
   `MotorBY-Aggregator/${APP_VERSION} (+https://render.com; low-rate cached public catalogue reader)`;
 const SEARCH_TTL = clampInt(process.env.SEARCH_CACHE_TTL, 30, 900, 180);
@@ -2261,6 +2261,12 @@ const server = http.createServer(async (req, res) => {
           atlantM: {
             dealerCatalog: 'new', autohouseCatalog: 'amp',
             api: 'public-keyless-stock',
+          },
+          businessCatalogs: {
+            coverage: 'Belarus',
+            dealerProviders: ['atlant-m-stock', 'av-by-companies-new'],
+            autohouseProviders: ['atlant-m-used-stock', 'av-by-companies-used'],
+            delivery: 'server-plus-browser-direct',
           },
           av: {
             transport: avRuntime.transport,
