@@ -15,7 +15,7 @@ const { performance } = require('node:perf_hooks');
 
 const PORT = Number(process.env.PORT || 8080);
 const ROOT = __dirname;
-const APP_VERSION = '1.2.2';
+const APP_VERSION = '1.3.1';
 const USER_AGENT = process.env.SOURCE_USER_AGENT ||
   `MotorBY-Aggregator/${APP_VERSION} (+https://render.com; low-rate cached public catalogue reader)`;
 const SEARCH_TTL = clampInt(process.env.SEARCH_CACHE_TTL, 30, 900, 180);
