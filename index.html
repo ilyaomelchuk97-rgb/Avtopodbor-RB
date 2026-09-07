@@ -98,13 +98,6 @@
     .nav-links { display: flex; align-items: center; gap: 30px; color: #c4c8cf; font-size: 14px; }
     .nav-links a { transition: color .2s; }
     .nav-links a:hover { color: white; }
-    .nav-live {
-      display: inline-flex; align-items: center; gap: 8px; padding: 9px 13px;
-      border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.035);
-      font-size: 12px; color: #d3d6db; white-space: nowrap;
-    }
-    .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(94,229,154,.5); animation: pulse 2.1s infinite; }
-    @keyframes pulse { 70% { box-shadow: 0 0 0 8px rgba(94,229,154,0); } 100% { box-shadow: 0 0 0 0 rgba(94,229,154,0); } }
 
     /* Hero */
     .hero {
@@ -129,14 +122,6 @@
     .hero h1 { margin: 24px 0 20px; font-size: clamp(54px, 6vw, 92px); line-height: .93; letter-spacing: -.065em; font-weight: 820; max-width: 850px; }
     .hero h1 .outline { color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.53); }
     .hero-lead { max-width: 615px; margin: 0; color: #c6cad0; font-size: clamp(17px, 1.5vw, 21px); line-height: 1.55; }
-    .hero-points { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
-    .hero-point { display: inline-flex; align-items: center; gap: 9px; padding: 10px 13px; border-radius: 999px; border: 1px solid rgba(255,255,255,.13); background: rgba(8,10,13,.47); backdrop-filter: blur(10px); font-size: 12px; color: #d9dce1; }
-    .hero-point .icon { width: 16px; height: 16px; color: var(--accent); }
-    .hero-stats { display: flex; align-items: stretch; gap: 0; margin-top: 42px; width: fit-content; border: 1px solid var(--line); border-radius: 16px; background: rgba(8,10,13,.55); backdrop-filter: blur(12px); overflow: hidden; }
-    .hero-stat { min-width: 125px; padding: 15px 20px; }
-    .hero-stat + .hero-stat { border-left: 1px solid var(--line); }
-    .hero-stat strong { display: block; font-size: 22px; letter-spacing: -.04em; }
-    .hero-stat span { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
     .hero-scroll { position: absolute; right: 30px; bottom: 80px; writing-mode: vertical-rl; display: flex; align-items: center; gap: 13px; color: #818892; text-transform: uppercase; letter-spacing: .2em; font-size: 9px; }
     .hero-scroll::after { content: ""; width: 1px; height: 54px; background: linear-gradient(var(--accent), transparent); }
 
@@ -148,6 +133,7 @@
       box-shadow: var(--shadow); overflow: hidden;
     }
     .search-panel::before { content: ""; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(215,255,67,.55), transparent); }
+    .mobile-filter-bar { display: none; }
     .search-head { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 27px 30px 21px; border-bottom: 1px solid var(--line); }
     .search-head h2 { margin: 0; font-size: 21px; letter-spacing: -.035em; }
     .search-head p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
@@ -203,7 +189,7 @@
     .filter-meta__truth .icon { width: 14px; height: 14px; color: var(--green); }
 
     /* Generation cards */
-    .generation-picker { display: none; padding: 0 30px 28px; }
+    .generation-picker { display: none; grid-column: 1 / -1; min-width: 0; padding: 5px 0 2px; }
     .generation-picker.visible { display: block; }
     .generation-head { display: flex; align-items: end; justify-content: space-between; margin-bottom: 12px; }
     .generation-head h3 { margin: 0; font-size: 13px; letter-spacing: -.01em; }
@@ -343,26 +329,6 @@
     .load-more:hover { border-color: rgba(215,255,67,.45); color: var(--accent); transform: translateY(-2px); }
     .load-more:disabled { opacity: .5; cursor: wait; transform: none; }
 
-    /* How it works */
-    .trust-section { padding: 85px 0; border-top: 1px solid var(--line); background: #0a0d11; }
-    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 30px; }
-    .section-heading h2 { margin: 7px 0 0; font-size: clamp(30px, 4vw, 48px); letter-spacing: -.055em; }
-    .section-heading p { max-width: 515px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
-    .trust-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-    .trust-card { min-height: 205px; padding: 23px; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(145deg, #12161b, #0d1014); }
-    .trust-card__num { color: var(--accent); font-size: 10px; letter-spacing: .12em; }
-    .trust-card__icon { width: 40px; height: 40px; display: grid; place-items: center; margin: 28px 0 19px; border-radius: 11px; color: var(--accent); background: var(--accent-soft); }
-    .trust-card h3 { margin: 0; font-size: 14px; }
-    .trust-card p { margin: 8px 0 0; color: var(--muted); font-size: 10px; line-height: 1.55; }
-    .adapters { margin-top: 17px; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
-    .adapter-row { display: grid; grid-template-columns: 170px 120px minmax(0, 1fr); gap: 20px; align-items: center; padding: 16px 20px; background: #0d1014; font-size: 10px; }
-    .adapter-row + .adapter-row { border-top: 1px solid var(--line); }
-    .adapter-name { display: flex; align-items: center; gap: 9px; font-weight: 730; }
-    .adapter-name::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--adapter-color); }
-    .adapter-state { width: fit-content; padding: 5px 8px; border: 1px solid currentColor; border-radius: 6px; color: var(--green); font-size: 8px; text-transform: uppercase; letter-spacing: .08em; }
-    .adapter-state--diag { color: var(--amber); }
-    .adapter-desc { color: var(--muted); line-height: 1.45; }
-
     /* Footer */
     footer { padding: 42px 0 32px; border-top: 1px solid var(--line); background: #07090b; }
     .footer-top { display: flex; justify-content: space-between; gap: 40px; padding-bottom: 31px; }
@@ -392,7 +358,6 @@
       .form-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
       .field, .field--wide { grid-column: span 2; }
       .search-actions { grid-column: span 2; }
-      .trust-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 900px) {
       .container { width: min(calc(100% - 30px), var(--container)); }
@@ -412,31 +377,22 @@
       .search-actions { grid-column: 1 / -1; }
       .results-grid { grid-template-columns: 1fr; }
       .results-header { align-items: flex-start; }
-      .section-heading { align-items: flex-start; flex-direction: column; }
     }
     @media (max-width: 620px) {
       .container { width: min(calc(100% - 22px), var(--container)); }
       .brand-logo { font-size: 18px; }
       .brand-logo__mark { width: 31px; height: 31px; }
-      .nav-live { padding: 8px 10px; }
-      .nav-live .nav-live__desktop { display: none; }
       .hero { min-height: 580px; align-items: flex-start; }
       .hero::before { background-position: 61% center; }
       .hero::after { background: linear-gradient(90deg, rgba(6,8,10,.96), rgba(6,8,10,.63)), linear-gradient(0deg, #080a0d, transparent 44%); }
       .hero-content { width: 100%; padding-top: 113px; }
       .hero h1 { margin-top: 19px; font-size: 47px; }
       .hero-lead { font-size: 15px; }
-      .hero-points { margin-top: 24px; }
-      .hero-point:nth-child(3) { display: none; }
-      .hero-stats { width: 100%; }
-      .hero-stat { flex: 1; min-width: 0; padding: 13px 12px; }
-      .hero-stat strong { font-size: 18px; }
-      .hero-stat span { font-size: 9px; }
       .search-section { margin-top: -22px; }
       .search-panel { border-radius: 20px; }
       .search-head { padding: 21px 18px 17px; gap: 16px; }
       .search-body { padding: 19px 18px 22px; }
-      .generation-picker { padding: 0 18px 22px; }
+      .generation-picker { padding: 5px 0 2px; }
       .source-row__label { width: 100%; }
       .source-toggle span { padding: 8px 9px; font-size: 10px; }
       .form-grid { grid-template-columns: 1fr; }
@@ -460,10 +416,6 @@
       .gallery-arrow { opacity: .85; height: 42px; }
       .detail-facts { grid-template-columns: 1fr; }
       .generation-mini__image { width: 78px; }
-      .trust-section { padding: 60px 0; }
-      .trust-grid { grid-template-columns: 1fr; }
-      .adapter-row { grid-template-columns: 1fr auto; gap: 9px 15px; }
-      .adapter-desc { grid-column: 1 / -1; }
       .footer-top, .footer-bottom { flex-direction: column; }
       .footer-links { flex-wrap: wrap; }
       .lightbox { padding: 14px; }
@@ -483,7 +435,6 @@
       .nav { gap: 10px; }
       .brand-logo { gap: 8px; font-size: 17px; }
       .brand-logo__mark { width: 30px; height: 30px; border-radius: 9px; }
-      .nav-live { min-height: 42px; padding: 0 10px; font-size: 10px; }
 
       .hero { min-height: calc(604px + var(--safe-top)); }
       .hero-content { padding-top: calc(102px + var(--safe-top)); padding-bottom: 54px; }
@@ -491,12 +442,6 @@
       .eyebrow::before { width: 23px; }
       .hero h1 { margin: 18px 0 17px; font-size: clamp(41px, 12.3vw, 46px); line-height: .96; }
       .hero-lead { font-size: 15px; line-height: 1.48; }
-      .hero-points { gap: 7px; margin-top: 22px; }
-      .hero-point { min-height: 40px; padding: 8px 10px; font-size: 10px; }
-      .hero-stats { margin-top: 29px; border-radius: 13px; }
-      .hero-stat { padding: 12px 8px; }
-      .hero-stat strong { font-size: 18px; }
-      .hero-stat span { margin-top: 4px; font-size: 9px; line-height: 1.25; }
 
       .search-section { margin-top: -20px; }
       .search-panel { border-radius: 18px; }
@@ -518,7 +463,7 @@
       .search-button { min-height: 52px; font-size: 13px; }
       .reset-button { width: 52px; height: 52px; }
       .filter-meta { gap: 10px; margin-top: 16px; font-size: 11px; line-height: 1.45; }
-      .generation-picker { padding: 0 16px 20px; }
+      .generation-picker { padding: 5px 0 2px; }
       .generation-head { align-items: flex-start; gap: 8px; }
       .generation-head span { max-width: 47%; text-align: right; line-height: 1.3; }
       .generation-track { grid-auto-columns: 164px; }
@@ -577,14 +522,6 @@
       .empty-state p { font-size: 12px; }
       .load-more { width: 100%; min-height: 50px; font-size: 12px; }
 
-      .trust-section { padding: 56px 0; }
-      .section-heading h2 { font-size: 34px; }
-      .section-heading p { font-size: 12px; }
-      .trust-card { min-height: 190px; padding: 20px; }
-      .trust-card h3 { font-size: 15px; }
-      .trust-card p { font-size: 11px; }
-      .adapter-row { padding: 15px 14px; font-size: 11px; }
-      .adapter-desc { line-height: 1.5; overflow-wrap: anywhere; }
       footer { padding-bottom: calc(28px + var(--safe-bottom)); }
       .footer-copy { font-size: 11px; }
       .footer-links { gap: 18px; font-size: 11px; }
@@ -618,7 +555,6 @@
       .site-header { height: calc(58px + var(--safe-top)); }
       .hero { min-height: 520px; }
       .hero-content { width: 72%; padding-top: calc(88px + var(--safe-top)); }
-      .hero-stats { margin-top: 24px; }
 
       input, select, textarea { font-size: 16px; }
       .control, .range-control input { font-size: 16px; }
@@ -639,6 +575,106 @@
       .toast-stack { right: calc(10px + var(--safe-right)); bottom: calc(10px + var(--safe-bottom)); }
     }
 
+    /* Phone flow: filters first, then a docked compact search controller. */
+    @media (max-width: 430px), (max-height: 430px) and (orientation: landscape) {
+      :root { --mobile-header-height: 64px; }
+      .hero { display: none; }
+      .search-section {
+        z-index: 72; margin-top: 0; padding: calc(var(--mobile-header-height) + var(--safe-top) + 8px) 0 18px;
+      }
+      body.mobile-awaiting-search .results-section { display: none; }
+      body.mobile-results-mode .search-section {
+        position: sticky; top: calc(var(--mobile-header-height) + var(--safe-top));
+        z-index: 74; margin: 0; padding: 6px 0;
+        background: linear-gradient(180deg, rgba(8,10,13,.985), rgba(8,10,13,.94));
+        border-bottom: 1px solid var(--line); box-shadow: 0 14px 35px rgba(0,0,0,.34);
+        backdrop-filter: blur(18px) saturate(135%);
+      }
+      body.mobile-results-mode .results-section { padding-top: 17px; scroll-margin-top: 190px; }
+
+      .search-panel {
+        transition: border-radius .48s cubic-bezier(.2,.8,.2,1), box-shadow .48s cubic-bezier(.2,.8,.2,1), background .48s ease;
+      }
+      .mobile-filter-bar {
+        display: block; max-height: 0; padding: 0 8px; opacity: 0; overflow: hidden;
+        transform: translateY(-8px); pointer-events: none;
+        transition: max-height .44s cubic-bezier(.2,.8,.2,1), padding .44s cubic-bezier(.2,.8,.2,1), opacity .25s ease, transform .44s cubic-bezier(.2,.8,.2,1);
+      }
+      .mobile-filter-button {
+        width: 100%; min-height: 44px; display: grid; grid-template-columns: auto minmax(0,1fr) auto;
+        align-items: center; gap: 9px; padding: 0 11px; border: 1px solid var(--line);
+        border-radius: 11px; background: linear-gradient(135deg, rgba(215,255,67,.12), rgba(255,255,255,.025));
+        color: white; cursor: pointer; text-align: left;
+      }
+      .mobile-filter-button__label { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 780; }
+      .mobile-filter-button__label .icon { width: 16px; height: 16px; color: var(--accent); }
+      .mobile-filter-button__summary { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #9da4ae; font-size: 10px; text-align: right; }
+      .mobile-filter-button__chevron { width: 15px; height: 15px; color: var(--muted-2); }
+
+      .search-head {
+        max-height: 190px; overflow: hidden;
+        transition: max-height .5s cubic-bezier(.2,.8,.2,1), padding .5s cubic-bezier(.2,.8,.2,1), opacity .3s ease, transform .5s cubic-bezier(.2,.8,.2,1), border-color .3s ease;
+      }
+      .search-body { transition: padding .5s cubic-bezier(.2,.8,.2,1); }
+      .form-grid-shell {
+        display: grid; grid-template-rows: 1fr;
+        transition: grid-template-rows .58s cubic-bezier(.2,.8,.2,1);
+      }
+      .form-grid {
+        min-height: 0; overflow: hidden; opacity: 1;
+        transition: opacity .3s ease, transform .52s cubic-bezier(.2,.8,.2,1), gap .4s ease;
+      }
+      .filter-meta {
+        max-height: 120px; overflow: hidden; opacity: 1;
+        transition: max-height .45s cubic-bezier(.2,.8,.2,1), margin .45s cubic-bezier(.2,.8,.2,1), opacity .25s ease, transform .45s cubic-bezier(.2,.8,.2,1);
+      }
+
+      .search-panel.filters-collapsed { border-radius: 15px; background: rgba(16,19,24,.98); box-shadow: 0 13px 34px rgba(0,0,0,.34); }
+      .search-panel.filters-collapsed .mobile-filter-bar {
+        max-height: 54px; padding-top: 7px; padding-bottom: 3px; opacity: 1;
+        transform: none; pointer-events: auto;
+      }
+      .search-panel.filters-collapsed .search-head {
+        max-height: 0; padding-top: 0; padding-bottom: 0; opacity: 0;
+        transform: translateY(-10px); border-color: transparent; pointer-events: none;
+      }
+      .search-panel.filters-collapsed .search-body { padding: 0 8px 8px; }
+      .search-panel.filters-collapsed .source-row {
+        display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+        align-items: stretch; gap: 4px; margin: 3px 0 0;
+      }
+      .search-panel.filters-collapsed .source-row__label { display: none; }
+      .search-panel.filters-collapsed .source-toggle { min-width: 0; }
+      .search-panel.filters-collapsed .source-toggle > span {
+        width: 100%; min-width: 0; min-height: 44px; justify-content: center; gap: 4px;
+        padding: 0 2px; border-radius: 10px; font-size: 0; white-space: nowrap;
+      }
+      .search-panel.filters-collapsed .source-toggle > span::before { width: 6px; height: 6px; }
+      .search-panel.filters-collapsed .source-toggle > span::after {
+        content: attr(data-short); min-width: 0; overflow: hidden; text-overflow: ellipsis;
+        color: inherit; font-size: 9.5px; font-weight: 690; letter-spacing: -.01em;
+      }
+      .search-panel.filters-collapsed .source-toggle .beta { display: none; }
+      .search-panel.filters-collapsed .form-grid-shell { grid-template-rows: 0fr; }
+      .search-panel.filters-collapsed .form-grid {
+        gap: 0; opacity: 0; transform: translateY(-12px); pointer-events: none;
+      }
+      .search-panel.filters-collapsed .filter-meta {
+        max-height: 0; margin-top: 0; opacity: 0; transform: translateY(-8px); pointer-events: none;
+      }
+      body.mobile-results-mode .search-panel:not(.filters-collapsed) {
+        max-height: calc(100dvh - var(--mobile-header-height) - var(--safe-top) - 12px);
+        overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+        box-shadow: 0 24px 70px rgba(0,0,0,.58); scrollbar-width: thin;
+      }
+    }
+
+    @media (max-height: 430px) and (orientation: landscape) {
+      :root { --mobile-header-height: 58px; }
+      .search-section { padding-top: calc(var(--mobile-header-height) + var(--safe-top) + 6px); }
+      body.mobile-results-mode .results-section { scroll-margin-top: 180px; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
     }
@@ -649,9 +685,6 @@
     <symbol id="i-car" viewBox="0 0 24 24"><path d="M3 14.5V12l2-5.5h14L21 12v5.5h-2V20h-3v-2.5H8V20H5v-2.5H3z"/><path d="M5 12h14M7 14.5h1m8 0h1"/></symbol>
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
-    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.2c0 4.7 3.2 8.1 7.5 9.8 4.3-1.7 7.5-5.1 7.5-9.8V6z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></symbol>
-    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="m13 2-8 12h7l-1 8 8-12h-7z"/></symbol>
-    <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></symbol>
     <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></symbol>
     <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
     <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
@@ -677,12 +710,7 @@
       <nav class="nav-links" aria-label="Основная навигация">
         <a href="#search">Поиск</a>
         <a href="#results">Объявления</a>
-        <a href="#how">Как работает</a>
       </nav>
-      <div class="nav-live" title="Backend работает и не использует демонстрационные объявления">
-        <span class="pulse"></span>
-        <span><span class="nav-live__desktop">Серверный сбор · </span>без API-ключей</span>
-      </div>
     </div>
   </header>
 
@@ -693,16 +721,6 @@
           <div class="eyebrow">Автомобили по всей Беларуси</div>
           <h1 id="hero-title">Один поиск.<br><span class="outline">Вся лента.</span></h1>
           <p class="hero-lead">Собираем реальные объявления прямо на сайте, приводим характеристики к единому виду и всегда оставляем ссылку на оригинал.</p>
-          <div class="hero-points">
-            <span class="hero-point"><svg class="icon"><use href="#i-database"></use></svg> Живые данные площадок</span>
-            <span class="hero-point"><svg class="icon"><use href="#i-shield"></use></svg> Без подмены демо-данными</span>
-            <span class="hero-point"><svg class="icon"><use href="#i-bolt"></use></svg> Кэш и частичная деградация</span>
-          </div>
-          <div class="hero-stats" aria-label="Возможности сервиса">
-            <div class="hero-stat"><strong>5</strong><span>рабочих источников</span></div>
-            <div class="hero-stat"><strong>0</strong><span>API-ключей</span></div>
-            <div class="hero-stat"><strong>1</strong><span>единая карточка</span></div>
-          </div>
         </div>
       </div>
       <div class="hero-scroll">Листайте к поиску</div>
@@ -711,6 +729,14 @@
     <section class="search-section" id="search" aria-labelledby="search-heading">
       <div class="container">
         <form class="search-panel" id="searchForm">
+          <div class="mobile-filter-bar" aria-hidden="true">
+            <button class="mobile-filter-button" id="mobileSettingsButton" type="button" aria-expanded="false" aria-controls="mobileFilterContent">
+              <span class="mobile-filter-button__label"><svg class="icon"><use href="#i-sliders"></use></svg> Настройки</span>
+              <span class="mobile-filter-button__summary" id="mobileFilterSummary">Все авто</span>
+              <svg class="icon mobile-filter-button__chevron"><use href="#i-chevron"></use></svg>
+            </button>
+          </div>
+          <div id="mobileFilterContent">
           <div class="search-head">
             <div>
               <h2 id="search-heading">Найти автомобиль</h2>
@@ -727,13 +753,14 @@
           <div class="search-body">
             <div class="source-row" aria-label="Источники поиска">
               <span class="source-row__label">Источники</span>
-              <label class="source-toggle" style="--source-color:var(--onliner)"><input type="checkbox" name="source" value="onliner" checked><span>Onlíner</span></label>
-              <label class="source-toggle" style="--source-color:var(--kufar)"><input type="checkbox" name="source" value="kufar" checked><span>Kufar</span></label>
-              <label class="source-toggle" style="--source-color:var(--av)"><input type="checkbox" name="source" value="av" checked><span>AV.BY <b class="beta">LIVE</b></span></label>
-              <label class="source-toggle" style="--source-color:var(--dealer)" title="Новые автомобили официальных дилеров Атлант-М"><input type="checkbox" name="source" value="dealer" checked><span>Дилеры <b class="beta">LIVE</b></span></label>
-              <label class="source-toggle" style="--source-color:var(--autohouse)" title="Автомобили с пробегом из автохауса Атлант-М"><input type="checkbox" name="source" value="autohouse" checked><span>Автохаусы <b class="beta">LIVE</b></span></label>
+              <label class="source-toggle" style="--source-color:var(--onliner)"><input type="checkbox" name="source" value="onliner" checked><span data-short="Onlíner">Onlíner</span></label>
+              <label class="source-toggle" style="--source-color:var(--kufar)"><input type="checkbox" name="source" value="kufar" checked><span data-short="Kufar">Kufar</span></label>
+              <label class="source-toggle" style="--source-color:var(--av)"><input type="checkbox" name="source" value="av" checked><span data-short="AV.BY">AV.BY <b class="beta">LIVE</b></span></label>
+              <label class="source-toggle" style="--source-color:var(--dealer)" title="Новые автомобили официальных дилеров Атлант-М"><input type="checkbox" name="source" value="dealer" checked><span data-short="Дилеры">Дилеры <b class="beta">LIVE</b></span></label>
+              <label class="source-toggle" style="--source-color:var(--autohouse)" title="Автомобили с пробегом из автохауса Атлант-М"><input type="checkbox" name="source" value="autohouse" checked><span data-short="Авто">Автохаусы <b class="beta">LIVE</b></span></label>
             </div>
 
+            <div class="form-grid-shell">
             <div class="form-grid">
               <div class="field">
                 <label for="brandSelect">Марка</label>
@@ -828,10 +855,15 @@
                 <label for="mileageTo">Пробег до, км</label>
                 <input class="control" id="mileageTo" name="mileageTo" type="number" min="0" step="5000" placeholder="Например, 150 000">
               </div>
+              <div class="generation-picker" id="generationPicker">
+                <div class="generation-head"><h3>Выберите поколение</h3><span>Фотографии из каталога Onlíner</span></div>
+                <div class="generation-track" id="generationTrack"></div>
+              </div>
               <div class="search-actions">
                 <button class="search-button" id="searchButton" type="submit"><svg class="icon"><use href="#i-search"></use></svg><span>Показать объявления</span></button>
                 <button class="reset-button" id="resetButton" type="button" aria-label="Сбросить фильтры" title="Сбросить фильтры"><svg class="icon"><use href="#i-refresh"></use></svg></button>
               </div>
+            </div>
             </div>
 
             <div class="filter-meta">
@@ -839,10 +871,6 @@
               <span id="catalogStatus">Загружаем каталог марок…</span>
             </div>
           </div>
-
-          <div class="generation-picker" id="generationPicker">
-            <div class="generation-head"><h3>Выберите поколение</h3><span>Фотографии из каталога Onlíner</span></div>
-            <div class="generation-track" id="generationTrack"></div>
           </div>
         </form>
       </div>
@@ -868,28 +896,6 @@
         <div class="load-more-wrap" id="loadMoreWrap"><button class="load-more" id="loadMoreButton" type="button"><svg class="icon"><use href="#i-layers"></use></svg> Показать следующую страницу</button></div>
       </div>
     </section>
-
-    <section class="trust-section" id="how" aria-labelledby="how-heading">
-      <div class="container">
-        <div class="section-heading">
-          <div><div class="results-title__overline">Прозрачная архитектура</div><h2 id="how-heading">Как это работает</h2></div>
-          <p>Каждый источник изолирован. Если одна площадка включает защиту или меняет разметку, API возвращает частичную выдачу и понятный статус — другие объявления не исчезают.</p>
-        </div>
-        <div class="trust-grid">
-          <article class="trust-card"><span class="trust-card__num">01</span><div class="trust-card__icon"><svg class="icon"><use href="#i-search"></use></svg></div><h3>Один набор фильтров</h3><p>Марка, поколение, цена, год, пробег и характеристики переводятся в параметры каждой площадки.</p></article>
-          <article class="trust-card"><span class="trust-card__num">02</span><div class="trust-card__icon"><svg class="icon"><use href="#i-database"></use></svg></div><h3>Серверный сбор</h3><p>Render Web Service получает публичные страницы и JSON, поэтому браузерные CORS-ограничения не мешают поиску.</p></article>
-          <article class="trust-card"><span class="trust-card__num">03</span><div class="trust-card__icon"><svg class="icon"><use href="#i-layers"></use></svg></div><h3>Единая карточка</h3><p>Цена, фото, поколение, двигатель, продавец, оснащение и комментарий приводятся к общей структуре.</p></article>
-          <article class="trust-card"><span class="trust-card__num">04</span><div class="trust-card__icon"><svg class="icon"><use href="#i-shield"></use></svg></div><h3>Честная деградация</h3><p>Кэш, таймауты и независимые ошибки. Тестовая запись никогда не маскируется под актуальное объявление.</p></article>
-        </div>
-        <div class="adapters" aria-label="Статус адаптеров">
-          <div class="adapter-row"><div class="adapter-name" style="--adapter-color:var(--onliner)">Onlíner</div><div class="adapter-state">Подключён</div><div class="adapter-desc">Публичный JSON-каталог, подробная карточка, оснащение и официальные изображения поколений.</div></div>
-          <div class="adapter-row"><div class="adapter-name" style="--adapter-color:var(--kufar)">Kufar</div><div class="adapter-state">Подключён</div><div class="adapter-desc">Структурированные SSR-данные каталога, фильтры, курсорная пагинация, галерея и комментарий продавца.</div></div>
-          <div class="adapter-row"><div class="adapter-name" style="--adapter-color:var(--av)">AV.BY</div><div class="adapter-state">Подключён</div><div class="adapter-desc">Публичный мобильный каталог: поиск, фильтры, полная карточка, реальные фотографии и резервный транспорт при блокировке прямого соединения.</div></div>
-          <div class="adapter-row"><div class="adapter-name" style="--adapter-color:var(--dealer)">Дилеры</div><div class="adapter-state">Подключён</div><div class="adapter-desc">Публичный stock-каталог Атлант-М: более 400 новых автомобилей, реальные цены и фото, статусы наличия, комплектации, оснащение и контакты официальных дилеров.</div></div>
-          <div class="adapter-row"><div class="adapter-name" style="--adapter-color:var(--autohouse)">Автохаусы</div><div class="adapter-state">Подключён</div><div class="adapter-desc">Каталог «Атлант-М Автомобили с пробегом»: около 500 активных машин, статусы, фотографии, адреса, технические параметры и полный комментарий автохауса.</div></div>
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer>
@@ -901,7 +907,7 @@
         </div>
         <div class="footer-links"><a href="#search">Поиск</a><a href="#results">Выдача</a><a href="/api/health" target="_blank" rel="noopener">API status</a></div>
       </div>
-      <div class="footer-bottom"><span>© 2026 MOTOR.BY · Беларусь</span><span>Без API-ключей · с атрибуцией каждого источника</span></div>
+      <div class="footer-bottom"><span>© 2026 MOTOR.BY · Беларусь</span></div>
     </div>
   </footer>
 
@@ -921,6 +927,9 @@
     const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
     const icon = (name, className = '') => `<svg class="icon ${className}" aria-hidden="true"><use href="#i-${name}"></use></svg>`;
     const fallbackImage = '/assets/category-city.jpg';
+    const mobileFilterMedia = matchMedia('(max-width: 430px), (max-height: 430px) and (orientation: landscape)');
+    let mobileSourceTimer = null;
+    let mobileScrollTimer = null;
 
     const state = {
       brands: [], models: [], generations: [], generationId: '',
@@ -936,9 +945,12 @@
       generationPicker: $('#generationPicker'), generationTrack: $('#generationTrack'),
       grid: $('#resultsGrid'), statuses: $('#sourceStatuses'), shown: $('#shownCount'), overline: $('#resultsOverline'),
       sort: $('#sortSelect'), loadWrap: $('#loadMoreWrap'), loadButton: $('#loadMoreButton'),
+      mobileSettings: $('#mobileSettingsButton'), mobileSummary: $('#mobileFilterSummary'),
+      searchHead: $('.search-head'), formGrid: $('.form-grid'), filterMeta: $('.filter-meta'),
       lightbox: $('#lightbox'), lightboxImage: $('#lightboxImage'), lightboxCount: $('#lightboxCount'), toastStack: $('#toastStack'),
     };
 
+    if (mobileFilterMedia.matches && !location.search) document.body.classList.add('mobile-awaiting-search');
     try { state.favorites = new Set(JSON.parse(localStorage.getItem('motorby:favorites') || '[]')); } catch (_) {}
 
     const escapeHTML = (value) => String(value ?? '')
@@ -987,6 +999,65 @@
       if (seconds < 86400) return `${Math.floor(seconds / 3600)} ч назад`;
       if (seconds < 172800) return 'вчера';
       return new Intl.DateTimeFormat('ru-BY', { day: 'numeric', month: 'short' }).format(date);
+    }
+
+    function mobileSummaryText() {
+      const parts = [];
+      const brand = els.brand.value ? selectedOption(els.brand)?.textContent?.trim() : '';
+      const model = els.model.value ? selectedOption(els.model)?.textContent?.trim() : '';
+      const generation = state.generationId
+        ? state.generations.find(item => String(item.id) === String(state.generationId))?.name : '';
+      const car = [brand, model, generation].filter(Boolean).join(' ');
+      if (car) parts.push(car);
+      const mode = $('input[name="mode"]:checked', els.form)?.value || 'all';
+      const modeNames = { owned: 'С пробегом', new: 'Новые', electric: 'Электро' };
+      if (modeNames[mode]) parts.push(modeNames[mode]);
+      const yearFrom = $('#yearFrom').value, yearTo = $('#yearTo').value;
+      if (yearFrom || yearTo) parts.push(`${yearFrom || '…'}–${yearTo || '…'} г.`);
+      const city = els.form.elements.city;
+      if (city?.value && city.value !== 'all') parts.push(selectedOption(city)?.textContent?.trim() || 'Регион');
+      return parts.slice(0, 2).join(' · ') || 'Все авто';
+    }
+
+    function setMobileFilterRegionsInert(collapsed) {
+      [els.searchHead, els.formGrid, els.filterMeta].forEach(node => node?.toggleAttribute('inert', collapsed));
+    }
+
+    function setMobileFiltersCollapsed(collapsed, { resultsMode = true, scrollToResults = false } = {}) {
+      if (!mobileFilterMedia.matches) return;
+      if (resultsMode) {
+        document.body.classList.add('mobile-results-mode');
+        document.body.classList.remove('mobile-awaiting-search');
+      }
+      document.body.classList.toggle('mobile-filters-expanded', !collapsed && resultsMode);
+      els.form.classList.toggle('filters-collapsed', collapsed);
+      els.mobileSettings.setAttribute('aria-expanded', String(!collapsed));
+      els.mobileSettings.parentElement.setAttribute('aria-hidden', String(!collapsed));
+      setMobileFilterRegionsInert(collapsed);
+      if (collapsed) els.mobileSummary.textContent = mobileSummaryText();
+      if (scrollToResults) {
+        clearTimeout(mobileScrollTimer);
+        mobileScrollTimer = setTimeout(() => $('#results').scrollIntoView({ behavior: 'smooth', block: 'start' }), 430);
+      }
+    }
+
+    function enterMobileResultsMode({ scroll = true } = {}) {
+      if (!mobileFilterMedia.matches) return false;
+      setMobileFiltersCollapsed(true, { resultsMode: true, scrollToResults: scroll });
+      return true;
+    }
+
+    function syncMobileLayout() {
+      if (!mobileFilterMedia.matches) {
+        clearTimeout(mobileScrollTimer);
+        document.body.classList.remove('mobile-awaiting-search', 'mobile-results-mode', 'mobile-filters-expanded');
+        els.form.classList.remove('filters-collapsed');
+        els.mobileSettings.parentElement.setAttribute('aria-hidden', 'true');
+        setMobileFilterRegionsInert(false);
+        return;
+      }
+      if (state.order.length || location.search) enterMobileResultsMode({ scroll: false });
+      else document.body.classList.add('mobile-awaiting-search');
     }
 
     function toast(message, type = 'info') {
@@ -1128,8 +1199,9 @@
       return true;
     }
 
-    async function runSearch({ append = false, scroll = true } = {}) {
+    async function runSearch({ append = false, scroll = true, collapseMobile = false } = {}) {
       if (state.loading || !validateForm()) return;
+      const mobileTransition = !append && collapseMobile && enterMobileResultsMode({ scroll });
       state.loading = true;
       if (!append) {
         state.page = 1; state.items.clear(); state.order = []; state.detailQueue = []; state.detailQueued.clear();
@@ -1139,7 +1211,7 @@
       const params = collectParams(state.page);
       state.lastParams = params;
       if (!append) updateBrowserUrl(params);
-      if (scroll && !append) $('#results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (scroll && !append && !mobileTransition) $('#results').scrollIntoView({ behavior: 'smooth', block: 'start' });
       try {
         const data = await api(`/api/search?${params}`);
         if (data.mock !== false || data.live !== true) throw new Error('Сервер не подтвердил, что данные живые');
@@ -1413,14 +1485,39 @@
       $$('input[name="source"]', els.form).forEach(input => { input.checked = ['onliner', 'kufar', 'av', 'dealer', 'autohouse'].includes(input.value); });
       els.model.disabled = true; els.model.innerHTML = '<option value="">Любая модель</option>';
       state.generationId = ''; state.models = []; state.generations = []; hideGenerations();
-      if (search) runSearch({ scroll: true });
+      if (search && !(mobileFilterMedia.matches && document.body.classList.contains('mobile-awaiting-search'))) {
+        runSearch({ scroll: true, collapseMobile: mobileFilterMedia.matches });
+      }
     }
 
-    els.form.addEventListener('submit', event => { event.preventDefault(); runSearch({ scroll: true }); });
+    function queueMobileSourceRefresh(changedInput) {
+      if (!mobileFilterMedia.matches || !document.body.classList.contains('mobile-results-mode') || !els.form.classList.contains('filters-collapsed')) return;
+      if (!$$('input[name="source"]:checked', els.form).length) {
+        changedInput.checked = true;
+        toast('Оставьте хотя бы один источник', 'error');
+        return;
+      }
+      clearTimeout(mobileSourceTimer);
+      const refresh = () => {
+        if (state.loading) { mobileSourceTimer = setTimeout(refresh, 240); return; }
+        runSearch({ scroll: false });
+      };
+      mobileSourceTimer = setTimeout(refresh, 220);
+    }
+
+    els.form.addEventListener('submit', event => {
+      event.preventDefault();
+      runSearch({ scroll: true, collapseMobile: mobileFilterMedia.matches });
+    });
+    els.mobileSettings.addEventListener('click', () => {
+      els.form.scrollTop = 0;
+      setMobileFiltersCollapsed(false, { resultsMode: true });
+    });
     els.brand.addEventListener('change', () => onBrandChange());
     els.model.addEventListener('change', () => onModelChange());
     els.resetButton.addEventListener('click', () => resetForm());
     els.sort.addEventListener('change', sortAndRender);
+    $$('input[name="source"]', els.form).forEach(input => input.addEventListener('change', () => queueMobileSourceRefresh(input)));
     els.generationTrack.addEventListener('click', event => {
       const card = event.target.closest('[data-generation]'); if (card) selectGeneration(card.dataset.generation);
     });
@@ -1469,13 +1566,24 @@
       if (event.key === 'ArrowRight') stepLightbox(1);
     });
     window.addEventListener('scroll', () => els.header.classList.toggle('scrolled', scrollY > 20), { passive: true });
+    mobileFilterMedia.addEventListener?.('change', syncMobileLayout);
 
-    // Restore a shareable search URL first, then request one real feed.
+    // Phones open directly on the expanded filters and wait for an explicit
+    // search. Desktop keeps the immediate live feed; shared filter URLs work on both.
     (async function bootstrap() {
       await loadBrands();
-      if (location.search) await restoreUrlFilters();
+      if (location.search) {
+        await restoreUrlFilters();
+        if (mobileFilterMedia.matches) enterMobileResultsMode({ scroll: false });
+        await runSearch({ scroll: false });
+        return;
+      }
+      if (mobileFilterMedia.matches) {
+        document.body.classList.add('mobile-awaiting-search');
+        return;
+      }
       await runSearch({ scroll: false });
     })();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a37364b05eca0b98',t:'MTc4ODc1OTc3OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a373a3a7b9e83eae',t:'MTc4ODc2MjM1OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
