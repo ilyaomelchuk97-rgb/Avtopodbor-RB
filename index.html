@@ -936,6 +936,9 @@
     const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
     const icon = (name, className = '') => `<svg class="icon ${className}" aria-hidden="true"><use href="#i-${name}"></use></svg>`;
     const fallbackImage = '/assets/category-city.jpg';
+    const AV_BROWSER_API = 'https://android-api.av.by/';
+    const AV_BROWSER_LAST_KEY = 'motorby:av-browser-last';
+    const avBrowserCache = new Map();
     const mobileFilterMedia = matchMedia('(max-width: 430px), (max-height: 430px) and (orientation: landscape)');
     let mobileSourceTimer = null;
     let mobileScrollTimer = null;
@@ -986,6 +989,236 @@
         }
       } catch (_) {}
       return fallbackImage;
+    }
+
+    const AV_BROWSER_ENUMS = {
+      body: { sedan: [5], universal: [2], hatchback: [3, 24], minivan: [4], suv: [6, 23], coupe: [1], cabriolet: [7], minibus: [11, 21], van: [20], pickup: [8], limousine: [22], liftback: [26] },
+      fuel: { gasoline: [1], diesel: [5], gas: [2, 3], hybrid: [4, 6], electric: [7] },
+      transmission: { automatic: [1, 3, 4], mechanical: [2] },
+      state: { owned: [2], new: [5], damaged: [3] },
+      drivetrain: { front: [1], rear: [2], all: [3, 4] },
+    };
+    const AV_BROWSER_REGIONS = {
+      minsk: 1005, brest: 1001, vitebsk: 1002, gomel: 1003, grodno: 1004, mogilev: 1006,
+      bobruisk: 1006, borisov: 1005, baranovichi: 1001, molodechno: 1005, soligorsk: 1005, polotsk: 1002,
+      minsk_region: 1005, brest_region: 1001, vitebsk_region: 1002, gomel_region: 1003,
+      grodno_region: 1004, mogilev_region: 1006,
+    };
+    const AV_BROWSER_REGION_KEYS = new Set(['minsk_region', 'brest_region', 'vitebsk_region', 'gomel_region', 'grodno_region', 'mogilev_region']);
+    const AV_BROWSER_CITY_LABELS = {
+      minsk: 'Минск', brest: 'Брест', vitebsk: 'Витебск', gomel: 'Гомель', grodno: 'Гродно', mogilev: 'Могилёв',
+      bobruisk: 'Бобруйск', borisov: 'Борисов', baranovichi: 'Барановичи', molodechno: 'Молодечно',
+      soligorsk: 'Солигорск', polotsk: 'Полоцк',
+    };
+
+    const avBrowserText = (value) => value === null || value === undefined ? '' : String(value).replaceAll('\u00a0', ' ').trim();
+    function avBrowserNumber(value) {
+      if (value === null || value === undefined || value === '') return null;
+      const number = Number(String(value).replace(/\s/g, '').replace(',', '.'));
+      return Number.isFinite(number) ? number : null;
+    }
+    function avBrowserTaxonomyText(value) {
+      return avBrowserText(value).toLocaleLowerCase('ru').normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '').replace(/ё/g, 'е')
+        .replace(/mercedes\s*benz/g, 'mercedesbenz').replace(/li\s*(xiang|auto)/g, 'liauto')
+        .replace(/lada|ваз/g, 'lada').replace(/серия|серии|series?/g, '')
+        .replace(/рестайлинг/g, 'rest').replace(/поколение/g, '').replace(/\+/g, ' plus ')
+        .replace(/[^a-zа-я0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+    function avBrowserFindOption(items, wanted, generation = false) {
+      const options = (items || []).map(item => ({ value: item?.id, label: avBrowserText(item?.label || item?.name), raw: item }))
+        .filter(item => item.value !== null && item.value !== undefined && item.label);
+      const target = avBrowserTaxonomyText(wanted);
+      if (!target) return null;
+      const exact = options.find(option => avBrowserTaxonomyText(option.label) === target);
+      if (exact) return exact;
+      const targetTokens = new Set(target.split(' ').filter(Boolean));
+      let best = null, bestScore = 0;
+      for (const option of options) {
+        const candidate = avBrowserTaxonomyText(option.label);
+        if (!candidate) continue;
+        let score = 0;
+        if (candidate.includes(target) || target.includes(candidate)) {
+          score = Math.min(candidate.length, target.length) / Math.max(candidate.length, target.length) + .45;
+        } else {
+          const tokens = new Set(candidate.split(' ').filter(Boolean));
+          const overlap = [...targetTokens].filter(token => tokens.has(token)).length;
+          score = overlap / Math.max(targetTokens.size, tokens.size, 1);
+        }
+        if (score > bestScore) { bestScore = score; best = option; }
+      }
+      return bestScore >= (generation ? .34 : .58) ? best : null;
+    }
+    async function avBrowserJson(resource, { cache = true, timeout = 18000 } = {}) {
+      const target = new URL(resource, AV_BROWSER_API);
+      if (target.origin !== new URL(AV_BROWSER_API).origin) throw new Error('Некорректный адрес AV.BY');
+      const key = target.href;
+      if (cache && avBrowserCache.has(key)) return avBrowserCache.get(key);
+      const request = (async () => {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeout);
+        try {
+          const response = await fetch(target, {
+            headers: { accept: 'application/json' }, credentials: 'omit', referrerPolicy: 'no-referrer',
+            signal: controller.signal,
+          });
+          if (!response.ok) throw new Error(`AV.BY ответил с кодом ${response.status}`);
+          return await response.json();
+        } finally { clearTimeout(timer); }
+      })();
+      if (cache) avBrowserCache.set(key, request);
+      try { return await request; }
+      catch (error) { if (cache) avBrowserCache.delete(key); throw error; }
+    }
+    function avBrowserSetArray(params, name, values) {
+      [...new Set((values || []).filter(value => value !== null && value !== undefined))]
+        .forEach((value, index) => params.set(`${name}[${index}]`, String(value)));
+    }
+    function avBrowserSetRange(params, name, from, to) {
+      if (from !== null) params.set(`${name}[min]`, String(from));
+      if (to !== null) params.set(`${name}[max]`, String(to));
+    }
+    async function buildAvBrowserRequest(filters) {
+      const taxonomy = {};
+      const brandName = filters.get('brandName');
+      const modelName = filters.get('modelName');
+      const generationNames = filters.getAll('generationName').filter(Boolean);
+      if (brandName) {
+        const brand = avBrowserFindOption(await avBrowserJson('offer-types/cars/modifications-catalog/brands'), brandName);
+        if (!brand) return { unmapped: `Марка «${brandName}» не сопоставлена с каталогом AV.BY` };
+        taxonomy.brand = brand.value;
+        if (modelName) {
+          const models = await avBrowserJson(`offer-types/cars/modifications-catalog/brands/${encodeURIComponent(brand.value)}/models`);
+          const model = avBrowserFindOption(models, modelName);
+          if (!model) return { unmapped: `Модель «${modelName}» не сопоставлена с каталогом AV.BY` };
+          taxonomy.model = model.value;
+          if (generationNames.length) {
+            const options = await avBrowserJson(`offer-types/cars/modifications-catalog/models/${encodeURIComponent(model.value)}/generations`);
+            const mapped = generationNames.map(name => avBrowserFindOption(options, name, true)).filter(Boolean);
+            taxonomy.generations = [...new Map(mapped.map(item => [String(item.value), item])).values()];
+            if (!taxonomy.generations.length) return { unmapped: 'Выбранные поколения не сопоставлены с каталогом AV.BY' };
+            if (taxonomy.generations.length < generationNames.length) taxonomy.warning = `${generationNames.length - taxonomy.generations.length} поколений не сопоставлено`;
+          }
+        }
+      }
+
+      const cityKey = filters.get('city') || 'all';
+      const location = {};
+      if (cityKey !== 'all') {
+        location.region = AV_BROWSER_REGIONS[cityKey];
+        if (!location.region) return { unmapped: `Регион «${cityKey}» не сопоставлен с каталогом AV.BY` };
+        if (!AV_BROWSER_REGION_KEYS.has(cityKey)) {
+          const places = await avBrowserJson(`places?parent=${encodeURIComponent(location.region)}`);
+          const city = avBrowserFindOption(places, AV_BROWSER_CITY_LABELS[cityKey] || cityKey);
+          if (!city) return { unmapped: `Город «${AV_BROWSER_CITY_LABELS[cityKey] || cityKey}» не сопоставлен с каталогом AV.BY` };
+          location.city = city.value;
+        }
+      }
+
+      const query = new URLSearchParams();
+      query.set('page', filters.get('page') || '1');
+      query.set('sort', '4');
+      if (taxonomy.generations?.length) {
+        taxonomy.generations.forEach((generation, index) => {
+          query.set(`brands[${index}][brand]`, String(taxonomy.brand));
+          query.set(`brands[${index}][model]`, String(taxonomy.model));
+          query.set(`brands[${index}][generation]`, String(generation.value));
+        });
+      } else {
+        if (taxonomy.brand) query.set('brands[0][brand]', String(taxonomy.brand));
+        if (taxonomy.model) query.set('brands[0][model]', String(taxonomy.model));
+      }
+      const priceFrom = avBrowserNumber(filters.get('priceFrom')), priceTo = avBrowserNumber(filters.get('priceTo'));
+      const yearFrom = avBrowserNumber(filters.get('yearFrom')), yearTo = avBrowserNumber(filters.get('yearTo'));
+      const mileageTo = avBrowserNumber(filters.get('mileageTo'));
+      avBrowserSetRange(query, 'price_byn', priceFrom, priceTo);
+      if (priceFrom !== null || priceTo !== null) query.set('price_currency', '1');
+      avBrowserSetRange(query, 'year', yearFrom, yearTo);
+      avBrowserSetRange(query, 'mileage_km', null, mileageTo);
+      const mode = filters.get('mode') || 'all';
+      if (mode === 'owned' || mode === 'new') avBrowserSetArray(query, 'condition', AV_BROWSER_ENUMS.state[mode]);
+      const body = filters.get('body'), fuel = filters.get('fuel'), transmission = filters.get('transmission'), drivetrain = filters.get('drivetrain');
+      if (body) avBrowserSetArray(query, 'body_type', AV_BROWSER_ENUMS.body[body]);
+      if (mode === 'electric') avBrowserSetArray(query, 'engine_type', AV_BROWSER_ENUMS.fuel.electric);
+      else if (fuel && fuel !== 'all') avBrowserSetArray(query, 'engine_type', AV_BROWSER_ENUMS.fuel[fuel]);
+      if (transmission) avBrowserSetArray(query, 'transmission_type', AV_BROWSER_ENUMS.transmission[transmission]);
+      if (drivetrain) avBrowserSetArray(query, 'drive_type', AV_BROWSER_ENUMS.drivetrain[drivetrain]);
+      if (location.region) avBrowserSetArray(query, 'place_region', [location.region]);
+      if (location.city) avBrowserSetArray(query, 'place_city', [location.city]);
+      const publicUrl = new URL('https://cars.av.by/filter');
+      publicUrl.search = query.toString();
+      return { resource: `offer-types/cars/filters/main/init?${query}`, publicUrl: publicUrl.href, taxonomy };
+    }
+    function avBrowserPropertyMap(ad) {
+      const result = Object.create(null);
+      for (const property of ad?.properties || []) if (property?.name) result[property.name] = property.value;
+      return result;
+    }
+    function avBrowserPhotos(photos, detailed = false) {
+      const result = [], seen = new Set();
+      for (const photo of photos || []) {
+        const url = detailed ? photo?.big?.url || photo?.file?.url || photo?.url || photo?.medium?.url
+          : photo?.medium?.url || photo?.big?.url || photo?.file?.url || photo?.url;
+        if (url && !seen.has(url)) { seen.add(url); result.push(url); }
+      }
+      return result;
+    }
+    function avBrowserYears(value) {
+      const match = avBrowserText(value).match(/\((\d{4})\s*[-–—]\s*(\d{4}|\.{2,})\)/);
+      return match ? { from: Number(match[1]), to: /^\d{4}$/.test(match[2]) ? Number(match[2]) : null } : null;
+    }
+    function avBrowserDate(value) {
+      const time = Date.parse(value || '');
+      return Number.isFinite(time) ? new Date(time).toISOString() : null;
+    }
+    function avBrowserEquipment(ad, properties) {
+      const labels = { interior_color: 'Цвет салона', interior_material: 'Материал салона', registration_country: 'Регистрация', mixed_drive_fuel_consumption: 'Средний расход', mixed_driving_fuel_consumption_per_100_km: 'Средний расход' };
+      const result = Object.entries(labels).filter(([name]) => properties[name] !== null && properties[name] !== undefined && properties[name] !== '')
+        .map(([name, label]) => ({ group: 'Характеристики', name: label, value: avBrowserText(properties[name]) }));
+      for (const option of ad?.metadata?.options || []) if (option?.name) result.push({ group: avBrowserText(option.optionGroup?.name || 'Оснащение'), name: avBrowserText(option.name), value: '' });
+      return [...new Map(result.map(item => [`${item.group}:${item.name}:${item.value}`, item])).values()];
+    }
+    function normaliseAvBrowser(ad, { detailed = false, generationData = null } = {}) {
+      const properties = avBrowserPropertyMap(ad), images = avBrowserPhotos(ad.photos, detailed), metadata = ad.metadata || {};
+      const brand = avBrowserText(properties.brand), model = avBrowserText(properties.model), generation = avBrowserText(properties.generation);
+      const fallbackUrl = metadata.brandSlug && metadata.modelSlug
+        ? `https://cars.av.by/${encodeURIComponent(metadata.brandSlug)}/${encodeURIComponent(metadata.modelSlug)}/${ad.id}` : `https://cars.av.by/${ad.id}`;
+      const generationImage = generationData?.mainPhoto?.medium?.url || generationData?.mainPhoto?.big?.url || images[0] || null;
+      return {
+        id: `av:${ad.id}`, source: 'av', sourceLabel: 'AV.BY', sourceCatalog: 'Каталог автомобилей AV.BY', provider: 'AV.BY', sourceId: String(ad.id),
+        sourceUrl: /^https:\/\/cars\.av\.by\//i.test(ad.publicUrl || '') ? ad.publicUrl : fallbackUrl,
+        title: [brand, model, generation].filter(Boolean).join(' ') || `Автомобиль AV.BY №${ad.id}`,
+        brand, brandId: metadata.brandId || null, model, modelId: metadata.modelId || null, generation, generationId: metadata.generationId || null,
+        generationImage, generationYears: avBrowserYears(properties.generation_with_years),
+        priceByn: avBrowserNumber(ad.price?.byn?.amountFiat ?? ad.price?.byn?.amount ?? properties.price_amount_byn),
+        priceUsd: avBrowserNumber(ad.price?.usd?.amountFiat ?? ad.price?.usd?.amount), year: avBrowserNumber(properties.year ?? ad.year ?? metadata.year),
+        mileage: avBrowserNumber(properties.mileage_km), mileageUnit: 'km', transmission: avBrowserText(properties.transmission_type),
+        engineVolume: avBrowserNumber(properties.engine_capacity), enginePower: avBrowserNumber(properties.engine_power), fuel: avBrowserText(properties.engine_type),
+        body: avBrowserText(properties.body_type), drivetrain: avBrowserText(properties.drive_type), state: avBrowserText(properties.condition || metadata.condition?.label),
+        color: avBrowserText(properties.color), modification: avBrowserText(properties.modification || metadata.modificationTitle), vin: avBrowserText(metadata.vinInfo?.vin),
+        location: avBrowserText(ad.locationName || ad.shortLocationName), seller: { type: ad.organizationId ? 'autohaus' : 'private', name: avBrowserText(ad.organizationTitle || ad.sellerName) || 'Частный продавец', contactName: avBrowserText(ad.sellerName) },
+        images, description: avBrowserText(ad.description) || 'Описание не добавлено продавцом.', descriptionLoaded: true, detailLoaded: detailed, detailAvailable: true,
+        equipment: avBrowserEquipment(ad, properties), dealTerms: { exchange: Boolean(ad.exchange?.exchangeAllowed === 'allowed' || (ad.exchange?.type && ad.exchange.type !== 'without_exchange')), customsClearance: null, includeVat: null },
+        createdAt: avBrowserDate(ad.publishedAt), updatedAt: avBrowserDate(ad.renewedAt || ad.publishedAt), collectedAt: new Date().toISOString(),
+        stats: { originalDaysOnSale: avBrowserNumber(ad.originalDaysOnSale), status: avBrowserText(ad.publicStatus?.label || ad.status), top: Boolean(ad.top), vip: Boolean(ad.isVip) },
+      };
+    }
+    async function searchAvBrowser(filters) {
+      const started = performance.now();
+      const built = await buildAvBrowserRequest(filters);
+      if (built.unmapped) return { items: [], status: { source: 'av', label: 'AV.BY', state: 'empty', count: 0, total: 0, latencyMs: Math.round(performance.now() - started), sourceUrl: 'https://cars.av.by/filter', message: `${built.unmapped}; неподходящие объявления не подставлены`, transport: 'browser-direct' } };
+      const data = await avBrowserJson(built.resource, { cache: false });
+      if (!Array.isArray(data?.adverts)) throw new Error('AV.BY изменил формат каталога');
+      const generationMap = new Map((built.taxonomy.generations || []).map(item => [String(item.value), item.raw]));
+      const limit = Math.max(4, Math.min(16, Number(filters.get('limit') || 8)));
+      const items = data.adverts.map(ad => normaliseAvBrowser(ad, { generationData: generationMap.get(String(ad.metadata?.generationId)) || null }))
+        .filter(item => item.images.length && item.priceByn !== null).slice(0, limit);
+      return { items, status: { source: 'av', label: 'AV.BY', state: items.length ? (built.taxonomy.warning ? 'partial' : 'ok') : 'empty', count: items.length, total: avBrowserNumber(data.count) || 0, latencyMs: Math.round(performance.now() - started), sourceUrl: built.publicUrl, message: [items.length ? 'Живые объявления получены браузером напрямую с AV.BY' : 'По этим фильтрам объявлений AV.BY нет', built.taxonomy.warning].filter(Boolean).join('. '), transport: 'browser-direct' } };
+    }
+    async function avBrowserDetail(id) {
+      const data = await avBrowserJson(`offers/${encodeURIComponent(id)}`);
+      if (!data?.id) throw new Error('AV.BY изменил формат карточки');
+      return normaliseAvBrowser(data, { detailed: true });
     }
 
     function formatNumber(value) {
@@ -1224,6 +1457,83 @@
       return params;
     }
 
+    function paramsForSources(params, sources) {
+      const next = new URLSearchParams(params);
+      next.delete('source');
+      sources.forEach(source => next.append('source', source));
+      return next;
+    }
+    function avBrowserSearchSignature(params) {
+      const signature = new URLSearchParams(params);
+      signature.delete('source');
+      return signature.toString();
+    }
+    function rememberAvBrowserResult(params, result) {
+      try {
+        localStorage.setItem(AV_BROWSER_LAST_KEY, JSON.stringify({ signature: avBrowserSearchSignature(params), savedAt: Date.now(), result }));
+      } catch (_) {}
+    }
+    function recentAvBrowserResult(params) {
+      try {
+        const cached = JSON.parse(localStorage.getItem(AV_BROWSER_LAST_KEY) || 'null');
+        if (!cached || cached.signature !== avBrowserSearchSignature(params) || Date.now() - cached.savedAt > 30 * 60 * 1000) return null;
+        return {
+          items: cached.result.items || [],
+          status: {
+            ...cached.result.status, state: cached.result.items?.length ? 'partial' : 'empty', transport: 'browser-cache',
+            message: 'Показана последняя реальная выдача AV.BY из локального кэша; прямые каналы временно не ответили',
+          },
+        };
+      } catch (_) { return null; }
+    }
+    function clientSourceFailure(source, message) {
+      const labels = { onliner: 'Onlíner', kufar: 'Kufar', av: 'AV.BY', dealer: 'Дилеры', autohouse: 'Автохаусы' };
+      const urls = { onliner: 'https://ab.onliner.by/', kufar: 'https://auto.kufar.by/l/cars', av: 'https://cars.av.by/filter', dealer: 'https://atlantm.by/cars/new', autohouse: 'https://atlantm.by/cars/amp' };
+      return { source, label: labels[source] || source, state: 'error', count: 0, total: null, latencyMs: 0, sourceUrl: urls[source], message };
+    }
+    async function searchWithBrowserAv(params) {
+      const sources = params.getAll('source');
+      const wantsAv = sources.includes('av');
+      const serverSources = sources.filter(source => source !== 'av');
+      const serverPromise = serverSources.length
+        ? api(`/api/search?${paramsForSources(params, serverSources)}`)
+        : Promise.resolve({ live: true, mock: false, items: [], sourceStatus: [], fetchedAt: new Date().toISOString() });
+      const avPromise = wantsAv ? searchAvBrowser(params) : Promise.resolve(null);
+      const [serverOutcome, avOutcome] = await Promise.allSettled([serverPromise, avPromise]);
+
+      const serverData = serverOutcome.status === 'fulfilled' ? serverOutcome.value : {
+        live: true, mock: false, items: [],
+        sourceStatus: serverSources.map(source => clientSourceFailure(source, 'Сервер этого источника временно не ответил')),
+        fetchedAt: new Date().toISOString(),
+      };
+      if (serverData.mock !== false || serverData.live !== true) throw new Error('Сервер не подтвердил, что данные живые');
+
+      let avResult = avOutcome.status === 'fulfilled' ? avOutcome.value : null;
+      if (wantsAv && avResult?.status?.transport === 'browser-direct') rememberAvBrowserResult(params, avResult);
+      if (wantsAv && !avResult) {
+        const cached = recentAvBrowserResult(params);
+        try {
+          const fallback = await api(`/api/search?${paramsForSources(params, ['av'])}`);
+          avResult = { items: fallback.items || [], status: fallback.sourceStatus?.[0] || clientSourceFailure('av', 'AV.BY временно не ответил') };
+          if (avResult.status.state === 'error') avResult = cached || avResult;
+          if (avResult.status.state === 'error' && /резервн|лимит/i.test(avResult.status.message || '')) {
+            avResult.status.message = 'Браузерный и серверный каналы AV.BY сейчас одновременно недоступны';
+          }
+        } catch (_) {
+          avResult = cached || { items: [], status: clientSourceFailure('av', 'Браузерный и серверный каналы AV.BY сейчас одновременно недоступны') };
+        }
+      }
+
+      const seen = new Set(), items = [];
+      for (const item of [...(serverData.items || []), ...(avResult?.items || [])]) {
+        if (!item?.id || seen.has(item.id)) continue;
+        seen.add(item.id); items.push(item);
+      }
+      const statuses = [...(serverData.sourceStatus || []), ...(avResult ? [avResult.status] : [])]
+        .sort((a, b) => sources.indexOf(a.source) - sources.indexOf(b.source));
+      return { live: true, mock: false, items, sourceStatus: statuses, fetchedAt: serverData.fetchedAt || new Date().toISOString() };
+    }
+
     function showSkeletons(count = 6) {
       els.grid.innerHTML = Array.from({ length: count }, () => `<article class="skeleton-card" aria-hidden="true"><div class="skeleton-media"></div><div class="skeleton-body"><div class="skeleton-line skeleton-line--title"></div><div class="skeleton-line skeleton-line--price"></div><div class="skeleton-line"></div><div class="skeleton-line" style="width:82%"></div></div></article>`).join('');
     }
@@ -1252,7 +1562,7 @@
       if (!append) updateBrowserUrl(params);
       if (scroll && !append && !mobileTransition) $('#results').scrollIntoView({ behavior: 'smooth', block: 'start' });
       try {
-        const data = await api(`/api/search?${params}`);
+        const data = await searchWithBrowserAv(params);
         if (data.mock !== false || data.live !== true) throw new Error('Сервер не подтвердил, что данные живые');
         state.sourceStatus = data.sourceStatus || [];
         for (const item of data.items || []) {
@@ -1413,10 +1723,21 @@
       const [source, sourceId] = String(id).split(':');
       if (!['onliner', 'kufar', 'av', 'dealer', 'autohouse'].includes(source) || !/^[a-z0-9_-]{1,40}$/i.test(sourceId || '')) return;
       try {
-        const data = await api(`/api/listing/${source}/${sourceId}`);
-        if (data.mock !== false || !data.item) throw new Error('Некорректный ответ карточки');
+        let detailItem;
+        if (source === 'av') {
+          try { detailItem = await avBrowserDetail(sourceId); }
+          catch (_) {
+            const data = await api(`/api/listing/${source}/${sourceId}`);
+            if (data.mock !== false || !data.item) throw new Error('Некорректный ответ карточки');
+            detailItem = data.item;
+          }
+        } else {
+          const data = await api(`/api/listing/${source}/${sourceId}`);
+          if (data.mock !== false || !data.item) throw new Error('Некорректный ответ карточки');
+          detailItem = data.item;
+        }
         const previous = state.items.get(id) || {};
-        const merged = { ...previous, ...data.item, id };
+        const merged = { ...previous, ...detailItem, id };
         state.items.set(id, merged);
         updateCardDetail(merged);
       } catch (error) {
@@ -1626,5 +1947,5 @@
       await runSearch({ scroll: false });
     })();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a373cbb5cfef3eae',t:'MTc4ODc2Mzk5OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
