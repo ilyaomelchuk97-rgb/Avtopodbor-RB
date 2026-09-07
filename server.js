@@ -15,7 +15,7 @@ const { performance } = require('node:perf_hooks');
 
 const PORT = Number(process.env.PORT || 8080);
 const ROOT = __dirname;
-const APP_VERSION = '1.3.6';
+const APP_VERSION = '1.4.0';
 const USER_AGENT = process.env.SOURCE_USER_AGENT ||
   `MotorBY-Aggregator/${APP_VERSION} (+https://render.com; low-rate cached public catalogue reader)`;
 const SEARCH_TTL = clampInt(process.env.SEARCH_CACHE_TTL, 30, 900, 180);
@@ -136,6 +136,7 @@ const KUFAR_ENUMS = {
   body: { sedan: '1', universal: '2', hatchback: '3', minivan: '4', suv: '5', coupe: '6', cabriolet: '7', minibus: '8', van: '9', pickup: '10', limousine: '11', liftback: '12' },
   fuel: { gasoline: '1', diesel: '2', gas: '3', hybrid: ['4', '7'], electric: '5', methane: '6' },
   transmission: { automatic: '1', mechanical: '2' },
+  automaticTransmission: ['1', '5'],
   state: { owned: '1', new: '2' },
   drivetrain: { front: '1', rear: '2', all: '3' },
 };
@@ -149,7 +150,7 @@ const AV_ENUMS = {
     limousine: [22], liftback: [26],
   },
   fuel: { gasoline: [1], diesel: [5], gas: [2, 3], hybrid: [4, 6], electric: [7] },
-  transmission: { automatic: [1, 3, 4], mechanical: [2] },
+  transmission: { automatic: [1, 3], mechanical: [2] },
   state: { owned: [2], new: [5], damaged: [3] },
   drivetrain: { front: [1], rear: [2], all: [3, 4] },
 };
@@ -716,6 +717,27 @@ function taxonomyText(value) {
     .trim();
 }
 
+function taxonomyCodeTokens(value) {
+  return taxonomyText(value).split(' ')
+    .filter((token) => /[a-zа-я]/.test(token) && /\d/.test(token));
+}
+
+function generationFamilyScore(left, right) {
+  const leftCodes = taxonomyCodeTokens(left);
+  const rightCodes = taxonomyCodeTokens(right);
+  if (!leftCodes.length || !rightCodes.length) return 0;
+  let matches = 0;
+  for (const leftCode of leftCodes) {
+    if (rightCodes.some((rightCode) => leftCode === rightCode
+      || (leftCode.endsWith('x') && rightCode.startsWith(leftCode.slice(0, -1)))
+      || (rightCode.endsWith('x') && leftCode.startsWith(rightCode.slice(0, -1))))) matches += 1;
+  }
+  if (!matches) return 0;
+  const leftRestyled = /\brest\b/.test(taxonomyText(left));
+  const rightRestyled = /\brest\b/.test(taxonomyText(right));
+  return 0.72 + Math.min(0.2, matches * 0.08) + (leftRestyled === rightRestyled ? 0.12 : -0.24);
+}
+
 function findTaxonomyOption(options, wanted, { generation = false } = {}) {
   const target = taxonomyText(wanted);
   if (!target) return null;
@@ -728,14 +750,15 @@ function findTaxonomyOption(options, wanted, { generation = false } = {}) {
   for (const option of options) {
     const candidate = taxonomyText(option.label);
     if (!candidate) continue;
+    let score = 0;
     if (candidate.includes(target) || target.includes(candidate)) {
-      const score = Math.min(candidate.length, target.length) / Math.max(candidate.length, target.length) + 0.45;
-      if (score > bestScore) { bestScore = score; best = option; }
-      continue;
+      score = Math.min(candidate.length, target.length) / Math.max(candidate.length, target.length) + 0.45;
+    } else {
+      const tokens = new Set(candidate.split(' ').filter(Boolean));
+      const overlap = [...targetTokens].filter((token) => tokens.has(token)).length;
+      score = overlap / Math.max(targetTokens.size, tokens.size, 1);
     }
-    const tokens = new Set(candidate.split(' ').filter(Boolean));
-    const overlap = [...targetTokens].filter((token) => tokens.has(token)).length;
-    const score = overlap / Math.max(targetTokens.size, tokens.size, 1);
+    if (generation) score = Math.max(score, generationFamilyScore(wanted, option.label));
     if (score > bestScore) { bestScore = score; best = option; }
   }
   return bestScore >= (generation ? 0.34 : 0.58) ? best : null;
@@ -816,7 +839,14 @@ async function buildKufarUrl(filters) {
   if (filters.mode === 'electric') addKufarEnum(url.searchParams, 'cre', KUFAR_ENUMS.fuel.electric);
   if (filters.body) addKufarEnum(url.searchParams, 'crt', KUFAR_ENUMS.body[filters.body]);
   if (filters.mode !== 'electric' && filters.fuel && filters.fuel !== 'all') addKufarEnum(url.searchParams, 'cre', KUFAR_ENUMS.fuel[filters.fuel]);
-  if (filters.transmission) addKufarEnum(url.searchParams, 'crg', KUFAR_ENUMS.transmission[filters.transmission]);
+  if (filters.transmission) {
+    addKufarEnum(url.searchParams, 'crg', KUFAR_ENUMS.transmission[filters.transmission]);
+    if (filters.transmission === 'automatic') {
+      // Kufar's primary value 1 means every non-manual gearbox. Restrict the
+      // nested taxonomy to classic automatic + robot, excluding variators.
+      addKufarEnum(url.searchParams, 'crag', KUFAR_ENUMS.automaticTransmission);
+    }
+  }
   if (filters.drivetrain) addKufarEnum(url.searchParams, 'crd', KUFAR_ENUMS.drivetrain[filters.drivetrain]);
 
   const city = CITY_MAP[filters.city]?.kufar;
@@ -852,14 +882,14 @@ function normaliseKufarList(ad) {
     modelId: null,
     generation,
     generationId: null,
-    generationImage: images[0] || null,
+    generationImage: null,
     generationYears: null,
     priceByn: asNumber(ad.price_byn) !== null ? asNumber(ad.price_byn) / 100 : null,
     priceUsd: asNumber(ad.price_usd) !== null ? asNumber(ad.price_usd) / 100 : null,
     year: asNumber(params.regdate?.v),
     mileage: asNumber(params.mileage?.v),
     mileageUnit: 'km',
-    transmission: params.cars_gearbox?.vl || '',
+    transmission: params.cars_autogearbox?.vl || params.cars_gearbox?.vl || '',
     engineVolume: params.cars_capacity?.vl ? asNumber(String(params.cars_capacity.vl).replace(/[^0-9,.]/g, '')) : null,
     enginePower: null,
     fuel: params.cars_engine?.vl || '',
@@ -880,7 +910,7 @@ function normaliseKufarList(ad) {
     descriptionLoaded: Boolean(ad.body_short || ad.body),
     detailLoaded: false,
     detailAvailable: true,
-    equipment: (ad.ad_parameters || []).filter((item) => !['category', 'cars_brand_v2', 'cars_model_v2', 'cars_gen_v2', 'regdate', 'mileage', 'cars_engine', 'cars_capacity', 'cars_gearbox', 'cars_type', 'cars_drive', 'condition', 'region', 'area'].includes(item.p)).map((item) => ({ group: 'Характеристики', name: item.pl, value: cleanText(item.vl || item.v) })),
+    equipment: (ad.ad_parameters || []).filter((item) => !['category', 'cars_brand_v2', 'cars_model_v2', 'cars_gen_v2', 'regdate', 'mileage', 'cars_engine', 'cars_capacity', 'cars_gearbox', 'cars_autogearbox', 'cars_type', 'cars_drive', 'condition', 'region', 'area'].includes(item.p)).map((item) => ({ group: 'Характеристики', name: item.pl, value: cleanText(item.vl || item.v) })),
     dealTerms: { exchange: false, customsClearance: null, includeVat: null },
     createdAt: safeDate(ad.list_time),
     updatedAt: safeDate(ad.list_time),
@@ -1288,7 +1318,7 @@ function normaliseAv(ad, { detailed = false, generationData = null } = {}) {
   const exchangeAllowed = ad.exchange?.exchangeAllowed === 'allowed'
     || (ad.exchange?.type && ad.exchange.type !== 'without_exchange');
   const generationImage = generationData?.mainPhoto?.medium?.url
-    || generationData?.mainPhoto?.big?.url || images[0] || null;
+    || generationData?.mainPhoto?.big?.url || null;
 
   return {
     id: `av:${ad.id}`,
@@ -1424,7 +1454,7 @@ const ATLANT_ENUMS = {
     hybrid: ['HYBRID'], electric: ['ELECTRIC'],
   },
   transmission: {
-    automatic: ['AUTOMATIC', 'ROBOT', 'DSG', 'VARIATOR', 'REDUCTOR'],
+    automatic: ['AUTOMATIC', 'ROBOT', 'DSG'],
     mechanical: ['MANUAL'],
   },
   drivetrain: { front: ['FRONT'], rear: ['BACK'], all: ['FULL'] },
@@ -1635,8 +1665,10 @@ function normaliseAtlantList(ad, source, generationData = null) {
     modelId: null,
     generation,
     generationId: generationData?.id || null,
-    generationImage: images[0] || null,
-    generationYears: null,
+    generationImage: generationData?.media?.[0]?.url || generationData?.image || null,
+    generationYears: generationData?.yearFrom
+      ? { from: generationData.yearFrom, to: generationData.yearTo || null }
+      : null,
     priceByn: atlantPrice(ad.pricing),
     priceUsd: atlantPrice(ad.pricing, 'priceUsd'),
     priceOriginalByn: originalPriceByn,
@@ -1757,7 +1789,7 @@ function normaliseAtlantDetail(data, source, inferredGeneration = null) {
     modelId: catalog.model?.id || null,
     generation,
     generationId: generationData?.id || null,
-    generationImage: generationData?.media?.[0]?.url || generationData?.image || images[0] || null,
+    generationImage: generationData?.media?.[0]?.url || generationData?.image || null,
     generationYears: inferredGeneration
       ? { from: inferredGeneration.yearFrom || null, to: inferredGeneration.yearTo || null }
       : null,
@@ -1993,7 +2025,7 @@ function normaliseKufarDetail(data) {
     sourceUrl: data.adViewLink || base.sourceUrl,
     title: data.subject || data.title || base.title,
     images: gallery.length ? gallery : base.images,
-    generationImage: gallery[0] || base.generationImage,
+    generationImage: base.generationImage,
     description: data.body || data.description || 'Описание не добавлено продавцом.',
     descriptionLoaded: true,
     detailLoaded: true,
@@ -2172,7 +2204,7 @@ function securityHeaders(contentType = '') {
     'referrer-policy': 'strict-origin-when-cross-origin',
     'permissions-policy': 'camera=(), microphone=(), geolocation=()',
     // Do not set X-Frame-Options/frame-ancestors: Render and Arena previews use a sandboxed iframe.
-    'content-security-policy': "default-src 'self'; img-src 'self' data: https://content.onliner.by https://imgproxy.onliner.by https://rms.kufar.by https://avcdn.av.by https://io.activecloud.com https://dealers-service.atlantm.by; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://android-api.av.by; base-uri 'self'; form-action 'self'", 
+    'content-security-policy': "default-src 'self'; img-src 'self' data: https://content.onliner.by https://imgproxy.onliner.by https://rms.kufar.by https://avcdn.av.by https://io.activecloud.com https://dealers-service.atlantm.by; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://android-api.av.by https://content.onliner.by https://imgproxy.onliner.by https://rms.kufar.by https://avcdn.av.by https://io.activecloud.com https://dealers-service.atlantm.by; base-uri 'self'; form-action 'self'", 
   };
   if (contentType) headers['content-type'] = contentType;
   return headers;
@@ -2203,19 +2235,26 @@ async function serveStatic(req, res, pathname) {
     : pathname === '/favicon.ico' ? 'assets/favicon.ico'
       : decodeURIComponent(pathname).replace(/^\/+/, '');
   const safePath = path.normalize(requested).replace(/^(\.\.(\/|\\|$))+/, '');
-  const allowed = safePath === 'index.html' || safePath.startsWith(`assets${path.sep}`);
+  const rootStatic = new Set(['index.html', 'manifest.webmanifest', 'sw.js']);
+  const allowed = rootStatic.has(safePath) || safePath.startsWith(`assets${path.sep}`);
   if (!allowed) return false;
   const filePath = path.join(ROOT, safePath);
   if (!filePath.startsWith(ROOT)) return false;
   try {
     const data = await fs.readFile(filePath);
     const ext = path.extname(filePath).toLowerCase();
-    const types = { '.html': 'text/html; charset=utf-8', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.ico': 'image/x-icon' };
+    const types = {
+      '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
+      '.webmanifest': 'application/manifest+json; charset=utf-8', '.json': 'application/json; charset=utf-8',
+      '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.ico': 'image/x-icon',
+    };
+    const revalidated = ['index.html', 'manifest.webmanifest', 'sw.js'].includes(safePath);
     const headers = {
       ...securityHeaders(types[ext] || 'application/octet-stream'),
-      'cache-control': ext === '.html' ? 'no-store, max-age=0' : 'public, max-age=604800, immutable',
+      'cache-control': revalidated ? 'no-cache, max-age=0, must-revalidate' : 'public, max-age=604800, immutable',
       'content-length': data.length,
     };
+    if (safePath === 'sw.js') headers['service-worker-allowed'] = '/';
     res.writeHead(200, headers);
     if (req.method === 'HEAD') res.end(); else res.end(data);
     return true;
@@ -2357,4 +2396,5 @@ server.listen(PORT, '0.0.0.0', () => {
 
 process.on('SIGTERM', () => server.close(() => process.exit(0)));
 process.on('unhandledRejection', (error) => console.error('[unhandled rejection]', error));
+
 
