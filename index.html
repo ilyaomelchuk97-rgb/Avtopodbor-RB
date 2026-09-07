@@ -620,6 +620,11 @@
         display: grid; grid-template-rows: 1fr;
         transition: grid-template-rows .58s cubic-bezier(.2,.8,.2,1);
       }
+      .form-grid > .field { order: 4; }
+      .form-grid > .field--brand { order: 1; }
+      .form-grid > .field--model { order: 2; }
+      .form-grid > .generation-picker { order: 3; }
+      .form-grid > .search-actions { order: 5; }
       .form-grid {
         min-height: 0; overflow: hidden; opacity: 1;
         transition: opacity .3s ease, transform .52s cubic-bezier(.2,.8,.2,1), gap .4s ease;
@@ -762,14 +767,14 @@
 
             <div class="form-grid-shell">
             <div class="form-grid">
-              <div class="field">
+              <div class="field field--brand">
                 <label for="brandSelect">Марка</label>
                 <div class="control-wrap">
                   <select class="control" id="brandSelect" name="brand"><option value="">Любая марка</option></select>
                   <svg class="icon select-arrow"><use href="#i-chevron"></use></svg>
                 </div>
               </div>
-              <div class="field">
+              <div class="field field--model">
                 <label for="modelSelect">Модель</label>
                 <div class="control-wrap">
                   <select class="control" id="modelSelect" name="model" disabled><option value="">Любая модель</option></select>
@@ -856,7 +861,7 @@
                 <input class="control" id="mileageTo" name="mileageTo" type="number" min="0" step="5000" placeholder="Например, 150 000">
               </div>
               <div class="generation-picker" id="generationPicker">
-                <div class="generation-head"><h3>Выберите поколение</h3><span>Фотографии из каталога Onlíner</span></div>
+                <div class="generation-head"><h3>Выберите поколения</h3><span id="generationHint">Можно выбрать несколько</span></div>
                 <div class="generation-track" id="generationTrack"></div>
               </div>
               <div class="search-actions">
@@ -932,7 +937,7 @@
     let mobileScrollTimer = null;
 
     const state = {
-      brands: [], models: [], generations: [], generationId: '',
+      brands: [], models: [], generations: [], generationIds: [],
       items: new Map(), order: [], sourceStatus: [], page: 1, loading: false,
       lastParams: null, favorites: new Set(), detailQueue: [], detailActive: 0,
       detailQueued: new Set(), observer: null,
@@ -942,7 +947,7 @@
     const els = {
       header: $('#siteHeader'), form: $('#searchForm'), searchButton: $('#searchButton'), resetButton: $('#resetButton'),
       brand: $('#brandSelect'), model: $('#modelSelect'), catalogStatus: $('#catalogStatus'),
-      generationPicker: $('#generationPicker'), generationTrack: $('#generationTrack'),
+      generationPicker: $('#generationPicker'), generationTrack: $('#generationTrack'), generationHint: $('#generationHint'),
       grid: $('#resultsGrid'), statuses: $('#sourceStatuses'), shown: $('#shownCount'), overline: $('#resultsOverline'),
       sort: $('#sortSelect'), loadWrap: $('#loadMoreWrap'), loadButton: $('#loadMoreButton'),
       mobileSettings: $('#mobileSettingsButton'), mobileSummary: $('#mobileFilterSummary'),
@@ -1005,8 +1010,10 @@
       const parts = [];
       const brand = els.brand.value ? selectedOption(els.brand)?.textContent?.trim() : '';
       const model = els.model.value ? selectedOption(els.model)?.textContent?.trim() : '';
-      const generation = state.generationId
-        ? state.generations.find(item => String(item.id) === String(state.generationId))?.name : '';
+      const selectedGenerations = state.generations.filter(item => state.generationIds.includes(String(item.id)));
+      const generation = selectedGenerations.length === 1
+        ? selectedGenerations[0].name
+        : selectedGenerations.length > 1 ? `${selectedGenerations.length} пок.` : '';
       const car = [brand, model, generation].filter(Boolean).join(' ');
       if (car) parts.push(car);
       const mode = $('input[name="mode"]:checked', els.form)?.value || 'all';
@@ -1098,8 +1105,8 @@
     }
     function brandOption(brand) { return `<option value="${Number(brand.id)}" data-name="${escapeHTML(brand.name)}">${escapeHTML(brand.name)}</option>`; }
 
-    async function onBrandChange({ preserveModel = '' } = {}) {
-      state.models = []; state.generations = []; state.generationId = '';
+    async function onBrandChange({ preserveModel = '', preserveGenerations = [] } = {}) {
+      state.models = []; state.generations = []; state.generationIds = [];
       hideGenerations();
       const brandId = els.brand.value;
       if (!brandId) {
@@ -1114,7 +1121,7 @@
         els.model.disabled = false;
         if (preserveModel && state.models.some(item => String(item.id) === String(preserveModel))) {
           els.model.value = String(preserveModel);
-          await onModelChange();
+          await onModelChange({ preserveGenerations });
         }
       } catch (error) {
         setSelectLoading(els.model, 'Модели недоступны');
@@ -1122,8 +1129,8 @@
       }
     }
 
-    async function onModelChange({ preserveGeneration = '' } = {}) {
-      state.generations = []; state.generationId = '';
+    async function onModelChange({ preserveGenerations = [] } = {}) {
+      state.generations = []; state.generationIds = [];
       if (!els.brand.value || !els.model.value) { hideGenerations(); return; }
       els.generationPicker.classList.add('visible');
       els.generationTrack.innerHTML = Array.from({ length: 5 }, () => '<div class="generation-skeleton"></div>').join('');
@@ -1132,26 +1139,53 @@
         state.generations = data.generations || [];
         if (!state.generations.length) { hideGenerations(); return; }
         renderGenerations();
-        if (preserveGeneration && state.generations.some(item => String(item.id) === String(preserveGeneration))) selectGeneration(String(preserveGeneration));
+        setGenerationSelection(preserveGenerations);
       } catch (error) {
         els.generationTrack.innerHTML = `<div class="generation-card"><div class="generation-card__image generation-card__image--any">—</div><div class="generation-card__body"><strong>Поколения недоступны</strong><small>Поиск по модели работает</small></div></div>`;
         toast(error.message, 'error');
       }
     }
 
-    function hideGenerations() { els.generationPicker.classList.remove('visible'); els.generationTrack.innerHTML = ''; }
+    function hideGenerations() {
+      els.generationPicker.classList.remove('visible');
+      els.generationTrack.innerHTML = '';
+      els.generationHint.textContent = 'Можно выбрать несколько';
+    }
     function renderGenerations() {
-      const anyCard = `<button class="generation-card selected" type="button" data-generation=""><span class="generation-check">${icon('check')}</span><div class="generation-card__image generation-card__image--any">∞</div><div class="generation-card__body"><strong>Все поколения</strong><small>${state.generations.length} вариантов</small></div></button>`;
+      const anyCard = `<button class="generation-card selected" type="button" data-generation="" aria-pressed="true"><span class="generation-check">${icon('check')}</span><div class="generation-card__image generation-card__image--any">∞</div><div class="generation-card__body"><strong>Все поколения</strong><small>${state.generations.length} вариантов</small></div></button>`;
       els.generationTrack.innerHTML = anyCard + state.generations.map(generation => `
-        <button class="generation-card" type="button" data-generation="${Number(generation.id)}">
+        <button class="generation-card" type="button" data-generation="${Number(generation.id)}" aria-pressed="false">
           <span class="generation-check">${icon('check')}</span>
           <div class="generation-card__image"><img src="${mediaUrl(generation.image)}" alt="${escapeHTML(generation.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'"></div>
           <div class="generation-card__body"><strong>${escapeHTML(generation.name)}</strong><small>${escapeHTML(formatYears({ from: generation.yearFrom, to: generation.yearTo })) || 'Годы не указаны'}</small></div>
         </button>`).join('');
+      syncGenerationSelection();
     }
-    function selectGeneration(id) {
-      state.generationId = id;
-      $$('.generation-card', els.generationTrack).forEach(card => card.classList.toggle('selected', card.dataset.generation === id));
+    function syncGenerationSelection() {
+      const selected = new Set(state.generationIds);
+      $$('.generation-card', els.generationTrack).forEach(card => {
+        const active = card.dataset.generation ? selected.has(card.dataset.generation) : selected.size === 0;
+        card.classList.toggle('selected', active);
+        card.setAttribute('aria-pressed', String(active));
+      });
+      els.generationHint.textContent = selected.size
+        ? `Выбрано: ${selected.size}`
+        : 'Можно выбрать несколько';
+    }
+    function setGenerationSelection(ids = []) {
+      const available = new Set(state.generations.map(item => String(item.id)));
+      state.generationIds = [...new Set((ids || []).map(String).filter(id => available.has(id)))];
+      syncGenerationSelection();
+    }
+    function toggleGeneration(id) {
+      if (!id) {
+        state.generationIds = [];
+      } else if (state.generationIds.includes(id)) {
+        state.generationIds = state.generationIds.filter(value => value !== id);
+      } else {
+        state.generationIds = [...state.generationIds, id];
+      }
+      syncGenerationSelection();
     }
 
     function selectedOption(select) { return select.selectedOptions?.[0] || null; }
@@ -1171,10 +1205,11 @@
         params.set('modelName', modelOption?.dataset.name || (modelOption?.textContent || '').split(' · ')[0]);
         if (modelOption?.dataset.slug) params.set('modelSlug', modelOption.dataset.slug);
       }
-      if (state.generationId) {
-        const generation = state.generations.find(item => String(item.id) === String(state.generationId));
-        params.set('generation', state.generationId);
-        if (generation) params.set('generationName', generation.name);
+      for (const generationId of state.generationIds) {
+        const generation = state.generations.find(item => String(item.id) === generationId);
+        if (!generation) continue;
+        params.append('generation', generationId);
+        params.append('generationName', generation.name);
       }
       const controls = ['priceFrom', 'priceTo', 'yearFrom', 'yearTo', 'city', 'body', 'fuel', 'transmission', 'drivetrain', 'mileageTo'];
       for (const name of controls) {
@@ -1475,8 +1510,10 @@
       controls.forEach(name => { if (params.has(name) && els.form.elements[name]) els.form.elements[name].value = params.get(name); });
       if (params.get('brand') && state.brands.some(item => String(item.id) === params.get('brand'))) {
         els.brand.value = params.get('brand');
-        await onBrandChange({ preserveModel: params.get('model') || '' });
-        if (params.get('model') && params.get('generation')) selectGeneration(params.get('generation'));
+        await onBrandChange({
+          preserveModel: params.get('model') || '',
+          preserveGenerations: params.getAll('generation'),
+        });
       }
     }
 
@@ -1484,7 +1521,7 @@
       els.form.reset();
       $$('input[name="source"]', els.form).forEach(input => { input.checked = ['onliner', 'kufar', 'av', 'dealer', 'autohouse'].includes(input.value); });
       els.model.disabled = true; els.model.innerHTML = '<option value="">Любая модель</option>';
-      state.generationId = ''; state.models = []; state.generations = []; hideGenerations();
+      state.generationIds = []; state.models = []; state.generations = []; hideGenerations();
       if (search && !(mobileFilterMedia.matches && document.body.classList.contains('mobile-awaiting-search'))) {
         runSearch({ scroll: true, collapseMobile: mobileFilterMedia.matches });
       }
@@ -1519,7 +1556,7 @@
     els.sort.addEventListener('change', sortAndRender);
     $$('input[name="source"]', els.form).forEach(input => input.addEventListener('change', () => queueMobileSourceRefresh(input)));
     els.generationTrack.addEventListener('click', event => {
-      const card = event.target.closest('[data-generation]'); if (card) selectGeneration(card.dataset.generation);
+      const card = event.target.closest('[data-generation]'); if (card) toggleGeneration(card.dataset.generation);
     });
     els.loadButton.addEventListener('click', async () => {
       state.page += 1; await runSearch({ append: true, scroll: false });
@@ -1585,5 +1622,5 @@
       await runSearch({ scroll: false });
     })();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a373a3a7b9e83eae',t:'MTc4ODc2MjM1OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a373c2d6292f3eae',t:'MTc4ODc2MzYzNg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
