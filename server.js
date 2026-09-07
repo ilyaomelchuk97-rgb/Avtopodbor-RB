@@ -15,8 +15,9 @@ const { performance } = require('node:perf_hooks');
 
 const PORT = Number(process.env.PORT || 8080);
 const ROOT = __dirname;
+const APP_VERSION = '1.2.2';
 const USER_AGENT = process.env.SOURCE_USER_AGENT ||
-  'MotorBY-Aggregator/1.2.1 (+https://render.com; low-rate cached public catalogue reader)';
+  `MotorBY-Aggregator/${APP_VERSION} (+https://render.com; low-rate cached public catalogue reader)`;
 const SEARCH_TTL = clampInt(process.env.SEARCH_CACHE_TTL, 30, 900, 180);
 const DETAIL_TTL = clampInt(process.env.DETAIL_CACHE_TTL, 60, 3600, 600);
 const CATALOG_TTL = clampInt(process.env.CATALOG_CACHE_TTL, 300, 86400, 21600);
@@ -2047,7 +2048,21 @@ async function serveMedia(req, res, url) {
   const target = url.searchParams.get('url');
   if (!target) return sendJson(res, 400, { error: 'missing_url', message: 'Не указан адрес изображения' });
   try {
-    const media = await fetchMediaResponse(target);
+    const validatedTarget = validateMediaUrl(target);
+    // AV.BY's image CDN returns HTTP 423 to shared Render egress addresses,
+    // even while the same public file is available to a visitor's browser.
+    // Redirect only this strictly allowlisted host and suppress the referrer.
+    if (validatedTarget.hostname === 'avcdn.av.by') {
+      res.writeHead(307, {
+        location: validatedTarget.href,
+        'cache-control': 'public, max-age=86400',
+        'referrer-policy': 'no-referrer',
+        'x-content-type-options': 'nosniff',
+      });
+      res.end();
+      return;
+    }
+    const media = await fetchMediaResponse(validatedTarget.href);
     res.writeHead(200, {
       'content-type': media.contentType,
       'content-length': media.data.length,
@@ -2146,7 +2161,7 @@ const server = http.createServer(async (req, res) => {
 
       if (pathname === '/api/health') {
         sendJson(res, 200, {
-          status: 'ok', service: 'motor-by', time: new Date().toISOString(),
+          status: 'ok', service: 'motor-by', version: APP_VERSION, time: new Date().toISOString(),
           adapters: {
             onliner: 'enabled', kufar: 'enabled', av: 'enabled',
             dealer: 'enabled', autohouse: 'enabled',
@@ -2157,6 +2172,7 @@ const server = http.createServer(async (req, res) => {
           },
           av: {
             transport: avRuntime.transport,
+            imageDelivery: 'browser-direct-avcdn',
             lastSuccessAt: avRuntime.lastSuccessAt,
             lastFailureAt: avRuntime.lastFailureAt,
             lastError: avRuntime.lastError || null,
