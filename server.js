@@ -15,7 +15,7 @@ const { performance } = require('node:perf_hooks');
 
 const PORT = Number(process.env.PORT || 8080);
 const ROOT = __dirname;
-const APP_VERSION = '1.3.3';
+const APP_VERSION = '1.3.4';
 const USER_AGENT = process.env.SOURCE_USER_AGENT ||
   `MotorBY-Aggregator/${APP_VERSION} (+https://render.com; low-rate cached public catalogue reader)`;
 const SEARCH_TTL = clampInt(process.env.SEARCH_CACHE_TTL, 30, 900, 180);
@@ -2199,7 +2199,9 @@ function apiError(res, error, status = 500) {
 }
 
 async function serveStatic(req, res, pathname) {
-  const requested = pathname === '/' ? 'index.html' : decodeURIComponent(pathname).replace(/^\/+/, '');
+  const requested = pathname === '/' ? 'index.html'
+    : pathname === '/favicon.ico' ? 'assets/favicon.ico'
+      : decodeURIComponent(pathname).replace(/^\/+/, '');
   const safePath = path.normalize(requested).replace(/^(\.\.(\/|\\|$))+/, '');
   const allowed = safePath === 'index.html' || safePath.startsWith(`assets${path.sep}`);
   if (!allowed) return false;
