@@ -15,7 +15,7 @@ const { performance } = require('node:perf_hooks');
 
 const PORT = Number(process.env.PORT || 8080);
 const ROOT = __dirname;
-const APP_VERSION = '1.3.4';
+const APP_VERSION = '1.3.5';
 const USER_AGENT = process.env.SOURCE_USER_AGENT ||
   `MotorBY-Aggregator/${APP_VERSION} (+https://render.com; low-rate cached public catalogue reader)`;
 const SEARCH_TTL = clampInt(process.env.SEARCH_CACHE_TTL, 30, 900, 180);
@@ -2172,7 +2172,7 @@ function securityHeaders(contentType = '') {
     'referrer-policy': 'strict-origin-when-cross-origin',
     'permissions-policy': 'camera=(), microphone=(), geolocation=()',
     // Do not set X-Frame-Options/frame-ancestors: Render and Arena previews use a sandboxed iframe.
-    'content-security-policy': "default-src 'self'; img-src 'self' data: https://content.onliner.by https://imgproxy.onliner.by https://rms.kufar.by https://avcdn.av.by https://io.activecloud.com https://dealers-service.atlantm.by; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; base-uri 'self'; form-action 'self'", 
+    'content-security-policy': "default-src 'self'; img-src 'self' data: https://content.onliner.by https://imgproxy.onliner.by https://rms.kufar.by https://avcdn.av.by https://io.activecloud.com https://dealers-service.atlantm.by; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://android-api.av.by; base-uri 'self'; form-action 'self'", 
   };
   if (contentType) headers['content-type'] = contentType;
   return headers;
@@ -2264,6 +2264,8 @@ const server = http.createServer(async (req, res) => {
           },
           av: {
             transport: avRuntime.transport,
+            searchDelivery: 'browser-direct-with-server-fallback',
+            detailDelivery: 'browser-direct-with-server-fallback',
             imageDelivery: 'browser-direct-avcdn',
             lastSuccessAt: avRuntime.lastSuccessAt,
             lastFailureAt: avRuntime.lastFailureAt,
