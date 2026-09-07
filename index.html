@@ -6,12 +6,15 @@
   <meta name="theme-color" content="#080a0d">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MOTOR.BY">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="description" content="Агрегатор реальных автомобилей по Беларуси из Onlíner, Kufar, AV.BY, официальных дилеров и автохаусов. Поиск, фотографии и полные карточки без API-ключей.">
   <title>MOTOR.BY — автомобили Беларуси в одной ленте</title>
   <link rel="icon" href="/assets/favicon.ico" sizes="any">
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180">
+  <link rel="manifest" href="/manifest.webmanifest">
   <style>
     :root {
       color-scheme: dark;
@@ -100,9 +103,23 @@
     }
     .brand-logo__mark svg { transform: skewX(7deg); }
     .brand-logo em { font-style: normal; color: var(--accent); }
+    .nav-right { display: flex; align-items: center; gap: 22px; }
     .nav-links { display: flex; align-items: center; gap: 30px; color: #c4c8cf; font-size: 14px; }
     .nav-links a { transition: color .2s; }
     .nav-links a:hover { color: white; }
+    .header-actions { display: flex; align-items: center; gap: 7px; }
+    .header-action {
+      position: relative; min-height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      padding: 0 11px; border: 1px solid var(--line); border-radius: 10px; color: #c9cdd3;
+      background: rgba(15,18,23,.66); cursor: pointer; backdrop-filter: blur(12px); font-size: 10px; font-weight: 690; transition: .2s;
+    }
+    .header-action:hover { color: white; border-color: rgba(255,255,255,.3); background: rgba(24,28,35,.9); }
+    .header-action .icon { width: 16px; height: 16px; color: var(--accent); }
+    .header-action__badge {
+      position: absolute; top: -5px; right: -5px; min-width: 17px; height: 17px; display: grid; place-items: center; padding: 0 4px;
+      border: 2px solid var(--bg); border-radius: 99px; background: var(--accent); color: var(--accent-ink); font-size: 8px; font-weight: 850;
+    }
+    [hidden] { display: none !important; }
 
     /* Hero */
     .hero {
@@ -227,6 +244,13 @@
     .results-sort select { min-width: 0; height: 100%; flex: 1; padding: 0 36px 0 8px; border: 0; color: #d8dbe0; background: transparent; appearance: none; outline: 0; cursor: pointer; font-size: 11px; }
     .results-sort:focus-within { border-color: rgba(255,255,255,.72); box-shadow: 0 0 0 2px rgba(255,255,255,.1), 0 0 26px rgba(255,255,255,.08); }
     .results-sort .select-arrow { right: 11px; width: 14px; height: 14px; pointer-events: none; }
+    .density-toggle {
+      height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 13px;
+      border: 1px solid rgba(255,255,255,.26); border-radius: 12px; background: rgba(255,255,255,.045);
+      color: #d2d6dc; cursor: pointer; white-space: nowrap; font-size: 10px; font-weight: 720; transition: .2s;
+    }
+    .density-toggle:hover, .density-toggle[aria-pressed="true"] { border-color: rgba(215,255,67,.48); color: var(--accent); background: var(--accent-soft); }
+    .density-toggle .icon { width: 17px; height: 17px; }
     .source-statuses { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
     .source-status { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.025); color: #abb1ba; font-size: 10px; }
     .source-status__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted-2); }
@@ -242,9 +266,9 @@
     /* Listing card */
     .listing-card { position: relative; min-width: 0; border: 1px solid rgba(255,255,255,.34); border-radius: var(--radius-lg); background: linear-gradient(155deg, #12161c, #0e1116); overflow: hidden; box-shadow: 0 0 0 1px rgba(255,255,255,.035), 0 0 25px rgba(255,255,255,.045), 0 12px 34px rgba(0,0,0,.24); transition: transform .23s, border-color .23s, box-shadow .23s; }
     .listing-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.78); box-shadow: 0 0 0 1px rgba(255,255,255,.13), 0 0 38px rgba(255,255,255,.12), 0 22px 48px rgba(0,0,0,.34); }
-    .listing-card__media { position: relative; height: 310px; overflow: hidden; background: #171b20; cursor: zoom-in; }
+    .listing-card__media { position: relative; height: 310px; overflow: hidden; touch-action: pan-y; background: #171b20; cursor: zoom-in; }
     .listing-card__media::after { content: ""; position: absolute; inset: auto 0 0; height: 46%; background: linear-gradient(transparent, rgba(6,8,10,.72)); pointer-events: none; }
-    .listing-card__media > img { width: 100%; height: 100%; object-fit: cover; transition: transform .55s ease, opacity .2s; }
+    .listing-card__media > img { width: 100%; height: 100%; object-fit: cover; user-select: none; -webkit-user-drag: none; transition: transform .55s ease, opacity .2s; }
     .listing-card:hover .listing-card__media > img { transform: scale(1.025); }
     .source-badge { position: absolute; top: 15px; left: 15px; z-index: 3; display: flex; align-items: center; gap: 8px; height: 31px; padding: 0 10px; border-radius: 8px; background: rgba(7,9,12,.8); backdrop-filter: blur(12px); font-size: 10px; font-weight: 760; }
     .source-badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--source-color); box-shadow: 0 0 10px var(--source-color); }
@@ -696,6 +720,148 @@
       body.mobile-results-mode .results-section { scroll-margin-top: 180px; }
     }
 
+
+    /* Personal database, history, PWA controls and visual galleries */
+    .photo-dots {
+      position: absolute; z-index: 4; left: 50%; bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 4px;
+      transform: translateX(-50%); pointer-events: none;
+    }
+    .photo-dot { width: 5px; height: 5px; border-radius: 99px; background: rgba(255,255,255,.44); box-shadow: 0 1px 4px rgba(0,0,0,.4); transition: width .22s, background .22s, transform .22s; }
+    .photo-dot.active { width: 14px; background: var(--accent); }
+    .swipe-hint {
+      position: absolute; z-index: 4; left: 50%; top: 50%; display: none; align-items: center; gap: 7px; padding: 8px 11px;
+      transform: translate(-50%, -50%); border: 1px solid rgba(255,255,255,.16); border-radius: 99px;
+      background: rgba(7,9,12,.72); color: white; pointer-events: none; backdrop-filter: blur(9px); font-size: 9px; font-weight: 740;
+      animation: swipeHint 3.8s ease both;
+    }
+    .swipe-hint .icon { width: 15px; height: 15px; color: var(--accent); }
+    @keyframes swipeHint { 0%, 12% { opacity: 0; transform: translate(-50%,-50%) translateX(-8px); } 24%, 70% { opacity: 1; transform: translate(-50%,-50%); } 100% { opacity: 0; } }
+    @media (hover: none) and (pointer: coarse) {
+      body:not(.swipe-used) .listing-card:first-child .swipe-hint, body:not(.swipe-used) .lightbox.open .swipe-hint { display: inline-flex; }
+    }
+    .price-change { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; padding: 4px 7px; border-radius: 7px; font-size: 8px; font-weight: 760; }
+    .price-change--down { color: var(--green); background: rgba(94,229,154,.1); }
+    .price-change--up { color: var(--amber); background: rgba(255,191,105,.1); }
+    .availability-returned { display: inline-flex; margin-left: 6px; color: var(--green); font-size: 8px; font-weight: 750; }
+    .personal-listing { margin-top: 17px; padding-top: 17px; border-top: 1px solid var(--line); }
+    .personal-listing__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 11px; }
+    .personal-listing__head strong { font-size: 10px; }
+    .personal-listing__head span { color: var(--muted-2); font-size: 8px; }
+    .history-timeline { display: grid; gap: 6px; margin-bottom: 13px; }
+    .history-row { display: grid; grid-template-columns: 64px minmax(0,1fr) auto; gap: 8px; align-items: center; min-height: 28px; padding: 5px 8px; border-radius: 8px; background: rgba(255,255,255,.025); font-size: 8px; }
+    .history-row time { color: var(--muted-2); }
+    .history-row span { color: #b9bec6; }
+    .history-row strong { color: #e1e4e8; font-size: 8px; }
+    .history-empty { margin: 0 0 12px; color: var(--muted-2); font-size: 9px; }
+    .note-label { display: block; color: #9299a4; font-size: 8px; text-transform: uppercase; letter-spacing: .1em; }
+    .personal-note { width: 100%; min-height: 72px; margin-top: 7px; padding: 10px 11px; resize: vertical; border: 1px solid var(--line); border-radius: 10px; outline: none; background: #0b0e12; color: #e3e5e8; font-size: 10px; line-height: 1.5; }
+    .personal-note:focus { border-color: rgba(215,255,67,.5); box-shadow: 0 0 0 3px rgba(215,255,67,.06); }
+    .personal-note-status { display: block; min-height: 14px; margin-top: 4px; color: var(--muted-2); font-size: 8px; text-align: right; }
+
+    .personal-layer { position: fixed; inset: 0; z-index: 240; display: none; justify-content: flex-end; background: rgba(3,4,6,.72); backdrop-filter: blur(8px); }
+    .personal-layer.open { display: flex; }
+    .personal-dialog { width: min(520px, 100%); height: 100%; overflow-y: auto; overscroll-behavior: contain; padding: calc(25px + var(--safe-top)) calc(24px + var(--safe-right)) calc(28px + var(--safe-bottom)) 24px; border-left: 1px solid var(--line-strong); background: linear-gradient(155deg,#141820,#0c0f14 66%); box-shadow: -30px 0 80px rgba(0,0,0,.46); animation: personalIn .28s ease-out; }
+    @keyframes personalIn { from { opacity: 0; transform: translateX(24px); } }
+    .personal-dialog__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
+    .personal-dialog__eyebrow { color: var(--accent); font-size: 9px; text-transform: uppercase; letter-spacing: .15em; font-weight: 760; }
+    .personal-dialog h2 { margin: 6px 0 0; font-size: 29px; letter-spacing: -.045em; }
+    .personal-close { width: 43px; height: 43px; flex: 0 0 auto; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: #11151b; cursor: pointer; }
+    .personal-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 18px; }
+    .personal-stat { padding: 13px 11px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.025); }
+    .personal-stat strong { display: block; color: var(--accent); font-size: 23px; letter-spacing: -.04em; }
+    .personal-stat span { display: block; margin-top: 3px; color: var(--muted-2); font-size: 8px; }
+    .personal-section { margin-top: 14px; padding: 16px; border: 1px solid var(--line); border-radius: 15px; background: rgba(255,255,255,.02); }
+    .personal-section__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .personal-section h3 { margin: 0; font-size: 12px; }
+    .personal-section p { margin: 5px 0 0; color: var(--muted-2); font-size: 9px; line-height: 1.5; }
+    .personal-primary, .personal-secondary, .saved-search__delete { min-height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 11px; border-radius: 9px; cursor: pointer; font-size: 9px; font-weight: 720; }
+    .personal-primary { border: 0; background: var(--accent); color: var(--accent-ink); }
+    .personal-secondary { border: 1px solid var(--line-strong); background: #10141a; color: #c7cbd1; }
+    .personal-primary .icon, .personal-secondary .icon { width: 14px; height: 14px; }
+    .saved-searches, .personal-activity { display: grid; gap: 7px; }
+    .saved-search { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 7px; align-items: stretch; }
+    .saved-search__load { min-width: 0; padding: 10px 11px; border: 1px solid var(--line); border-radius: 9px; background: #0e1217; color: #d5d8dd; cursor: pointer; text-align: left; }
+    .saved-search__load strong, .activity-row strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 9px; }
+    .saved-search__load span, .activity-row span { display: block; margin-top: 4px; color: var(--muted-2); font-size: 8px; }
+    .saved-search__delete { width: 38px; padding: 0; border: 1px solid var(--line); background: #10141a; color: var(--muted); }
+    .saved-search__delete .icon { width: 13px; height: 13px; }
+    .personal-empty { padding: 12px; border: 1px dashed var(--line); border-radius: 9px; color: var(--muted-2); text-align: center; font-size: 9px; }
+    .activity-row { display: grid; grid-template-columns: 42px minmax(0,1fr) auto; gap: 9px; align-items: center; padding: 8px; border-radius: 9px; background: #0e1217; }
+    .activity-row img { width: 42px; height: 32px; border-radius: 6px; object-fit: cover; }
+    .activity-row em { color: var(--accent); font-style: normal; font-size: 8px; }
+    .personal-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .personal-footnote { margin-top: 15px; color: var(--muted-2); font-size: 8px; line-height: 1.55; }
+
+    .lightbox-dots { position: absolute; z-index: 4; left: 50%; bottom: 60px; transform: translateX(-50%); display: flex; gap: 5px; pointer-events: none; }
+    .lightbox-dots .photo-dot { width: 6px; height: 6px; }
+    .lightbox-dots .photo-dot.active { width: 18px; }
+
+    /* Compact mode is a real layout, not merely smaller type. */
+    body.density-compact .results-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+    body.density-compact .listing-card__media, body.density-compact .skeleton-media { height: 210px; }
+    body.density-compact .listing-card__body { padding: 15px 15px 14px; }
+    body.density-compact .listing-head { grid-template-columns: 1fr; gap: 8px; }
+    body.density-compact .listing-title { font-size: 18px; }
+    body.density-compact .listing-price { display: flex; align-items: baseline; gap: 8px; text-align: left; }
+    body.density-compact .listing-price strong { font-size: 19px; }
+    body.density-compact .listing-price small { margin-top: 0; }
+    body.density-compact .spec-grid { grid-template-columns: repeat(2,1fr); margin: 13px 0; }
+    body.density-compact .spec { padding: 9px; }
+    body.density-compact .spec:nth-child(n+5), body.density-compact .generation-mini, body.density-compact .seller-comment { display: none; }
+    body.density-compact .listing-footer { align-items: flex-start; flex-direction: column; padding-top: 12px; }
+    body.density-compact .card-buttons { width: 100%; }
+    body.density-compact .detail-button, body.density-compact .original-button { flex: 1; }
+    body.density-compact .photo-counter { left: 11px; bottom: 10px; }
+    body.density-compact .source-badge { top: 11px; left: 11px; }
+    body.density-compact .favorite-button { top: 9px; right: 9px; }
+
+    @media (max-width: 1180px) {
+      body.density-compact .results-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width: 900px) {
+      .nav-right { gap: 8px; }
+      .header-action { width: 40px; padding: 0; }
+      .header-action__text { display: none; }
+    }
+    @media (max-width: 620px) {
+      .density-toggle { width: 46px; flex: 0 0 46px; padding: 0; }
+      .density-toggle span { display: none; }
+      body.density-compact .results-grid { grid-template-columns: 1fr; gap: 10px; }
+      body.density-compact .listing-card__media, body.density-compact .skeleton-media { height: 174px; }
+      body.density-compact .listing-card__body { padding: 13px 13px 12px; }
+      body.density-compact .listing-head { gap: 6px; }
+      body.density-compact .listing-title { font-size: 19px; }
+      body.density-compact .spec-grid { grid-template-columns: repeat(4,minmax(0,1fr)); margin: 11px 0; }
+      body.density-compact .spec { min-height: 50px; padding: 8px 6px; }
+      body.density-compact .spec span { font-size: 7px; }
+      body.density-compact .spec strong { font-size: 9px; white-space: nowrap; }
+      body.density-compact .listing-footer { flex-direction: row; align-items: center; gap: 8px; }
+      body.density-compact .seller-meta { max-width: 35%; }
+      body.density-compact .detail-button { width: 44px; flex: 0 0 44px; padding: 0; font-size: 0; }
+      body.density-compact .detail-button .icon { width: 16px; height: 16px; }
+      body.density-compact .card-buttons { width: auto; }
+      body.density-compact .original-button { min-width: 105px; }
+      .history-row { grid-template-columns: 58px minmax(0,1fr); }
+      .history-row strong { grid-column: 2; }
+    }
+    @media (max-width: 430px) {
+      .header-actions { gap: 5px; }
+      .header-action { width: 38px; min-height: 38px; border-radius: 10px; }
+      .results-tools { flex-direction: row; }
+      .lightbox-dots { bottom: calc(110px + var(--safe-bottom)); }
+      .personal-dialog { padding: calc(17px + var(--safe-top)) calc(12px + var(--safe-right)) calc(22px + var(--safe-bottom)) calc(12px + var(--safe-left)); border-left: 0; }
+      .personal-dialog h2 { font-size: 26px; }
+      .personal-section { padding: 13px; }
+      .personal-stats { gap: 6px; }
+      .personal-stat { padding: 11px 8px; }
+      .personal-stat strong { font-size: 21px; }
+      .personal-primary, .personal-secondary { min-height: 44px; font-size: 10px; }
+      .activity-row { grid-template-columns: 48px minmax(0,1fr); }
+      .activity-row img { width: 48px; height: 36px; }
+      .activity-row em { grid-column: 2; }
+      body.density-compact .listing-card__media { height: 168px; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
     }
@@ -721,6 +887,11 @@
     <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
     <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></symbol>
     <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></symbol>
+    <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 5-5m-5 5-5-5M4 20h16"/></symbol>
+    <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m3 0-1 14H7L6 7m4 4v6m4-6v6"/></symbol>
+    <symbol id="i-swipe" viewBox="0 0 24 24"><path d="M4 12h16m0 0-4-4m4 4-4 4M4 12l4-4m-4 4 4 4"/></symbol>
   </svg>
 
   <header class="site-header" id="siteHeader">
@@ -729,10 +900,16 @@
         <span class="brand-logo__mark"><svg class="icon"><use href="#i-car"></use></svg></span>
         <span>MOTOR<em>.BY</em></span>
       </a>
-      <nav class="nav-links" aria-label="Основная навигация">
-        <a href="#search">Поиск</a>
-        <a href="#results">Объявления</a>
-      </nav>
+      <div class="nav-right">
+        <nav class="nav-links" aria-label="Основная навигация">
+          <a href="#search">Поиск</a>
+          <a href="#results">Объявления</a>
+        </nav>
+        <div class="header-actions">
+          <button class="header-action" id="installAppButton" type="button" hidden title="Установить приложение"><svg class="icon" aria-hidden="true"><use href="#i-download"></use></svg><span class="header-action__text">Установить</span></button>
+          <button class="header-action" id="personalPanelButton" type="button" title="Личная база" aria-haspopup="dialog" aria-controls="personalPanel"><svg class="icon" aria-hidden="true"><use href="#i-database"></use></svg><span class="header-action__text">Личное</span><span class="header-action__badge" id="personalBadge" hidden>0</span></button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -859,7 +1036,7 @@
                 <label for="transmissionSelect">Коробка</label>
                 <div class="control-wrap">
                   <select class="control" id="transmissionSelect" name="transmission">
-                    <option value="">Любая</option><option value="automatic">Автомат</option><option value="mechanical">Механика</option>
+                    <option value="">Любая</option><option value="automatic">Автомат + робот</option><option value="mechanical">Механика</option>
                   </select>
                   <svg class="icon select-arrow"><use href="#i-chevron"></use></svg>
                 </div>
@@ -913,6 +1090,7 @@
               <select id="sortSelect" aria-label="Сортировка объявлений"><option value="fresh">Сначала свежие</option><option value="yearDesc">Год: сначала новые</option><option value="yearAsc">Год: сначала старые</option><option value="priceAsc">Цена: сначала дешевле</option><option value="priceDesc">Цена: сначала дороже</option><option value="mileageAsc">Пробег: сначала меньше</option><option value="mileageDesc">Пробег: сначала больше</option></select>
               <svg class="icon select-arrow" aria-hidden="true"><use href="#i-chevron"></use></svg>
             </div>
+            <button class="density-toggle" id="densityToggle" type="button" aria-pressed="false" title="Переключить плотность карточек"><svg class="icon" aria-hidden="true"><use href="#i-layers"></use></svg><span>Подробно</span></button>
           </div>
         </div>
         <div class="source-statuses" id="sourceStatuses" aria-live="polite"></div>
@@ -935,11 +1113,45 @@
     </div>
   </footer>
 
+  <div class="personal-layer" id="personalPanel" role="presentation">
+    <section class="personal-dialog" role="dialog" aria-modal="true" aria-labelledby="personalPanelTitle">
+      <div class="personal-dialog__head">
+        <div><div class="personal-dialog__eyebrow">Только на этом устройстве</div><h2 id="personalPanelTitle">Личная база</h2></div>
+        <button class="personal-close" type="button" data-personal-action="close" aria-label="Закрыть"><svg class="icon"><use href="#i-close"></use></svg></button>
+      </div>
+      <div class="personal-stats">
+        <div class="personal-stat"><strong id="personalFavoriteCount">0</strong><span>в избранном</span></div>
+        <div class="personal-stat"><strong id="personalViewedCount">0</strong><span>просмотрено</span></div>
+        <div class="personal-stat"><strong id="personalChangeCount">0</strong><span>изменений</span></div>
+      </div>
+      <div class="personal-section">
+        <div class="personal-section__head"><div><h3>Сохранённые фильтры</h3><p>Откройте тот же набор параметров одним касанием</p></div><button class="personal-primary" type="button" data-personal-action="save-search"><svg class="icon"><use href="#i-bookmark"></use></svg> Сохранить</button></div>
+        <div class="saved-searches" id="savedSearches"></div>
+      </div>
+      <div class="personal-section">
+        <div class="personal-section__head"><div><h3>Последняя активность</h3><p>Цена, наличие, заметки и просмотренные объявления</p></div></div>
+        <div class="personal-activity" id="personalActivity"></div>
+      </div>
+      <div class="personal-section">
+        <div><h3>Перенос данных</h3><p>Экспортируйте JSON или импортируйте ранее сохранённую копию</p></div>
+        <div class="personal-actions">
+          <button class="personal-secondary" type="button" data-personal-action="export"><svg class="icon"><use href="#i-download"></use></svg> Экспорт</button>
+          <button class="personal-secondary" type="button" data-personal-action="import"><svg class="icon"><use href="#i-database"></use></svg> Импорт</button>
+          <button class="personal-secondary" type="button" data-personal-action="clear-history"><svg class="icon"><use href="#i-trash"></use></svg> Очистить историю</button>
+          <input id="personalImportInput" type="file" accept="application/json,.json" hidden>
+        </div>
+      </div>
+      <p class="personal-footnote">IndexedDB хранит эти данные в вашем браузере. MOTOR.BY не отправляет избранное, историю и заметки на сервер.</p>
+    </section>
+  </div>
+
   <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Галерея объявления">
     <button class="lightbox-close" type="button" data-lightbox="close" aria-label="Закрыть"><svg class="icon"><use href="#i-close"></use></svg></button>
     <button class="lightbox-nav lightbox-nav--prev" type="button" data-lightbox="prev" aria-label="Предыдущее фото"><svg class="icon"><use href="#i-left"></use></svg></button>
-    <img class="lightbox-image" id="lightboxImage" alt="Фото автомобиля" referrerpolicy="no-referrer">
+    <img class="lightbox-image" id="lightboxImage" alt="Фото автомобиля" decoding="async" referrerpolicy="no-referrer">
+    <span class="swipe-hint" aria-hidden="true"><svg class="icon"><use href="#i-swipe"></use></svg> Листайте фото</span>
     <button class="lightbox-nav lightbox-nav--next" type="button" data-lightbox="next" aria-label="Следующее фото"><svg class="icon"><use href="#i-right"></use></svg></button>
+    <div class="lightbox-dots" id="lightboxDots" aria-hidden="true"></div>
     <div class="lightbox-count" id="lightboxCount"></div>
   </div>
   <div class="toast-stack" id="toastStack" aria-live="polite"></div>
@@ -952,8 +1164,14 @@
     const icon = (name, className = '') => `<svg class="icon ${className}" aria-hidden="true"><use href="#i-${name}"></use></svg>`;
     const fallbackImage = '/assets/category-city.jpg';
     const AV_BROWSER_API = 'https://android-api.av.by/';
-    const AV_BROWSER_LAST_KEY = 'motorby:av-browser-last';
+    const AV_BROWSER_LAST_KEY = 'motorby:av-browser-last-v2';
+    const PERSONAL_DB_NAME = 'motorby-personal';
+    const PERSONAL_DB_VERSION = 1;
+    const PERSONAL_HISTORY_LIMIT = 40;
     const avBrowserCache = new Map();
+    const personalDb = { db: null, available: false };
+    const noteTimers = new Map();
+    let deferredInstallPrompt = null;
     const mobileFilterMedia = matchMedia('(max-width: 430px), (max-height: 430px) and (orientation: landscape)');
     let mobileSourceTimer = null;
     let mobileScrollTimer = null;
@@ -962,28 +1180,39 @@
       brands: [], models: [], generations: [], generationIds: [],
       items: new Map(), order: [], sourceStatus: [], page: 1, loading: false,
       lastParams: null, favorites: new Set(), detailQueue: [], detailActive: 0,
-      detailQueued: new Set(), observer: null,
+      detailQueued: new Set(), observer: null, imageObserver: null, viewObserver: null, viewTimers: new Map(),
+      personalRecords: new Map(), preferences: new Map(), savedSearches: [], density: 'comfortable',
       lightbox: { id: null, index: 0 },
     };
     const lightboxZoom = {
       scale: 1, x: 0, y: 0, startScale: 1, startX: 0, startY: 0,
       startDistance: 0, startCenterX: 0, startCenterY: 0,
       pointerX: 0, pointerY: 0, dragging: false, pointers: new Map(),
+      swipeActive: false, swipeAxis: null, swipeStartX: 0, swipeStartY: 0, swipeLastX: 0, swipeLastY: 0,
     };
+    const cardSwipe = {
+      pointerId: null, card: null, media: null, image: null,
+      startX: 0, startY: 0, lastX: 0, lastY: 0, axis: null,
+    };
+    const cardSwipeSuppress = new WeakMap();
 
     const els = {
       header: $('#siteHeader'), form: $('#searchForm'), searchButton: $('#searchButton'), resetButton: $('#resetButton'),
       brand: $('#brandSelect'), model: $('#modelSelect'), catalogStatus: $('#catalogStatus'),
       generationPicker: $('#generationPicker'), generationTrack: $('#generationTrack'), generationHint: $('#generationHint'),
       grid: $('#resultsGrid'), statuses: $('#sourceStatuses'), shown: $('#shownCount'), overline: $('#resultsOverline'),
-      sort: $('#sortSelect'), loadWrap: $('#loadMoreWrap'), loadButton: $('#loadMoreButton'),
+      sort: $('#sortSelect'), density: $('#densityToggle'), loadWrap: $('#loadMoreWrap'), loadButton: $('#loadMoreButton'),
       mobileSettings: $('#mobileSettingsButton'), mobileSummary: $('#mobileFilterSummary'),
+      installButton: $('#installAppButton'), personalButton: $('#personalPanelButton'), personalBadge: $('#personalBadge'),
+      personalPanel: $('#personalPanel'), personalImport: $('#personalImportInput'), savedSearches: $('#savedSearches'), personalActivity: $('#personalActivity'),
+      personalFavoriteCount: $('#personalFavoriteCount'), personalViewedCount: $('#personalViewedCount'), personalChangeCount: $('#personalChangeCount'),
       searchHead: $('.search-head'), formGrid: $('.form-grid'), filterMeta: $('.filter-meta'),
-      lightbox: $('#lightbox'), lightboxImage: $('#lightboxImage'), lightboxCount: $('#lightboxCount'), toastStack: $('#toastStack'),
+      lightbox: $('#lightbox'), lightboxImage: $('#lightboxImage'), lightboxCount: $('#lightboxCount'), lightboxDots: $('#lightboxDots'), toastStack: $('#toastStack'),
     };
 
     if (mobileFilterMedia.matches && !location.search) document.body.classList.add('mobile-awaiting-search');
     try { state.favorites = new Set(JSON.parse(localStorage.getItem('motorby:favorites') || '[]')); } catch (_) {}
+    try { applyDensity(JSON.parse(localStorage.getItem('motorby:pref:density') || '"comfortable"'), false); } catch (_) {}
 
     const escapeHTML = (value) => String(value ?? '')
       .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
@@ -1011,10 +1240,128 @@
       return fallbackImage;
     }
 
+    /* Decode-aware, bounded image look-ahead. Browser HTTP caching remains in
+       charge of bytes; this map only retains a small decoded working set. */
+    const smartImageCache = new Map();
+    const SMART_IMAGE_LIMIT = 36;
+    function smartPreloadAllowed() {
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      return !connection?.saveData && !['slow-2g', '2g'].includes(connection?.effectiveType || '');
+    }
+    function touchSmartImage(url, entry) {
+      smartImageCache.delete(url); smartImageCache.set(url, entry);
+      while (smartImageCache.size > SMART_IMAGE_LIMIT) {
+        const oldestUrl = smartImageCache.keys().next().value;
+        const oldest = smartImageCache.get(oldestUrl);
+        smartImageCache.delete(oldestUrl);
+        if (oldest?.settled && oldest.image) oldest.image.src = '';
+      }
+    }
+    function preloadImage(value) {
+      const url = mediaUrl(value);
+      const cached = smartImageCache.get(url);
+      if (cached) { touchSmartImage(url, cached); return cached.promise; }
+      const image = new Image();
+      image.decoding = 'async'; image.referrerPolicy = 'no-referrer';
+      const entry = { image, settled: false, promise: null };
+      entry.promise = new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error('Тайм-аут изображения')), 12000);
+        image.onload = async () => {
+          clearTimeout(timer);
+          try { await image.decode?.(); } catch (_) {}
+          entry.settled = true; resolve(url);
+        };
+        image.onerror = () => { clearTimeout(timer); entry.settled = true; reject(new Error('Фото недоступно')); };
+        image.src = url;
+      }).catch(error => { smartImageCache.delete(url); throw error; });
+      touchSmartImage(url, entry);
+      return entry.promise;
+    }
+    function preloadAround(item, index = 0, includeGeneration = false) {
+      if (!smartPreloadAllowed() || !item) return;
+      const images = item.images || [];
+      if (images.length) {
+        const radius = ['4g', '5g'].includes(navigator.connection?.effectiveType || '') ? 2 : 1;
+        for (let offset = -radius; offset <= radius; offset += 1) {
+          const target = images[(index + offset + images.length) % images.length];
+          if (target) preloadImage(target).catch(() => {});
+        }
+      }
+      if (includeGeneration && item.generationImage) preloadImage(item.generationImage).catch(() => {});
+    }
+    function setSmartImage(node, value, { direction = 0 } = {}) {
+      if (!node) return;
+      const url = mediaUrl(value);
+      const token = `${Date.now()}-${Math.random()}`;
+      node.dataset.imageToken = token;
+      node.style.opacity = '.48';
+      node.onerror = () => { node.onerror = null; node.src = fallbackImage; node.style.opacity = '1'; };
+      node.src = url;
+      const apply = resolved => {
+        if (node.dataset.imageToken !== token) return;
+        node.src = resolved || url;
+        Promise.resolve(node.decode?.()).catch(() => {}).finally(() => { if (node.dataset.imageToken === token && node.dataset.gestureActive !== '1') node.style.opacity = '1'; });
+        if (direction && node.animate) {
+          node.animate([
+            { opacity: .35, transform: `translate3d(${direction > 0 ? 28 : -28}px,0,0) scale(1.015)` },
+            { opacity: 1, transform: 'translate3d(0,0,0) scale(1)' },
+          ], { duration: 250, easing: 'cubic-bezier(.2,.8,.2,1)' });
+        }
+      };
+      preloadImage(url).then(apply).catch(() => apply(fallbackImage));
+    }
+    function photoIndicatorHTML(count, index = 0) {
+      if (count < 2) return '';
+      const shown = Math.min(7, count);
+      const active = count <= shown ? index : Math.round(index * (shown - 1) / Math.max(1, count - 1));
+      return Array.from({ length: shown }, (_, dot) => `<span class="photo-dot${dot === active ? ' active' : ''}"></span>`).join('');
+    }
+    function updatePhotoIndicator(root, count, index) {
+      const dots = $('[data-photo-dots]', root) || (root === els.lightbox ? els.lightboxDots : null);
+      if (dots) dots.innerHTML = photoIndicatorHTML(count, index);
+    }
+    function markSwipeUsed() {
+      document.body.classList.add('swipe-used');
+      try { sessionStorage.setItem('motorby:swipe-used', '1'); } catch (_) {}
+    }
+    try { if (sessionStorage.getItem('motorby:swipe-used') === '1') document.body.classList.add('swipe-used'); } catch (_) {}
+    function setupSmartImageObserver() {
+      state.imageObserver?.disconnect(); state.viewObserver?.disconnect();
+      for (const timer of state.viewTimers.values()) clearTimeout(timer);
+      state.viewTimers.clear();
+      const cards = $$('.listing-card', els.grid);
+      if (!('IntersectionObserver' in window)) {
+        cards.slice(0, 4).forEach(card => preloadAround(state.items.get(card.dataset.id), 0, true));
+        return;
+      }
+      state.imageObserver = new IntersectionObserver(entries => {
+        for (const entry of entries) if (entry.isIntersecting) {
+          const card = entry.target;
+          preloadAround(state.items.get(card.dataset.id), Number($('.listing-card__media', card)?.dataset.index || 0), true);
+          state.imageObserver.unobserve(card);
+        }
+      }, { rootMargin: '650px 0px' });
+      state.viewObserver = new IntersectionObserver(entries => {
+        for (const entry of entries) {
+          const card = entry.target;
+          if (entry.isIntersecting && entry.intersectionRatio >= .52) {
+            if (!state.viewTimers.has(card)) state.viewTimers.set(card, setTimeout(() => {
+              state.viewTimers.delete(card);
+              if (card.isConnected) markListingViewed(card.dataset.id);
+              state.viewObserver?.unobserve(card);
+            }, 650));
+          } else if (state.viewTimers.has(card)) {
+            clearTimeout(state.viewTimers.get(card)); state.viewTimers.delete(card);
+          }
+        }
+      }, { threshold: [.52] });
+      cards.forEach(card => { state.imageObserver.observe(card); state.viewObserver.observe(card); });
+    }
+
     const AV_BROWSER_ENUMS = {
       body: { sedan: [5], universal: [2], hatchback: [3, 24], minivan: [4], suv: [6, 23], coupe: [1], cabriolet: [7], minibus: [11, 21], van: [20], pickup: [8], limousine: [22], liftback: [26] },
       fuel: { gasoline: [1], diesel: [5], gas: [2, 3], hybrid: [4, 6], electric: [7] },
-      transmission: { automatic: [1, 3, 4], mechanical: [2] },
+      transmission: { automatic: [1, 3], mechanical: [2] },
       state: { owned: [2], new: [5], damaged: [3] },
       drivetrain: { front: [1], rear: [2], all: [3, 4] },
     };
@@ -1045,6 +1392,22 @@
         .replace(/рестайлинг/g, 'rest').replace(/поколение/g, '').replace(/\+/g, ' plus ')
         .replace(/[^a-zа-я0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
     }
+    function avBrowserGenerationFamilyScore(left, right) {
+      const codes = value => avBrowserTaxonomyText(value).split(' ')
+        .filter(token => /[a-zа-я]/.test(token) && /\d/.test(token));
+      const leftCodes = codes(left), rightCodes = codes(right);
+      if (!leftCodes.length || !rightCodes.length) return 0;
+      let matches = 0;
+      for (const leftCode of leftCodes) {
+        if (rightCodes.some(rightCode => leftCode === rightCode
+          || (leftCode.endsWith('x') && rightCode.startsWith(leftCode.slice(0, -1)))
+          || (rightCode.endsWith('x') && leftCode.startsWith(rightCode.slice(0, -1))))) matches += 1;
+      }
+      if (!matches) return 0;
+      const leftRestyled = /\brest\b/.test(avBrowserTaxonomyText(left));
+      const rightRestyled = /\brest\b/.test(avBrowserTaxonomyText(right));
+      return .72 + Math.min(.2, matches * .08) + (leftRestyled === rightRestyled ? .12 : -.24);
+    }
     function avBrowserFindOption(items, wanted, generation = false) {
       const options = (items || []).map(item => ({ value: item?.id, label: avBrowserText(item?.label || item?.name), raw: item }))
         .filter(item => item.value !== null && item.value !== undefined && item.label);
@@ -1065,6 +1428,7 @@
           const overlap = [...targetTokens].filter(token => tokens.has(token)).length;
           score = overlap / Math.max(targetTokens.size, tokens.size, 1);
         }
+        if (generation) score = Math.max(score, avBrowserGenerationFamilyScore(wanted, option.label));
         if (score > bestScore) { bestScore = score; best = option; }
       }
       return bestScore >= (generation ? .34 : .58) ? best : null;
@@ -1082,7 +1446,11 @@
             headers: { accept: 'application/json' }, credentials: 'omit', referrerPolicy: 'no-referrer',
             signal: controller.signal,
           });
-          if (!response.ok) throw new Error(`AV.BY ответил с кодом ${response.status}`);
+          if (!response.ok) {
+            const error = new Error(`AV.BY ответил с кодом ${response.status}`);
+            error.status = response.status;
+            throw error;
+          }
           return await response.json();
         } finally { clearTimeout(timer); }
       })();
@@ -1205,7 +1573,7 @@
       const brand = avBrowserText(properties.brand), model = avBrowserText(properties.model), generation = avBrowserText(properties.generation);
       const fallbackUrl = metadata.brandSlug && metadata.modelSlug
         ? `https://cars.av.by/${encodeURIComponent(metadata.brandSlug)}/${encodeURIComponent(metadata.modelSlug)}/${ad.id}` : `https://cars.av.by/${ad.id}`;
-      const generationImage = generationData?.mainPhoto?.medium?.url || generationData?.mainPhoto?.big?.url || images[0] || null;
+      const generationImage = generationData?.mainPhoto?.medium?.url || generationData?.mainPhoto?.big?.url || null;
       return {
         id: `av:${ad.id}`, source: 'av', sourceLabel: 'AV.BY', sourceCatalog: 'Каталог автомобилей AV.BY', provider: 'AV.BY', sourceId: String(ad.id),
         sourceUrl: /^https:\/\/cars\.av\.by\//i.test(ad.publicUrl || '') ? ad.publicUrl : fallbackUrl,
@@ -1286,6 +1654,97 @@
       if (!years || !years.from) return '';
       return `${years.from} — ${years.to || 'н.в.'}`;
     }
+    function sameCatalogName(left, right) {
+      const a = avBrowserTaxonomyText(left), b = avBrowserTaxonomyText(right);
+      return Boolean(a && b && a === b);
+    }
+    function generationCodeTokens(value) {
+      return avBrowserTaxonomyText(value).split(' ')
+        .filter(token => /[a-zа-я]/.test(token) && /\d/.test(token));
+    }
+    function catalogGenerationByCode(item, candidates) {
+      const sourceText = avBrowserTaxonomyText([item.generation, item.title].filter(Boolean).join(' '));
+      const sourceCodes = generationCodeTokens(sourceText);
+      if (!sourceCodes.length) return null;
+      const sourceRestyled = /\brest\b/.test(avBrowserTaxonomyText(item.generation));
+      const sourceDeclaresVariant = Boolean(item.generation);
+      const sourceGt = /\b(?:gt|gran turismo|f34)\b/.test(sourceText) || /лифтбек/i.test(item.body || '');
+      const year = Number(item.year);
+      let best = null, bestScore = -Infinity;
+      for (const generation of candidates) {
+        const candidateText = avBrowserTaxonomyText(generation.name);
+        const candidateCodes = generationCodeTokens(candidateText);
+        let codeScore = 0;
+        for (const candidateCode of candidateCodes) {
+          let match = 0;
+          for (const sourceCode of sourceCodes) {
+            if (sourceCode === candidateCode) match = Math.max(match, 3);
+            else if (sourceCode.endsWith('x') && candidateCode.startsWith(sourceCode.slice(0, -1))) match = Math.max(match, 1);
+          }
+          codeScore += match;
+        }
+        if (!codeScore) continue;
+        let score = codeScore;
+        const candidateRestyled = /\brest\b/.test(candidateText);
+        if (sourceDeclaresVariant) score += sourceRestyled === candidateRestyled ? 3 : -4;
+        const candidateGt = /\b(?:gt|gran turismo|f34)\b/.test(candidateText);
+        if (sourceGt === candidateGt) score += 2;
+        else if (candidateGt) score -= 2;
+        if (Number.isFinite(year)) {
+          const inRange = (!generation.yearFrom || year >= Number(generation.yearFrom))
+            && (!generation.yearTo || year <= Number(generation.yearTo));
+          score += inRange ? 1 : -3;
+        }
+        if (score > bestScore) { bestScore = score; best = generation; }
+      }
+      return bestScore >= 2 ? best : null;
+    }
+    function catalogGenerationForItem(item) {
+      if (!els.model.value || !state.generations.length) return null;
+      const selectedBrand = selectedOption(els.brand)?.dataset.name || selectedOption(els.brand)?.textContent || '';
+      const selectedModel = selectedOption(els.model)?.dataset.name || selectedOption(els.model)?.textContent || '';
+      if (item.brand && selectedBrand && !sameCatalogName(item.brand, selectedBrand)) return null;
+      if (item.model && selectedModel && !sameCatalogName(item.model, selectedModel)) return null;
+
+      const selected = new Set(state.generationIds);
+      const candidates = selected.size
+        ? state.generations.filter(generation => selected.has(String(generation.id)))
+        : state.generations;
+      if (!candidates.length) return null;
+
+      const byId = item.generationId && ['onliner', 'dealer', 'autohouse'].includes(item.source)
+        ? candidates.find(generation => String(generation.id) === String(item.generationId))
+        : null;
+      if (byId) return byId;
+      if (item.generation) {
+        const byName = avBrowserFindOption(candidates, item.generation, true)?.raw || null;
+        if (byName) return byName;
+      }
+      const byCode = catalogGenerationByCode(item, candidates);
+      if (byCode) return byCode;
+      const year = Number(item.year);
+      if (Number.isFinite(year)) {
+        const byYear = candidates.filter(generation =>
+          (!generation.yearFrom || year >= Number(generation.yearFrom))
+          && (!generation.yearTo || year <= Number(generation.yearTo)));
+        if (byYear.length === 1) return byYear[0];
+      }
+      return candidates.length === 1 ? candidates[0] : null;
+    }
+    function withCatalogGenerationImage(item) {
+      const generation = catalogGenerationForItem(item);
+      if (!generation?.image) {
+        // With a selected model, never label an advert photo as a generation
+        // photo. A neutral local fallback is safer than a changing seller shot.
+        return els.model.value && state.generations.length ? { ...item, generationImage: null } : item;
+      }
+      return {
+        ...item,
+        generationImage: generation.image,
+        generationYears: { from: generation.yearFrom || null, to: generation.yearTo || null },
+        catalogGenerationId: String(generation.id),
+      };
+    }
     function relativeDate(value) {
       const date = new Date(value || '');
       if (Number.isNaN(date.getTime())) return 'дата не указана';
@@ -1358,6 +1817,375 @@
       else document.body.classList.add('mobile-awaiting-search');
     }
 
+    function openPersonalDatabase() {
+      if (!('indexedDB' in window)) return Promise.reject(new Error('IndexedDB недоступна'));
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(PERSONAL_DB_NAME, PERSONAL_DB_VERSION);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains('listings')) {
+            const store = db.createObjectStore('listings', { keyPath: 'id' });
+            store.createIndex('favorite', 'favorite', { unique: false });
+            store.createIndex('lastSeenAt', 'lastSeenAt', { unique: false });
+            store.createIndex('viewedAt', 'viewedAt', { unique: false });
+          }
+          if (!db.objectStoreNames.contains('preferences')) db.createObjectStore('preferences', { keyPath: 'key' });
+          if (!db.objectStoreNames.contains('searches')) {
+            const store = db.createObjectStore('searches', { keyPath: 'id' });
+            store.createIndex('createdAt', 'createdAt', { unique: false });
+          }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error('Не удалось открыть IndexedDB'));
+        request.onblocked = () => reject(new Error('Обновление IndexedDB заблокировано другой вкладкой'));
+      });
+    }
+    function idbRequest(request) {
+      return new Promise((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error('Ошибка IndexedDB'));
+      });
+    }
+    async function personalAll(storeName) {
+      if (!personalDb.db) return [];
+      return idbRequest(personalDb.db.transaction(storeName, 'readonly').objectStore(storeName).getAll());
+    }
+    function personalPut(storeName, value) {
+      if (!personalDb.db) return Promise.resolve(value);
+      return new Promise((resolve, reject) => {
+        const tx = personalDb.db.transaction(storeName, 'readwrite');
+        tx.objectStore(storeName).put(value);
+        tx.oncomplete = () => resolve(value);
+        tx.onerror = () => reject(tx.error || new Error('Не удалось сохранить данные'));
+      }).catch(error => { console.warn('[personal db]', error); return value; });
+    }
+    function personalDelete(storeName, key) {
+      if (!personalDb.db) return Promise.resolve();
+      return new Promise((resolve, reject) => {
+        const tx = personalDb.db.transaction(storeName, 'readwrite');
+        tx.objectStore(storeName).delete(key);
+        tx.oncomplete = resolve; tx.onerror = () => reject(tx.error || new Error('Не удалось удалить данные'));
+      }).catch(error => { console.warn('[personal db]', error); });
+    }
+    function personalPreference(key, fallback = null) {
+      return state.preferences.has(key) ? state.preferences.get(key) : fallback;
+    }
+    function setPersonalPreference(key, value) {
+      state.preferences.set(key, value);
+      try { localStorage.setItem(`motorby:pref:${key}`, JSON.stringify(value)); } catch (_) {}
+      return personalPut('preferences', { key, value, updatedAt: new Date().toISOString() });
+    }
+    function applyDensity(value, persist = true) {
+      state.density = value === 'compact' ? 'compact' : 'comfortable';
+      document.body.classList.toggle('density-compact', state.density === 'compact');
+      els.density?.setAttribute('aria-pressed', String(state.density === 'compact'));
+      const label = $('span', els.density); if (label) label.textContent = state.density === 'compact' ? 'Компактно' : 'Подробно';
+      if (els.density) els.density.title = state.density === 'compact' ? 'Включить подробные карточки' : 'Включить компактные карточки';
+      if (persist) setPersonalPreference('density', state.density);
+    }
+    async function initPersonalDatabase() {
+      try {
+        personalDb.db = await openPersonalDatabase(); personalDb.available = true;
+        personalDb.db.onversionchange = () => personalDb.db?.close();
+        const [records, preferences, searches] = await Promise.all([
+          personalAll('listings'), personalAll('preferences'), personalAll('searches'),
+        ]);
+        records.forEach(record => { if (record?.id) state.personalRecords.set(record.id, record); });
+        preferences.forEach(entry => { if (entry?.key) state.preferences.set(entry.key, entry.value); });
+        state.savedSearches = searches.filter(item => item?.id && item?.params).sort((a, b) => Date.parse(b.createdAt || 0) - Date.parse(a.createdAt || 0));
+      } catch (error) {
+        console.warn('[personal db disabled]', error);
+      }
+      for (const key of ['density', 'sort', 'lastSearch', 'lastResultIds']) {
+        if (state.preferences.has(key)) continue;
+        try {
+          const value = JSON.parse(localStorage.getItem(`motorby:pref:${key}`) || 'null');
+          if (value !== null) state.preferences.set(key, value);
+        } catch (_) {}
+      }
+      let legacyFavorites = [];
+      try { legacyFavorites = JSON.parse(localStorage.getItem('motorby:favorites') || '[]'); } catch (_) {}
+      if (Array.isArray(legacyFavorites)) {
+        for (const id of legacyFavorites) {
+          if (typeof id !== 'string' || !id) continue;
+          const record = { ...(state.personalRecords.get(id) || { id }), favorite: true, migratedAt: new Date().toISOString() };
+          state.personalRecords.set(id, record); state.favorites.add(id); personalPut('listings', record);
+        }
+      }
+      for (const record of state.personalRecords.values()) if (record.favorite) state.favorites.add(record.id);
+      applyDensity(personalPreference('density', 'comfortable'), false);
+      const sort = personalPreference('sort', 'fresh');
+      if ([...els.sort.options].some(option => option.value === sort)) els.sort.value = sort;
+      renderPersonalPanel();
+    }
+    function listingSnapshot(item) {
+      const images = (item.images || []).filter(Boolean).slice(0, 8);
+      const numeric = value => value === null || value === undefined || value === '' || !Number.isFinite(Number(value)) ? null : Number(value);
+      return {
+        source: item.source || String(item.id || '').split(':')[0], sourceLabel: item.sourceLabel || item.source || 'Источник',
+        sourceUrl: item.sourceUrl || '', marketplace: item.marketplace || '', provider: item.provider || '',
+        title: item.title || [item.brand, item.model].filter(Boolean).join(' ') || 'Автомобиль',
+        image: images[0] || item.generationImage || fallbackImage, images,
+        brand: item.brand || '', model: item.model || '', generation: item.generation || '', generationImage: item.generationImage || '',
+        generationYears: item.generationYears || null, year: item.year ?? null, mileage: item.mileage ?? null,
+        priceByn: numeric(item.priceByn), priceUsd: numeric(item.priceUsd),
+        fuel: item.fuel || '', engineVolume: item.engineVolume ?? null, enginePower: item.enginePower ?? null,
+        transmission: item.transmission || '', body: item.body || '', drivetrain: item.drivetrain || '',
+        state: item.state || '', location: item.location || '', seller: item.seller ? { name: item.seller.name || '', type: item.seller.type || '' } : null,
+        description: String(item.description || '').slice(0, 3000),
+      };
+    }
+    function pushPersonalHistory(record, event) {
+      const history = Array.isArray(record.history) ? [...record.history] : [];
+      history.push(event); record.history = history.slice(-PERSONAL_HISTORY_LIMIT);
+      record.lastEventAt = event.at;
+    }
+    function recordListingSnapshot(item) {
+      if (!item?.id) return null;
+      const now = new Date().toISOString();
+      const previous = state.personalRecords.get(item.id);
+      const record = { ...(previous || { id: item.id, firstSeenAt: now, favorite: state.favorites.has(item.id), history: [] }) };
+      const next = listingSnapshot(item);
+      const previousPrice = record.priceByn === null || record.priceByn === undefined ? NaN : Number(record.priceByn);
+      const nextPrice = next.priceByn === null || next.priceByn === undefined ? NaN : Number(next.priceByn);
+      if (!previous) pushPersonalHistory(record, { kind: 'first_seen', at: now, priceByn: Number.isFinite(nextPrice) ? nextPrice : null });
+      if (previous && Number.isFinite(previousPrice) && Number.isFinite(nextPrice) && previousPrice !== nextPrice) {
+        const change = { kind: 'price', at: now, from: previousPrice, to: nextPrice, delta: nextPrice - previousPrice };
+        pushPersonalHistory(record, change); record.lastPriceChange = change;
+      }
+      if (previous?.available === false) {
+        const change = { kind: 'returned', at: now, priceByn: Number.isFinite(nextPrice) ? nextPrice : null };
+        pushPersonalHistory(record, change); record.returnedAt = now;
+      }
+      Object.assign(record, next, {
+        id: item.id, favorite: state.favorites.has(item.id) || Boolean(record.favorite), note: record.note || '',
+        firstSeenAt: record.firstSeenAt || now, lastSeenAt: now, lastCheckedAt: now, available: true,
+      });
+      state.personalRecords.set(item.id, record); personalPut('listings', record);
+      return record;
+    }
+    function markListingViewed(id) {
+      const item = state.items.get(id);
+      let record = state.personalRecords.get(id) || (item ? recordListingSnapshot(item) : null);
+      if (!record) return;
+      if (!record.viewedAt) record.firstViewedAt = new Date().toISOString();
+      record.viewedAt = new Date().toISOString(); record.viewCount = Math.min(9999, Number(record.viewCount || 0) + 1);
+      state.personalRecords.set(id, record); personalPut('listings', record); updatePersonalCounts();
+    }
+    function setListingFavorite(id, favorite) {
+      const item = state.items.get(id);
+      const record = { ...(state.personalRecords.get(id) || (item ? recordListingSnapshot(item) : { id })) };
+      record.favorite = favorite; record.favoriteAt = favorite ? new Date().toISOString() : null;
+      state.personalRecords.set(id, record); personalPut('listings', record);
+      try { localStorage.setItem('motorby:favorites', JSON.stringify([...state.favorites])); } catch (_) {}
+      renderPersonalPanel();
+    }
+    function markListingUnavailable(id, checkedAt = new Date().toISOString()) {
+      const record = state.personalRecords.get(id); if (!record) return;
+      if (record.available !== false) pushPersonalHistory(record, { kind: 'unavailable', at: checkedAt, priceByn: record.priceByn ?? null });
+      record.available = false; record.availabilityChangedAt = checkedAt; record.lastCheckedAt = checkedAt; record.lastCheckAttemptAt = checkedAt;
+      state.personalRecords.set(id, record); personalPut('listings', record); renderPersonalPanel();
+    }
+    function personalDate(value, withTime = false) {
+      const date = new Date(value || ''); if (Number.isNaN(date.getTime())) return '—';
+      return new Intl.DateTimeFormat('ru-BY', withTime ? { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' } : { day: '2-digit', month: 'short' }).format(date);
+    }
+    function personalChangeCount() {
+      let count = 0;
+      for (const record of state.personalRecords.values()) count += (record.history || []).filter(event => ['price', 'unavailable', 'returned'].includes(event.kind)).length;
+      return count;
+    }
+    function updatePersonalCounts() {
+      const records = [...state.personalRecords.values()];
+      const favorites = records.filter(record => record.favorite).length;
+      const viewed = records.filter(record => record.viewedAt).length;
+      const changes = personalChangeCount();
+      if (els.personalFavoriteCount) els.personalFavoriteCount.textContent = String(favorites);
+      if (els.personalViewedCount) els.personalViewedCount.textContent = String(viewed);
+      if (els.personalChangeCount) els.personalChangeCount.textContent = String(changes);
+      if (els.personalBadge) { els.personalBadge.textContent = String(favorites); els.personalBadge.hidden = favorites === 0; }
+    }
+    function savedSearchName() {
+      const summary = mobileSummaryText();
+      return `${summary} · ${new Intl.DateTimeFormat('ru-BY', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date())}`;
+    }
+    function renderPersonalPanel() {
+      updatePersonalCounts();
+      if (!els.savedSearches || !els.personalActivity) return;
+      els.savedSearches.innerHTML = state.savedSearches.length ? state.savedSearches.map(search => `
+        <div class="saved-search">
+          <button class="saved-search__load" type="button" data-personal-action="load-search" data-search-id="${escapeHTML(search.id)}"><strong>${escapeHTML(search.name || 'Сохранённый поиск')}</strong><span>${escapeHTML(personalDate(search.createdAt, true))}</span></button>
+          <button class="saved-search__delete" type="button" data-personal-action="delete-search" data-search-id="${escapeHTML(search.id)}" aria-label="Удалить поиск">${icon('trash')}</button>
+        </div>`).join('') : '<div class="personal-empty">Здесь появятся сохранённые наборы фильтров</div>';
+      const records = [...state.personalRecords.values()].filter(record => record.title)
+        .sort((a, b) => Date.parse(b.lastEventAt || b.viewedAt || b.lastSeenAt || 0) - Date.parse(a.lastEventAt || a.viewedAt || a.lastSeenAt || 0)).slice(0, 8);
+      els.personalActivity.innerHTML = records.length ? records.map(record => {
+        let status = record.available === false ? 'Снято с продажи' : record.lastPriceChange ? (record.lastPriceChange.delta < 0 ? 'Цена снизилась' : 'Цена выросла') : record.favorite ? 'В избранном' : record.note ? 'Есть заметка' : record.viewedAt ? 'Просмотрено' : 'Сохранено';
+        return `<a class="activity-row" href="${validUrl(record.sourceUrl)}" target="_blank" rel="noopener"><img src="${mediaUrl(record.image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"><span><strong>${escapeHTML(record.title)}</strong><span>${escapeHTML(formatPrice(record.priceByn))} · ${escapeHTML(personalDate(record.lastSeenAt))}</span></span><em>${escapeHTML(status)}</em></a>`;
+      }).join('') : '<div class="personal-empty">История появится после просмотра выдачи</div>';
+    }
+    async function saveCurrentSearch() {
+      const params = new URLSearchParams(state.lastParams || collectParams(1));
+      params.delete('page'); params.delete('limit');
+      const search = {
+        id: crypto.randomUUID?.() || `search-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        name: savedSearchName(), params: params.toString(), createdAt: new Date().toISOString(),
+      };
+      state.savedSearches.unshift(search); state.savedSearches = state.savedSearches.slice(0, 30);
+      await personalPut('searches', search); renderPersonalPanel(); toast('Фильтры сохранены в личной базе');
+    }
+    async function deleteSavedSearch(id) {
+      state.savedSearches = state.savedSearches.filter(search => search.id !== id);
+      await personalDelete('searches', id); renderPersonalPanel();
+    }
+    async function exportPersonalData() {
+      const payload = {
+        product: 'MOTOR.BY', schema: 1, exportedAt: new Date().toISOString(),
+        listings: [...state.personalRecords.values()],
+        preferences: [...state.preferences].map(([key, value]) => ({ key, value })),
+        searches: state.savedSearches,
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob); const link = document.createElement('a');
+      link.href = url; link.download = `motor-by-personal-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.append(link); link.click(); link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000); toast('Личная база экспортирована');
+    }
+    async function importPersonalData(file) {
+      const payload = JSON.parse(await file.text());
+      if (payload?.product !== 'MOTOR.BY' || payload?.schema !== 1) throw new Error('Это не файл личной базы MOTOR.BY');
+      const listings = Array.isArray(payload.listings) ? payload.listings.slice(0, 5000) : [];
+      const preferences = Array.isArray(payload.preferences) ? payload.preferences.slice(0, 100) : [];
+      const searches = Array.isArray(payload.searches) ? payload.searches.slice(0, 100) : [];
+      for (const record of listings) if (record?.id && typeof record.id === 'string') {
+        const current = state.personalRecords.get(record.id) || {};
+        const merged = { ...current, ...record, id: record.id, history: Array.isArray(record.history) ? record.history.slice(-PERSONAL_HISTORY_LIMIT) : (current.history || []) };
+        state.personalRecords.set(record.id, merged); await personalPut('listings', merged);
+      }
+      for (const entry of preferences) if (entry?.key) { state.preferences.set(entry.key, entry.value); await personalPut('preferences', { ...entry, updatedAt: new Date().toISOString() }); }
+      for (const search of searches) if (search?.id && search?.params) {
+        const index = state.savedSearches.findIndex(item => item.id === search.id);
+        if (index >= 0) state.savedSearches[index] = search; else state.savedSearches.push(search);
+        await personalPut('searches', search);
+      }
+      state.favorites = new Set([...state.personalRecords.values()].filter(record => record.favorite).map(record => record.id));
+      applyDensity(personalPreference('density', state.density), false); renderPersonalPanel(); sortAndRender();
+      toast(`Импортировано объявлений: ${listings.length}`);
+    }
+    async function clearPersonalHistory() {
+      if (!confirm('Очистить историю цен, наличия и просмотров? Избранное и заметки останутся.')) return;
+      for (const record of state.personalRecords.values()) {
+        record.history = []; record.viewedAt = null; record.firstViewedAt = null; record.viewCount = 0;
+        delete record.lastPriceChange; delete record.returnedAt; delete record.availabilityChangedAt; delete record.lastEventAt;
+        await personalPut('listings', record);
+      }
+      renderPersonalPanel(); sortAndRender(); toast('История очищена');
+    }
+    function saveListingNote(id, note, statusNode) {
+      clearTimeout(noteTimers.get(id));
+      if (statusNode) statusNode.textContent = 'Сохраняем…';
+      noteTimers.set(id, setTimeout(() => {
+        const item = state.items.get(id);
+        const record = { ...(state.personalRecords.get(id) || (item ? recordListingSnapshot(item) : { id })) };
+        record.note = String(note || '').slice(0, 5000); record.noteUpdatedAt = new Date().toISOString();
+        state.personalRecords.set(id, record); personalPut('listings', record).then(() => {
+          if (statusNode?.isConnected) statusNode.textContent = record.note ? 'Сохранено в браузере' : '';
+          renderPersonalPanel();
+        });
+      }, 420));
+    }
+    function priceChangeBadgeHTML(record) {
+      const change = record?.lastPriceChange; if (!change || !Number.isFinite(Number(change.delta))) return '';
+      const down = Number(change.delta) < 0;
+      return `<span class="price-change price-change--${down ? 'down' : 'up'}">${down ? '↓' : '↑'} ${escapeHTML(formatNumber(Math.abs(change.delta)))} р.</span>`;
+    }
+    function historyTimelineHTML(record) {
+      const events = (record?.history || []).filter(event => ['first_seen', 'price', 'unavailable', 'returned'].includes(event.kind)).slice(-6).reverse();
+      if (!events.length) return '<p class="history-empty">Изменений пока нет. Снимки обновляются при живом поиске.</p>';
+      return `<div class="history-timeline">${events.map(event => {
+        const labels = { first_seen: 'Впервые найдено', price: event.delta < 0 ? 'Цена снизилась' : 'Цена выросла', unavailable: 'Объявление исчезло', returned: 'Вернулось в продажу' };
+        const value = event.kind === 'price' ? `${formatPrice(event.from)} → ${formatPrice(event.to)}` : event.priceByn !== null && event.priceByn !== undefined && Number.isFinite(Number(event.priceByn)) ? formatPrice(event.priceByn) : '';
+        return `<div class="history-row"><time>${escapeHTML(personalDate(event.at))}</time><span>${escapeHTML(labels[event.kind] || event.kind)}</span><strong>${escapeHTML(value)}</strong></div>`;
+      }).join('')}</div>`;
+    }
+    function personalListingHTML(item) {
+      const record = state.personalRecords.get(item.id) || {};
+      return `<div class="personal-listing"><div class="personal-listing__head"><strong>История цены и наличия</strong><span>IndexedDB · на этом устройстве</span></div>${historyTimelineHTML(record)}<label class="note-label">Личная заметка<textarea class="personal-note" data-personal-note="${escapeHTML(item.id)}" maxlength="5000" placeholder="Например: проверить VIN, торг до 42 000 р.…">${escapeHTML(record.note || '')}</textarea></label><span class="personal-note-status" data-note-status></span></div>`;
+    }
+    function offlineItemFromRecord(record) {
+      return {
+        id: record.id, source: record.source || String(record.id).split(':')[0] || 'kufar', sourceLabel: record.sourceLabel || 'Сохранено',
+        sourceUrl: record.sourceUrl || '', marketplace: record.marketplace || '', provider: record.provider || '',
+        title: record.title, images: record.images?.length ? record.images : [record.image || fallbackImage], generationImage: record.generationImage || null,
+        brand: record.brand, model: record.model, generation: record.generation, generationYears: record.generationYears,
+        year: record.year, mileage: record.mileage, priceByn: record.priceByn, priceUsd: record.priceUsd,
+        fuel: record.fuel, engineVolume: record.engineVolume, enginePower: record.enginePower, transmission: record.transmission,
+        body: record.body, drivetrain: record.drivetrain, state: record.available === false ? 'Последний статус: снято' : 'Последнее сохранённое состояние',
+        location: record.location, seller: record.seller, description: record.description || 'Локальная копия последнего сохранённого состояния объявления.',
+        descriptionLoaded: true, detailLoaded: true, updatedAt: record.lastSeenAt,
+      };
+    }
+    function restoreOfflinePersonalState(message = '') {
+      const preferredIds = personalPreference('lastResultIds', []);
+      const candidates = (Array.isArray(preferredIds) ? preferredIds.map(id => state.personalRecords.get(id)) : [])
+        .filter(record => record?.title);
+      if (!candidates.length) candidates.push(...[...state.personalRecords.values()].filter(record => record.title)
+        .sort((a, b) => Date.parse(b.lastSeenAt || 0) - Date.parse(a.lastSeenAt || 0)).slice(0, 30));
+      if (!candidates.length) return false;
+      state.items.clear(); state.order = []; state.sourceStatus = []; state.offlineMode = true;
+      for (const record of candidates) {
+        const item = offlineItemFromRecord(record);
+        if (!state.items.has(item.id)) state.order.push(item.id);
+        state.items.set(item.id, item);
+      }
+      sortAndRender(); els.overline.textContent = 'Локальное сохранённое состояние';
+      els.statuses.innerHTML = `<div class="source-warning">${icon('database')}<span><strong>Офлайн-режим:</strong> показаны последние реальные объявления из IndexedDB. Их текущая цена и наличие будут проверены после восстановления связи.${message ? ` ${escapeHTML(message)}` : ''}</span></div>`;
+      els.loadWrap.classList.remove('visible');
+      if (mobileFilterMedia.matches) enterMobileResultsMode({ scroll: false });
+      return true;
+    }
+    async function fetchPersonalDetail(record) {
+      const [idSource, sourceId] = String(record.id).split(':');
+      if (!/^[a-z0-9_-]{1,40}$/i.test(sourceId || '')) throw new Error('Некорректный ID');
+      if (idSource === 'av' || record.marketplace === 'AV.BY') {
+        try { return await avBrowserDetail(sourceId); }
+        catch (error) { if (error.status === 404) throw error; }
+      }
+      const source = ['onliner', 'kufar', 'av', 'dealer', 'autohouse'].includes(idSource) ? idSource : record.source;
+      const data = await api(`/api/listing/${source}/${sourceId}`);
+      if (data.mock !== false || !data.item) throw new Error('Некорректный ответ карточки');
+      return data.item;
+    }
+    async function revalidateFavoriteRecord(record) {
+      const attemptedAt = new Date().toISOString(); record.lastCheckAttemptAt = attemptedAt; personalPut('listings', record);
+      try {
+        const detail = await fetchPersonalDetail(record);
+        recordListingSnapshot({ ...detail, id: record.id, source: record.source || detail.source, sourceLabel: record.sourceLabel || detail.sourceLabel, marketplace: record.marketplace || detail.marketplace, sourceUrl: record.sourceUrl || detail.sourceUrl });
+      } catch (error) {
+        if (error.status === 404 || ['not_found', 'not_available'].includes(error.code)) markListingUnavailable(record.id, attemptedAt);
+        // 429/5xx/CORS/timeouts are intentionally not interpreted as removal.
+      }
+    }
+    async function revalidateFavorites() {
+      if (!navigator.onLine) return;
+      const staleBefore = Date.now() - 12 * 60 * 60 * 1000;
+      const queue = [...state.personalRecords.values()]
+        .filter(record => (record.favorite || record.note || record.viewedAt) && Date.parse(record.lastCheckAttemptAt || record.lastCheckedAt || 0) < staleBefore)
+        .sort((a, b) => Date.parse(a.lastCheckAttemptAt || a.lastCheckedAt || 0) - Date.parse(b.lastCheckAttemptAt || b.lastCheckedAt || 0)).slice(0, 6);
+      const workers = Array.from({ length: Math.min(2, queue.length) }, async () => {
+        while (queue.length) await revalidateFavoriteRecord(queue.shift());
+      });
+      await Promise.allSettled(workers); renderPersonalPanel();
+    }
+    function syncBodyModal() {
+      document.body.classList.toggle('modal-open', els.lightbox.classList.contains('open') || els.personalPanel.classList.contains('open'));
+    }
+    function openPersonalPanel() {
+      renderPersonalPanel(); els.personalPanel.classList.add('open'); syncBodyModal();
+      $('.personal-close', els.personalPanel)?.focus();
+    }
+    function closePersonalPanel() { els.personalPanel.classList.remove('open'); syncBodyModal(); els.personalButton?.focus(); }
+
     function toast(message, type = 'info') {
       const node = document.createElement('div');
       node.className = `toast toast--${type}`;
@@ -1370,7 +2198,11 @@
       const response = await fetch(path, { headers: { accept: 'application/json' }, ...options });
       let body;
       try { body = await response.json(); } catch (_) { body = null; }
-      if (!response.ok) throw new Error(body?.message || `Ошибка сервера ${response.status}`);
+      if (!response.ok) {
+        const error = new Error(body?.message || `Ошибка сервера ${response.status}`);
+        error.status = response.status; error.code = body?.error || '';
+        throw error;
+      }
       return body;
     }
 
@@ -1389,9 +2221,11 @@
           (popular.length ? `<optgroup label="Популярные">${popular.map(brandOption).join('')}</optgroup>` : '') +
           `<optgroup label="Все марки">${other.map(brandOption).join('')}</optgroup>`;
         els.catalogStatus.textContent = `${state.brands.length} марок · ${data.augmented ? 'справочник площадок и дилеров' : data.live ? 'живой справочник' : 'резервный справочник'}`;
+        return true;
       } catch (error) {
         els.catalogStatus.textContent = 'Справочник марок временно недоступен';
         toast(error.message, 'error');
+        return false;
       }
     }
     function brandOption(brand) { return `<option value="${Number(brand.id)}" data-name="${escapeHTML(brand.name)}">${escapeHTML(brand.name)}</option>`; }
@@ -1447,7 +2281,7 @@
       els.generationTrack.innerHTML = anyCard + state.generations.map(generation => `
         <button class="generation-card" type="button" data-generation="${Number(generation.id)}" aria-pressed="false">
           <span class="generation-check">${icon('check')}</span>
-          <div class="generation-card__image"><img src="${mediaUrl(generation.image)}" alt="${escapeHTML(generation.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'"></div>
+          <div class="generation-card__image"><img src="${mediaUrl(generation.image)}" alt="${escapeHTML(generation.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'"></div>
           <div class="generation-card__body"><strong>${escapeHTML(generation.name)}</strong><small>${escapeHTML(formatYears({ from: generation.yearFrom, to: generation.yearTo })) || 'Годы не указаны'}</small></div>
         </button>`).join('');
       syncGenerationSelection();
@@ -1672,30 +2506,40 @@
       state.loading = true;
       if (!append) {
         state.page = 1; state.items.clear(); state.order = []; state.detailQueue = []; state.detailQueued.clear();
+        state.observer?.disconnect(); state.imageObserver?.disconnect(); state.viewObserver?.disconnect();
+        for (const timer of state.viewTimers.values()) clearTimeout(timer); state.viewTimers.clear();
         showSkeletons(); els.statuses.innerHTML = ''; els.loadWrap.classList.remove('visible');
       }
       els.searchButton.disabled = true; els.loadButton.disabled = true;
       const params = collectParams(state.page);
       state.lastParams = params;
-      if (!append) updateBrowserUrl(params);
+      if (!append) {
+        updateBrowserUrl(params);
+        const savedParams = new URLSearchParams(params); savedParams.delete('page'); savedParams.delete('limit');
+        setPersonalPreference('lastSearch', savedParams.toString());
+      }
       if (scroll && !append && !mobileTransition) $('#results').scrollIntoView({ behavior: 'smooth', block: 'start' });
       try {
         const data = await searchWithBrowserAv(params);
         if (data.mock !== false || data.live !== true) throw new Error('Сервер не подтвердил, что данные живые');
-        state.sourceStatus = data.sourceStatus || [];
+        state.sourceStatus = data.sourceStatus || []; state.offlineMode = false;
         for (const item of data.items || []) {
-          if (!state.items.has(item.id)) state.order.push(item.id);
-          state.items.set(item.id, item);
+          const canonicalItem = withCatalogGenerationImage(item);
+          if (!state.items.has(canonicalItem.id)) state.order.push(canonicalItem.id);
+          state.items.set(canonicalItem.id, canonicalItem);
+          recordListingSnapshot(canonicalItem);
         }
-        renderStatuses(); sortAndRender();
+        setPersonalPreference('lastResultIds', state.order.slice(0, 80));
+        renderStatuses(); sortAndRender(); renderPersonalPanel();
         const canLoad = state.page < 5 && state.sourceStatus.some(status => ['ok', 'partial'].includes(status.state) && (status.total === null || status.total > status.count));
         els.loadWrap.classList.toggle('visible', canLoad && state.order.length > 0);
         const fetched = new Date(data.fetchedAt);
         els.overline.textContent = Number.isNaN(fetched.getTime()) ? 'Живая выдача' : `Получено ${fetched.toLocaleTimeString('ru-BY', { hour: '2-digit', minute: '2-digit' })}`;
       } catch (error) {
         if (append) state.page = Math.max(1, state.page - 1);
-        if (!append && !state.order.length) renderFatalError(error.message);
-        toast(error.message, 'error');
+        const restored = !append && !state.order.length && restoreOfflinePersonalState();
+        if (!append && !state.order.length && !restored) renderFatalError(error.message);
+        toast(restored ? 'Живые источники не ответили — показана локальная копия' : error.message, restored ? 'info' : 'error');
       } finally {
         state.loading = false; els.searchButton.disabled = false; els.loadButton.disabled = false;
       }
@@ -1730,7 +2574,7 @@
       const ids = sortedIds();
       els.grid.innerHTML = ids.map(id => cardHTML(state.items.get(id))).join('');
       els.shown.textContent = `· ${state.order.length}`;
-      setupDetailObserver();
+      setupDetailObserver(); setupSmartImageObserver();
     }
 
     function sourceClass(item) { return ['onliner', 'kufar', 'av', 'dealer', 'autohouse'].includes(item.source) ? item.source : 'kufar'; }
@@ -1745,6 +2589,8 @@
       const generationTitle = [item.brand, item.model, item.generation].filter(Boolean).join(' ');
       const years = formatYears(item.generationYears);
       const sourceDate = item.updatedAt || item.createdAt;
+      const personalRecord = state.personalRecords.get(item.id) || {};
+      const returned = personalRecord.returnedAt && Date.parse(personalRecord.returnedAt) >= Date.now() - 30 * 86400000;
       const details = [
         ['Каталог', item.sourceCatalog], ['Состояние', item.state], ['Модификация', item.modification],
         ['Цвет', item.color], ['VIN', item.vin], ['Поколение', item.generation],
@@ -1760,30 +2606,31 @@
         : `<div class="detail-loading"><span class="mini-spinner"></span><span>Загружаем данные источника…</span></div>`;
       return `<article class="listing-card" data-id="${escapeHTML(item.id)}" data-source="${escapeHTML(item.source)}" data-detail-loaded="${item.detailLoaded === true ? '1' : '0'}" data-auto-detail="${item.source === 'av' || item.marketplace === 'AV.BY' ? '0' : '1'}">
         <div class="listing-card__media" data-action="open-gallery" data-index="0">
-          <img src="${mediaUrl(images[0])}" alt="${escapeHTML(item.title)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'">
+          <img src="${mediaUrl(images[0])}" alt="${escapeHTML(item.title)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'">
           <span class="source-badge source-badge--${sourceClass(item)}">${escapeHTML(item.sourceLabel)}</span>
-          <button class="favorite-button ${state.favorites.has(item.id) ? 'active' : ''}" type="button" data-action="favorite" aria-label="Добавить в избранное">${icon('heart')}</button>
+          <button class="favorite-button ${state.favorites.has(item.id) ? 'active' : ''}" type="button" data-action="favorite" aria-label="${state.favorites.has(item.id) ? 'Удалить из избранного' : 'Добавить в избранное'}">${icon('heart')}</button>
           ${images.length > 1 ? `<button class="gallery-arrow gallery-arrow--prev" type="button" data-action="prev-image" aria-label="Предыдущее фото">${icon('left')}</button><button class="gallery-arrow gallery-arrow--next" type="button" data-action="next-image" aria-label="Следующее фото">${icon('right')}</button>` : ''}
           <span class="photo-counter">${icon('camera')} <b data-photo-current>1</b> / <b data-photo-total>${images.length}</b></span>
+          ${images.length > 1 ? `<span class="photo-dots" data-photo-dots aria-hidden="true">${photoIndicatorHTML(images.length, 0)}</span><span class="swipe-hint" aria-hidden="true">${icon('swipe')} Листайте фото</span>` : ''}
         </div>
         <div class="listing-card__body">
           <div class="listing-head">
-            <div><div class="listing-kicker">${escapeHTML(item.state || 'Автомобиль')}${sourceDate ? ` · ${escapeHTML(relativeDate(sourceDate))}` : ''}</div><h3 class="listing-title"><a href="${validUrl(item.sourceUrl)}" target="_blank" rel="noopener">${escapeHTML(item.title)}</a></h3></div>
-            <div class="listing-price"><strong>${escapeHTML(formatPrice(item.priceByn))}</strong><small>${escapeHTML(formatUsd(item.priceUsd))}</small></div>
+            <div><div class="listing-kicker">${escapeHTML(item.state || 'Автомобиль')}${sourceDate ? ` · ${escapeHTML(relativeDate(sourceDate))}` : ''}${returned ? '<span class="availability-returned">Вернулось в продажу</span>' : ''}</div><h3 class="listing-title"><a href="${validUrl(item.sourceUrl)}" target="_blank" rel="noopener">${escapeHTML(item.title)}</a></h3></div>
+            <div class="listing-price"><strong>${escapeHTML(formatPrice(item.priceByn))}</strong><small>${escapeHTML(formatUsd(item.priceUsd))}</small>${priceChangeBadgeHTML(personalRecord)}</div>
           </div>
           <div class="spec-grid">
             ${specHTML('Год', item.year || '—')}${specHTML('Пробег', formatMileage(item.mileage))}${specHTML('Двигатель', engineLabel(item))}
             ${specHTML('Коробка', item.transmission || '—')}${specHTML('Кузов', item.body || '—')}${specHTML('Привод', item.drivetrain || '—')}
           </div>
           <div class="generation-mini">
-            <div class="generation-mini__image"><img src="${mediaUrl(item.generationImage || images[0])}" alt="Поколение ${escapeHTML(item.generation)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'"></div>
-            <div class="generation-mini__info"><span>Карточка поколения</span><strong>${escapeHTML(generationTitle || item.title)}</strong><small>${escapeHTML(years || item.generation || 'Поколение не указано площадкой')}</small></div>
+            <div class="generation-mini__image"><img src="${mediaUrl(item.generationImage || fallbackImage)}" data-generation-catalog-id="${escapeHTML(item.catalogGenerationId || '')}" alt="Поколение ${escapeHTML(item.generation)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'"></div>
+            <div class="generation-mini__info"><span>${item.generationImage ? 'Каталожное фото поколения' : 'Поколение'}</span><strong>${escapeHTML(generationTitle || item.title)}</strong><small>${escapeHTML(years || item.generation || 'Поколение не указано площадкой')}</small></div>
           </div>
           <div class="seller-comment" data-comment><div class="seller-comment__label">${escapeHTML(commentLabel)}</div><div data-comment-content>${comment}</div></div>
           <div class="listing-footer">
             <div class="seller-meta"><strong data-seller>${escapeHTML(item.seller?.name || 'Продавец')}</strong><span>${icon('pin')} ${escapeHTML(item.location || 'Беларусь')}</span></div>
             <div class="card-buttons">
-              <button class="detail-button" type="button" data-action="extra-toggle">${icon('sliders')} Все данные</button>
+              <button class="detail-button" type="button" data-action="extra-toggle" aria-label="Все данные объявления" aria-expanded="false">${icon('sliders')} Все данные</button>
               <a class="original-button" href="${validUrl(item.sourceUrl)}" target="_blank" rel="noopener">Оригинал ${icon('external')}</a>
             </div>
           </div>
@@ -1791,6 +2638,7 @@
             <div class="detail-facts" data-detail-facts>${details.map(detailFactHTML).join('') || '<span style="color:var(--muted-2);font-size:9px">Дополнительные параметры загружаются…</span>'}</div>
             <div class="equipment-title"><strong>Оснащение и характеристики</strong><span data-equipment-count>${equipment.length ? `${equipment.length} показано` : 'загрузка'}</span></div>
             <div class="equipment-list" data-equipment>${equipment.map(equipmentHTML).join('') || '<span class="equipment-tag">Загружаем с площадки…</span>'}</div>
+            ${personalListingHTML(item)}
           </div>
         </div>
       </article>`;
@@ -1846,7 +2694,8 @@
         let detailItem;
         if (source === 'av') {
           try { detailItem = await avBrowserDetail(sourceId); }
-          catch (_) {
+          catch (directError) {
+            if (directError.status === 404) throw directError;
             const data = await api(`/api/listing/${source}/${sourceId}`);
             if (data.mock !== false || !data.item) throw new Error('Некорректный ответ карточки');
             detailItem = data.item;
@@ -1866,10 +2715,18 @@
           descriptionLabel: previous.descriptionLabel,
           seller: { ...detailItem.seller, ...previous.seller },
         } : {};
-        const merged = { ...previous, ...detailItem, ...categoryIdentity, id };
+        const merged = withCatalogGenerationImage({
+          ...previous,
+          ...detailItem,
+          ...categoryIdentity,
+          id,
+          generationImage: detailItem.generationImage || previous.generationImage || null,
+          generationYears: detailItem.generationYears || previous.generationYears || null,
+        });
         state.items.set(id, merged);
-        updateCardDetail(merged);
+        recordListingSnapshot(merged); updateCardDetail(merged);
       } catch (error) {
+        if (error.status === 404 || ['not_found', 'not_available'].includes(error.code)) markListingUnavailable(id);
         const card = cardById(id);
         const content = $('[data-comment-content]', card);
         if (content) content.innerHTML = `<p class="seller-comment__text">Полное описание сейчас недоступно. Откройте оригинал объявления.</p>`;
@@ -1904,10 +2761,14 @@
       const values = [item.year || '—', formatMileage(item.mileage), engineLabel(item), item.transmission || '—', item.body || '—', item.drivetrain || '—'];
       specValues.forEach((node, index) => { node.textContent = values[index]; node.title = values[index]; });
       const generationImage = $('.generation-mini__image img', card);
-      if (generationImage && (item.generationImage || item.images?.[0])) generationImage.src = mediaUrl(item.generationImage || item.images[0]);
+      if (generationImage) {
+        generationImage.src = mediaUrl(item.generationImage || fallbackImage);
+        generationImage.dataset.generationCatalogId = item.catalogGenerationId || '';
+      }
       const generationInfo = $('.generation-mini__info', card);
       if (generationInfo) {
-        const strong = $('strong', generationInfo), small = $('small', generationInfo);
+        const label = $('span', generationInfo), strong = $('strong', generationInfo), small = $('small', generationInfo);
+        if (label) label.textContent = item.generationImage ? 'Каталожное фото поколения' : 'Поколение';
         if (strong) strong.textContent = [item.brand, item.model, item.generation].filter(Boolean).join(' ') || item.title;
         if (small) small.textContent = formatYears(item.generationYears) || item.generation || 'Поколение не указано площадкой';
       }
@@ -1916,17 +2777,73 @@
         const counter = $('.photo-counter', media);
         counter?.insertAdjacentHTML('beforebegin', `<button class="gallery-arrow gallery-arrow--prev" type="button" data-action="prev-image" aria-label="Предыдущее фото">${icon('left')}</button><button class="gallery-arrow gallery-arrow--next" type="button" data-action="next-image" aria-label="Следующее фото">${icon('right')}</button>`);
       }
+      if (media && item.images?.length > 1 && !$('[data-photo-dots]', media)) {
+        media.insertAdjacentHTML('beforeend', `<span class="photo-dots" data-photo-dots aria-hidden="true">${photoIndicatorHTML(item.images.length, Number(media.dataset.index || 0))}</span><span class="swipe-hint" aria-hidden="true">${icon('swipe')} Листайте фото</span>`);
+      }
+      updatePhotoIndicator(card, item.images?.length || 1, Number(media?.dataset.index || 0));
+      preloadAround(item, Number(media?.dataset.index || 0), true);
     }
 
+    function resetCardSwipe() {
+      if (cardSwipe.image) {
+        cardSwipe.image.style.transition = '';
+        cardSwipe.image.style.transform = ''; cardSwipe.image.style.opacity = '1'; delete cardSwipe.image.dataset.gestureActive;
+      }
+      cardSwipe.pointerId = null; cardSwipe.card = null; cardSwipe.media = null; cardSwipe.image = null;
+      cardSwipe.startX = 0; cardSwipe.startY = 0; cardSwipe.lastX = 0; cardSwipe.lastY = 0; cardSwipe.axis = null;
+    }
+    function beginCardSwipe(event) {
+      if (!['touch', 'pen'].includes(event.pointerType) || cardSwipe.pointerId !== null) return;
+      const media = event.target.closest('.listing-card__media');
+      const card = media?.closest('.listing-card');
+      if (!media || !card || event.target.closest('button, a')) return;
+      const item = state.items.get(card.dataset.id);
+      if (!item?.images || item.images.length < 2) return;
+      cardSwipe.pointerId = event.pointerId; cardSwipe.card = card; cardSwipe.media = media;
+      cardSwipe.image = $('.listing-card__media > img', card);
+      cardSwipe.startX = cardSwipe.lastX = event.clientX;
+      cardSwipe.startY = cardSwipe.lastY = event.clientY;
+      cardSwipe.axis = null;
+      try { media.setPointerCapture?.(event.pointerId); } catch (_) {}
+    }
+    function moveCardSwipe(event) {
+      if (event.pointerId !== cardSwipe.pointerId || !cardSwipe.card) return;
+      cardSwipe.lastX = event.clientX; cardSwipe.lastY = event.clientY;
+      const dx = event.clientX - cardSwipe.startX, dy = event.clientY - cardSwipe.startY;
+      if (!cardSwipe.axis && Math.hypot(dx, dy) >= 8) cardSwipe.axis = Math.abs(dx) > Math.abs(dy) * 1.08 ? 'x' : 'y';
+      if (cardSwipe.axis !== 'x') return;
+      event.preventDefault();
+      if (cardSwipe.image) {
+        const limit = Math.max(48, cardSwipe.media.clientWidth * .32);
+        const visualX = Math.max(-limit, Math.min(limit, dx * .62));
+        cardSwipe.image.dataset.gestureActive = '1'; cardSwipe.image.style.transition = 'none';
+        cardSwipe.image.style.transform = `translate3d(${visualX}px,0,0) scale(1.01)`;
+        cardSwipe.image.style.opacity = String(Math.max(.58, 1 - Math.abs(visualX) / Math.max(1, limit) * .34));
+      }
+    }
+    function finishCardSwipe(event) {
+      if (event.pointerId !== cardSwipe.pointerId || !cardSwipe.card) return;
+      const card = cardSwipe.card;
+      const endX = Number.isFinite(event.clientX) ? event.clientX : cardSwipe.lastX;
+      const endY = Number.isFinite(event.clientY) ? event.clientY : cardSwipe.lastY;
+      const dx = endX - cardSwipe.startX, dy = endY - cardSwipe.startY;
+      const swiped = event.type === 'pointerup' && cardSwipe.axis === 'x'
+        && Math.abs(dx) >= 42 && Math.abs(dx) > Math.abs(dy) * 1.2;
+      resetCardSwipe();
+      if (swiped) {
+        cardSwipeSuppress.set(card, performance.now() + 650);
+        markSwipeUsed(); cardImageStep(card, dx < 0 ? 1 : -1);
+      }
+    }
     function cardImageStep(card, direction) {
       const item = state.items.get(card.dataset.id); if (!item?.images?.length) return;
       const media = $('.listing-card__media', card), image = $('.listing-card__media > img', card);
       let index = Number(media.dataset.index || 0);
       index = (index + direction + item.images.length) % item.images.length;
-      media.dataset.index = String(index); image.style.opacity = '.45';
-      image.src = mediaUrl(item.images[index]);
-      image.onload = () => { image.style.opacity = '1'; };
+      media.dataset.index = String(index);
+      setSmartImage(image, item.images[index], { direction });
       const current = $('[data-photo-current]', card); if (current) current.textContent = String(index + 1);
+      updatePhotoIndicator(card, item.images.length, index); preloadAround(item, index);
     }
 
     function applyLightboxZoom() {
@@ -1956,6 +2873,10 @@
     function resetLightboxZoom() {
       lightboxZoom.scale = 1; lightboxZoom.x = 0; lightboxZoom.y = 0;
       lightboxZoom.dragging = false; lightboxZoom.pointers.clear();
+      lightboxZoom.swipeActive = false; lightboxZoom.swipeAxis = null;
+      lightboxZoom.swipeStartX = 0; lightboxZoom.swipeStartY = 0;
+      lightboxZoom.swipeLastX = 0; lightboxZoom.swipeLastY = 0;
+      els.lightboxImage.style.transition = ''; els.lightboxImage.style.opacity = '1'; delete els.lightboxImage.dataset.gestureActive;
       applyLightboxZoom();
     }
     function zoomPointerDistance(points) {
@@ -1967,20 +2888,23 @@
     function openLightbox(id, index = 0) {
       const item = state.items.get(id); if (!item?.images?.length) return;
       state.lightbox = { id, index: Math.max(0, Math.min(index, item.images.length - 1)) };
-      resetLightboxZoom(); renderLightbox(); els.lightbox.classList.add('open'); document.body.classList.add('modal-open');
+      markListingViewed(id); preloadAround(item, state.lightbox.index);
+      resetLightboxZoom(); renderLightbox(); els.lightbox.classList.add('open'); syncBodyModal();
       $('.lightbox-close', els.lightbox)?.focus();
     }
-    function closeLightbox() { resetLightboxZoom(); els.lightbox.classList.remove('open'); document.body.classList.remove('modal-open'); }
+    function closeLightbox() { resetLightboxZoom(); els.lightbox.classList.remove('open'); syncBodyModal(); }
     function stepLightbox(direction) {
       const item = state.items.get(state.lightbox.id); if (!item?.images?.length) return;
       state.lightbox.index = (state.lightbox.index + direction + item.images.length) % item.images.length;
-      resetLightboxZoom(); renderLightbox();
+      resetLightboxZoom(); renderLightbox(direction);
     }
-    function renderLightbox() {
+    function renderLightbox(direction = 0) {
       const item = state.items.get(state.lightbox.id); if (!item) return;
-      els.lightboxImage.src = mediaUrl(item.images[state.lightbox.index]);
+      setSmartImage(els.lightboxImage, item.images[state.lightbox.index], { direction });
       els.lightboxImage.alt = `${item.title}, фото ${state.lightbox.index + 1}`;
       els.lightboxCount.textContent = `${state.lightbox.index + 1} / ${item.images.length}`;
+      els.lightboxDots.innerHTML = photoIndicatorHTML(item.images.length, state.lightbox.index);
+      preloadAround(item, state.lightbox.index);
     }
 
     function updateBrowserUrl(params) {
@@ -1990,8 +2914,7 @@
       history.replaceState(null, '', query ? `?${query}#results` : location.pathname);
     }
 
-    async function restoreUrlFilters() {
-      const params = new URLSearchParams(location.search);
+    async function restoreUrlFilters(params = new URLSearchParams(location.search)) {
       if (!params.size) return;
       for (const input of $$('input[name="source"]', els.form)) input.checked = params.getAll('source').includes(input.value);
       if (!params.getAll('source').length) $$('input[name="source"]', els.form).filter(i => ['onliner', 'kufar', 'av', 'dealer', 'autohouse'].includes(i.value)).forEach(i => i.checked = true);
@@ -2032,6 +2955,46 @@
       mobileSourceTimer = setTimeout(refresh, 220);
     }
 
+    function initPwa() {
+      const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+      const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (ios && !standalone) { els.installButton.hidden = false; els.installButton.dataset.ios = '1'; }
+      window.addEventListener('beforeinstallprompt', event => {
+        event.preventDefault(); deferredInstallPrompt = event; els.installButton.hidden = false;
+      });
+      window.addEventListener('appinstalled', () => {
+        deferredInstallPrompt = null; els.installButton.hidden = true; toast('MOTOR.BY установлен');
+      });
+      if ('serviceWorker' in navigator) window.addEventListener('load', async () => {
+        try {
+          const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+          if (registration.waiting && navigator.serviceWorker.controller) toast('Обновление MOTOR.BY готово и включится при следующем открытии');
+          registration.addEventListener('updatefound', () => {
+            const worker = registration.installing;
+            worker?.addEventListener('statechange', () => {
+              if (worker.state === 'installed' && navigator.serviceWorker.controller) toast('Новая версия сохранена для офлайн-режима');
+            });
+          });
+        } catch (error) { console.warn('[service worker]', error); }
+      });
+      document.body.classList.toggle('is-offline', !navigator.onLine);
+      window.addEventListener('offline', () => { document.body.classList.add('is-offline'); toast('Нет сети — личная база остаётся доступной'); });
+      window.addEventListener('online', () => {
+        document.body.classList.remove('is-offline'); toast('Связь восстановлена');
+        revalidateFavorites();
+        if (state.offlineMode && !state.loading) runSearch({ scroll: false });
+      });
+    }
+    async function requestAppInstall() {
+      if (els.installButton.dataset.ios === '1') {
+        toast('На iPhone: нажмите «Поделиться», затем «На экран Домой»'); return;
+      }
+      if (!deferredInstallPrompt) { toast('Установка доступна из меню браузера'); return; }
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice.catch(() => null);
+      deferredInstallPrompt = null; els.installButton.hidden = true;
+    }
+
     els.form.addEventListener('submit', event => {
       event.preventDefault();
       runSearch({ scroll: true, collapseMobile: mobileFilterMedia.matches });
@@ -2043,7 +3006,10 @@
     els.brand.addEventListener('change', () => onBrandChange());
     els.model.addEventListener('change', () => onModelChange());
     els.resetButton.addEventListener('click', () => resetForm());
-    els.sort.addEventListener('change', sortAndRender);
+    els.sort.addEventListener('change', () => { setPersonalPreference('sort', els.sort.value); sortAndRender(); });
+    els.density.addEventListener('click', () => applyDensity(state.density === 'compact' ? 'comfortable' : 'compact'));
+    els.installButton.addEventListener('click', requestAppInstall);
+    els.personalButton.addEventListener('click', openPersonalPanel);
     $$('input[name="source"]', els.form).forEach(input => input.addEventListener('change', () => queueMobileSourceRefresh(input)));
     els.generationTrack.addEventListener('click', event => {
       const card = event.target.closest('[data-generation]'); if (card) toggleGeneration(card.dataset.generation);
@@ -2052,7 +3018,18 @@
       state.page += 1; await runSearch({ append: true, scroll: false });
     });
 
+    els.grid.addEventListener('pointerdown', beginCardSwipe);
+    els.grid.addEventListener('pointermove', moveCardSwipe, { passive: false });
+    els.grid.addEventListener('pointerup', finishCardSwipe);
+    els.grid.addEventListener('pointercancel', finishCardSwipe);
+    els.grid.addEventListener('input', event => {
+      const note = event.target.closest('[data-personal-note]');
+      if (note) saveListingNote(note.dataset.personalNote, note.value, $('[data-note-status]', note.closest('.personal-listing')));
+    });
+
     els.grid.addEventListener('click', event => {
+      const linkedCard = event.target.closest('.listing-card');
+      if (linkedCard && event.target.closest('.original-button, .listing-title a')) markListingViewed(linkedCard.dataset.id);
       const actionNode = event.target.closest('[data-action]'); if (!actionNode) return;
       const action = actionNode.dataset.action;
       if (['reset-search', 'retry-search'].includes(action)) { action === 'reset-search' ? resetForm() : runSearch(); return; }
@@ -2061,23 +3038,48 @@
       if (action === 'favorite') {
         event.stopPropagation();
         state.favorites.has(id) ? state.favorites.delete(id) : state.favorites.add(id);
-        localStorage.setItem('motorby:favorites', JSON.stringify([...state.favorites]));
-        actionNode.classList.toggle('active', state.favorites.has(id));
-        toast(state.favorites.has(id) ? 'Объявление сохранено в этом браузере' : 'Объявление удалено из сохранённых');
+        const favorite = state.favorites.has(id); setListingFavorite(id, favorite);
+        actionNode.classList.toggle('active', favorite); actionNode.setAttribute('aria-label', favorite ? 'Удалить из избранного' : 'Добавить в избранное');
+        toast(favorite ? 'Объявление сохранено в личной базе' : 'Объявление удалено из избранного');
       } else if (action === 'prev-image' || action === 'next-image') {
         event.stopPropagation(); cardImageStep(card, action === 'next-image' ? 1 : -1);
       } else if (action === 'open-gallery') {
         if (event.target.closest('button')) return;
+        if (performance.now() < (cardSwipeSuppress.get(card) || 0)) {
+          event.preventDefault(); event.stopPropagation(); return;
+        }
         openLightbox(id, Number(actionNode.dataset.index || 0));
       } else if (action === 'comment-toggle') {
         const comment = $('[data-comment]', card); comment?.classList.toggle('expanded');
         actionNode.textContent = comment?.classList.contains('expanded') ? 'Свернуть' : 'Показать полностью';
         if (card.dataset.detailLoaded !== '1') queueDetail(id, true);
       } else if (action === 'extra-toggle') {
-        card.classList.toggle('extra-open');
-        actionNode.innerHTML = card.classList.contains('extra-open') ? `${icon('sliders')} Свернуть` : `${icon('sliders')} Все данные`;
+        markListingViewed(id); card.classList.toggle('extra-open');
+        const expanded = card.classList.contains('extra-open');
+        actionNode.innerHTML = expanded ? `${icon('sliders')} Свернуть` : `${icon('sliders')} Все данные`;
+        actionNode.setAttribute('aria-expanded', String(expanded));
         if (card.dataset.detailLoaded !== '1') queueDetail(id, true);
       }
+    });
+
+    els.personalPanel.addEventListener('click', event => {
+      if (event.target === els.personalPanel) { closePersonalPanel(); return; }
+      const node = event.target.closest('[data-personal-action]'); if (!node) return;
+      const action = node.dataset.personalAction;
+      if (action === 'close') closePersonalPanel();
+      else if (action === 'save-search') saveCurrentSearch();
+      else if (action === 'delete-search') deleteSavedSearch(node.dataset.searchId);
+      else if (action === 'load-search') {
+        const search = state.savedSearches.find(item => item.id === node.dataset.searchId);
+        if (search) location.href = `${location.pathname}?${search.params}#results`;
+      } else if (action === 'export') exportPersonalData();
+      else if (action === 'import') els.personalImport.click();
+      else if (action === 'clear-history') clearPersonalHistory();
+    });
+    els.personalImport.addEventListener('change', async () => {
+      const file = els.personalImport.files?.[0]; if (!file) return;
+      try { await importPersonalData(file); } catch (error) { toast(error.message, 'error'); }
+      els.personalImport.value = '';
     });
 
     els.lightbox.addEventListener('click', event => {
@@ -2100,13 +3102,20 @@
       lightboxZoom.pointers.set(event.pointerId, event);
       const points = [...lightboxZoom.pointers.values()];
       if (points.length === 2) {
+        lightboxZoom.swipeActive = false; lightboxZoom.swipeAxis = null;
+        els.lightboxImage.style.opacity = '1'; delete els.lightboxImage.dataset.gestureActive;
         lightboxZoom.startDistance = zoomPointerDistance(points);
         const center = zoomPointerCenter(points);
         lightboxZoom.startCenterX = center.x; lightboxZoom.startCenterY = center.y;
         lightboxZoom.startScale = lightboxZoom.scale; lightboxZoom.startX = lightboxZoom.x; lightboxZoom.startY = lightboxZoom.y;
       } else if (points.length === 1 && lightboxZoom.scale > 1) {
+        lightboxZoom.swipeActive = false;
         lightboxZoom.dragging = true; lightboxZoom.pointerX = event.clientX; lightboxZoom.pointerY = event.clientY;
         lightboxZoom.startX = lightboxZoom.x; lightboxZoom.startY = lightboxZoom.y; applyLightboxZoom();
+      } else if (points.length === 1 && event.pointerType !== 'mouse') {
+        lightboxZoom.swipeActive = true; lightboxZoom.swipeAxis = null;
+        lightboxZoom.swipeStartX = lightboxZoom.swipeLastX = event.clientX;
+        lightboxZoom.swipeStartY = lightboxZoom.swipeLastY = event.clientY;
       }
     });
     els.lightboxImage.addEventListener('pointermove', event => {
@@ -2123,16 +3132,45 @@
         lightboxZoom.x = lightboxZoom.startX + event.clientX - lightboxZoom.pointerX;
         lightboxZoom.y = lightboxZoom.startY + event.clientY - lightboxZoom.pointerY;
         applyLightboxZoom();
+      } else if (points.length === 1 && lightboxZoom.swipeActive) {
+        lightboxZoom.swipeLastX = event.clientX;
+        lightboxZoom.swipeLastY = event.clientY;
+        const dx = event.clientX - lightboxZoom.swipeStartX, dy = event.clientY - lightboxZoom.swipeStartY;
+        if (!lightboxZoom.swipeAxis && Math.hypot(dx, dy) >= 8) lightboxZoom.swipeAxis = Math.abs(dx) > Math.abs(dy) * 1.05 ? 'x' : 'y';
+        if (lightboxZoom.swipeAxis === 'x') {
+          const limit = Math.max(70, innerWidth * .34), visualX = Math.max(-limit, Math.min(limit, dx * .68));
+          els.lightboxImage.dataset.gestureActive = '1'; els.lightboxImage.style.transition = 'none';
+          els.lightboxImage.style.transform = `translate3d(${visualX}px,0,0) scale(1)`;
+          els.lightboxImage.style.opacity = String(Math.max(.5, 1 - Math.abs(visualX) / limit * .42));
+        }
       }
     });
     const finishZoomPointer = event => {
+      const wasOnlyPointer = lightboxZoom.pointers.size === 1 && lightboxZoom.pointers.has(event.pointerId);
+      const endX = Number.isFinite(event.clientX) ? event.clientX : lightboxZoom.swipeLastX;
+      const endY = Number.isFinite(event.clientY) ? event.clientY : lightboxZoom.swipeLastY;
+      const dx = endX - lightboxZoom.swipeStartX, dy = endY - lightboxZoom.swipeStartY;
+      const swipeDirection = event.type === 'pointerup' && wasOnlyPointer && lightboxZoom.swipeActive && lightboxZoom.swipeAxis === 'x'
+        && lightboxZoom.scale <= 1.001 && Math.abs(dx) >= 42 && Math.abs(dx) > Math.abs(dy) * 1.2
+        ? (dx < 0 ? 1 : -1) : 0;
       lightboxZoom.pointers.delete(event.pointerId);
-      if (!lightboxZoom.pointers.size) { lightboxZoom.dragging = false; applyLightboxZoom(); }
-      else {
+      if (swipeDirection) {
+        lightboxZoom.swipeActive = false; lightboxZoom.swipeAxis = null;
+        lightboxZoom.pointers.clear(); markSwipeUsed();
+        stepLightbox(swipeDirection);
+        return;
+      }
+      if (!lightboxZoom.pointers.size) {
+        lightboxZoom.dragging = false; lightboxZoom.swipeActive = false; lightboxZoom.swipeAxis = null;
+        els.lightboxImage.style.transition = 'transform .22s cubic-bezier(.2,.8,.2,1), opacity .22s'; els.lightboxImage.style.opacity = '1';
+        applyLightboxZoom(); delete els.lightboxImage.dataset.gestureActive;
+        setTimeout(() => { if (lightboxZoom.scale <= 1.001) els.lightboxImage.style.transition = ''; }, 240);
+      } else {
         const point = [...lightboxZoom.pointers.values()][0];
         lightboxZoom.pointerX = point.clientX; lightboxZoom.pointerY = point.clientY;
         lightboxZoom.startX = lightboxZoom.x; lightboxZoom.startY = lightboxZoom.y;
         lightboxZoom.dragging = lightboxZoom.scale > 1;
+        lightboxZoom.swipeActive = false;
       }
     };
     els.lightboxImage.addEventListener('pointerup', finishZoomPointer);
@@ -2150,6 +3188,7 @@
         }
         return;
       }
+      if (event.key === 'Escape' && els.personalPanel.classList.contains('open')) { closePersonalPanel(); return; }
       if (!els.lightbox.classList.contains('open')) return;
       if (event.key === 'Escape') closeLightbox();
       if (event.key === 'ArrowLeft') stepLightbox(-1);
@@ -2160,20 +3199,30 @@
 
     // Phones open directly on the expanded filters and wait for an explicit
     // search. Desktop keeps the immediate live feed; shared filter URLs work on both.
+    initPwa();
     (async function bootstrap() {
-      await loadBrands();
+      await initPersonalDatabase();
+      const catalogLoaded = await loadBrands();
+      if (!navigator.onLine && restoreOfflinePersonalState()) {
+        setTimeout(revalidateFavorites, 2500); return;
+      }
       if (location.search) {
-        await restoreUrlFilters();
+        if (catalogLoaded) await restoreUrlFilters();
         if (mobileFilterMedia.matches) enterMobileResultsMode({ scroll: true });
         await runSearch({ scroll: false });
+        setTimeout(revalidateFavorites, 2500);
         return;
       }
+      const lastSearch = personalPreference('lastSearch', '');
+      if (catalogLoaded && lastSearch) await restoreUrlFilters(new URLSearchParams(lastSearch));
       if (mobileFilterMedia.matches) {
         document.body.classList.add('mobile-awaiting-search');
+        setTimeout(revalidateFavorites, 2500);
         return;
       }
       await runSearch({ scroll: false });
+      setTimeout(revalidateFavorites, 2500);
     })();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3742eef4e58a116',t:'MTc4ODc2ODA2Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a37572812caf5efa',t:'MTc4ODc4MTMxNw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
