@@ -1,0 +1,1478 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080a0d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Агрегатор реальных автомобилей по Беларуси из Onlíner, Kufar, AV.BY, официальных дилеров и автохаусов. Поиск, фотографии и полные карточки без API-ключей.">
+  <title>MOTOR.BY — автомобили Беларуси в одной ленте</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080a0d;
+      --bg-soft: #0d1015;
+      --panel: rgba(17, 20, 26, .92);
+      --panel-solid: #11141a;
+      --panel-2: #161a21;
+      --line: rgba(255, 255, 255, .09);
+      --line-strong: rgba(255, 255, 255, .16);
+      --text: #f4f5f7;
+      --muted: #969da8;
+      --muted-2: #68707c;
+      --accent: #d7ff43;
+      --accent-soft: rgba(215, 255, 67, .12);
+      --accent-ink: #0a0d03;
+      --green: #5ee59a;
+      --amber: #ffbf69;
+      --red: #ff7078;
+      --onliner: #ffdc22;
+      --kufar: #ff5f63;
+      --av: #3f9dff;
+      --dealer: #b98cff;
+      --autohouse: #39dbc5;
+      --shadow: 0 28px 80px rgba(0, 0, 0, .42);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 15px;
+      --radius-sm: 10px;
+      --container: 1440px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        radial-gradient(circle at 8% 16%, rgba(215, 255, 67, .045), transparent 24rem),
+        radial-gradient(circle at 90% 48%, rgba(74, 112, 255, .04), transparent 30rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    body.modal-open { overflow: hidden; }
+    button, input, select { font: inherit; }
+    button, a, label, select { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { color: inherit; }
+    ::selection { background: var(--accent); color: #080a0d; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+    .sr-only {
+      position: absolute !important; width: 1px !important; height: 1px !important;
+      padding: 0 !important; margin: -1px !important; overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important;
+    }
+    .container { width: min(calc(100% - 48px), var(--container)); margin-inline: auto; }
+    .icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+
+    /* Header */
+    .site-header {
+      position: fixed; inset: 0 0 auto; z-index: 80;
+      height: calc(78px + var(--safe-top)); padding-top: var(--safe-top);
+      transition: background .25s, border-color .25s, backdrop-filter .25s;
+      border-bottom: 1px solid transparent;
+    }
+    .site-header.scrolled {
+      background: rgba(8, 10, 13, .83); border-color: var(--line);
+      backdrop-filter: blur(20px) saturate(140%);
+    }
+    .nav { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 30px; }
+    .brand-logo { display: inline-flex; align-items: center; gap: 11px; font-weight: 840; letter-spacing: -.04em; font-size: 21px; }
+    .brand-logo__mark {
+      position: relative; width: 34px; height: 34px; display: grid; place-items: center;
+      border: 1px solid rgba(215, 255, 67, .5); border-radius: 10px; background: rgba(215, 255, 67, .08);
+      color: var(--accent); transform: skewX(-7deg);
+    }
+    .brand-logo__mark svg { transform: skewX(7deg); }
+    .brand-logo em { font-style: normal; color: var(--accent); }
+    .nav-links { display: flex; align-items: center; gap: 30px; color: #c4c8cf; font-size: 14px; }
+    .nav-links a { transition: color .2s; }
+    .nav-links a:hover { color: white; }
+    .nav-live {
+      display: inline-flex; align-items: center; gap: 8px; padding: 9px 13px;
+      border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.035);
+      font-size: 12px; color: #d3d6db; white-space: nowrap;
+    }
+    .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(94,229,154,.5); animation: pulse 2.1s infinite; }
+    @keyframes pulse { 70% { box-shadow: 0 0 0 8px rgba(94,229,154,0); } 100% { box-shadow: 0 0 0 0 rgba(94,229,154,0); } }
+
+    /* Hero */
+    .hero {
+      position: relative; min-height: 690px; display: flex; align-items: center; isolation: isolate;
+      overflow: hidden; border-bottom: 1px solid var(--line);
+    }
+    .hero::before {
+      content: ""; position: absolute; inset: 0; z-index: -2;
+      background-image: url('/assets/hero-car.jpg'); background-size: cover; background-position: center 48%;
+      filter: saturate(.82) contrast(1.06);
+      transform: scale(1.015);
+    }
+    .hero::after {
+      content: ""; position: absolute; inset: 0; z-index: -1;
+      background:
+        linear-gradient(90deg, rgba(6,8,10,.98) 0%, rgba(6,8,10,.84) 35%, rgba(6,8,10,.36) 68%, rgba(6,8,10,.64) 100%),
+        linear-gradient(0deg, #080a0d 0%, transparent 26%, rgba(0,0,0,.12) 100%);
+    }
+    .hero-content { padding-top: 86px; padding-bottom: 80px; width: min(770px, 64%); }
+    .eyebrow { display: flex; align-items: center; gap: 13px; color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: .19em; font-weight: 750; }
+    .eyebrow::before { content: ""; width: 33px; height: 1px; background: currentColor; }
+    .hero h1 { margin: 24px 0 20px; font-size: clamp(54px, 6vw, 92px); line-height: .93; letter-spacing: -.065em; font-weight: 820; max-width: 850px; }
+    .hero h1 .outline { color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.53); }
+    .hero-lead { max-width: 615px; margin: 0; color: #c6cad0; font-size: clamp(17px, 1.5vw, 21px); line-height: 1.55; }
+    .hero-points { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+    .hero-point { display: inline-flex; align-items: center; gap: 9px; padding: 10px 13px; border-radius: 999px; border: 1px solid rgba(255,255,255,.13); background: rgba(8,10,13,.47); backdrop-filter: blur(10px); font-size: 12px; color: #d9dce1; }
+    .hero-point .icon { width: 16px; height: 16px; color: var(--accent); }
+    .hero-stats { display: flex; align-items: stretch; gap: 0; margin-top: 42px; width: fit-content; border: 1px solid var(--line); border-radius: 16px; background: rgba(8,10,13,.55); backdrop-filter: blur(12px); overflow: hidden; }
+    .hero-stat { min-width: 125px; padding: 15px 20px; }
+    .hero-stat + .hero-stat { border-left: 1px solid var(--line); }
+    .hero-stat strong { display: block; font-size: 22px; letter-spacing: -.04em; }
+    .hero-stat span { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
+    .hero-scroll { position: absolute; right: 30px; bottom: 80px; writing-mode: vertical-rl; display: flex; align-items: center; gap: 13px; color: #818892; text-transform: uppercase; letter-spacing: .2em; font-size: 9px; }
+    .hero-scroll::after { content: ""; width: 1px; height: 54px; background: linear-gradient(var(--accent), transparent); }
+
+    /* Search */
+    .search-section { position: relative; z-index: 5; margin-top: -54px; padding-bottom: 36px; }
+    .search-panel {
+      position: relative; border: 1px solid var(--line-strong); border-radius: var(--radius-xl);
+      background: linear-gradient(145deg, rgba(21,25,32,.98), rgba(13,16,21,.98));
+      box-shadow: var(--shadow); overflow: hidden;
+    }
+    .search-panel::before { content: ""; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(215,255,67,.55), transparent); }
+    .search-head { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 27px 30px 21px; border-bottom: 1px solid var(--line); }
+    .search-head h2 { margin: 0; font-size: 21px; letter-spacing: -.035em; }
+    .search-head p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .mode-tabs { display: flex; gap: 5px; padding: 4px; border: 1px solid var(--line); background: #0c0f13; border-radius: 13px; }
+    .mode-tab { position: relative; }
+    .mode-tab input { position: absolute; opacity: 0; pointer-events: none; }
+    .mode-tab span { display: block; padding: 10px 15px; border-radius: 9px; color: var(--muted); cursor: pointer; white-space: nowrap; font-size: 12px; font-weight: 650; transition: .2s; }
+    .mode-tab input:checked + span { color: var(--accent-ink); background: var(--accent); box-shadow: 0 6px 20px rgba(215,255,67,.13); }
+    .search-body { padding: 25px 30px 29px; }
+    .source-row { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; margin-bottom: 22px; }
+    .source-row__label { margin-right: 4px; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .12em; }
+    .source-toggle { position: relative; }
+    .source-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+    .source-toggle span { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 999px; color: #a7adb6; background: rgba(255,255,255,.025); cursor: pointer; font-size: 12px; transition: .2s; }
+    .source-toggle span::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--muted-2); transition: .2s; }
+    .source-toggle input:checked + span { border-color: rgba(215,255,67,.3); color: white; background: var(--accent-soft); }
+    .source-toggle input:checked + span::before { background: var(--source-color, var(--accent)); box-shadow: 0 0 12px var(--source-color, var(--accent)); }
+    .source-toggle--disabled span { opacity: .45; cursor: not-allowed; }
+    .beta { padding: 2px 5px; border: 1px solid currentColor; border-radius: 4px; opacity: .7; font-size: 8px; letter-spacing: .06em; }
+    .form-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 13px; }
+    .field { grid-column: span 3; min-width: 0; }
+    .field--wide { grid-column: span 4; }
+    .field--half { grid-column: span 2; }
+    .field label { display: block; margin: 0 0 8px 2px; color: #8f96a1; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
+    .control-wrap { position: relative; }
+    .control {
+      width: 100%; height: 50px; padding: 0 40px 0 14px; color: #f2f3f5; border: 1px solid var(--line);
+      border-radius: 12px; background: #0c0f14; outline: none; transition: border-color .2s, background .2s, box-shadow .2s;
+      font-size: 13px; appearance: none;
+    }
+    input.control { padding-right: 14px; }
+    .control::placeholder { color: #58606c; }
+    .control:hover { border-color: rgba(255,255,255,.16); }
+    .control:focus { border-color: rgba(215,255,67,.55); box-shadow: 0 0 0 4px rgba(215,255,67,.07); background: #0f1217; }
+    .control:disabled { opacity: .5; cursor: not-allowed; }
+    .select-arrow { position: absolute; right: 14px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); pointer-events: none; color: #6d7580; }
+    .range-control { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 12px; background: #0c0f14; overflow: hidden; transition: border-color .2s; }
+    .range-control:focus-within { border-color: rgba(215,255,67,.55); box-shadow: 0 0 0 4px rgba(215,255,67,.07); }
+    .range-control input { min-width: 0; height: 48px; padding: 0 13px; border: 0; color: white; background: transparent; outline: 0; font-size: 13px; }
+    .range-control input + input { border-left: 1px solid var(--line); }
+    .search-actions { display: flex; align-items: flex-end; gap: 11px; grid-column: span 4; }
+    .search-button {
+      height: 50px; flex: 1; display: flex; justify-content: center; align-items: center; gap: 10px;
+      border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); cursor: pointer;
+      font-size: 13px; font-weight: 800; box-shadow: 0 10px 28px rgba(215,255,67,.12); transition: transform .18s, background .18s, box-shadow .18s;
+    }
+    .search-button:hover { transform: translateY(-2px); background: #e0ff65; box-shadow: 0 15px 34px rgba(215,255,67,.18); }
+    .search-button:disabled { opacity: .6; cursor: wait; transform: none; }
+    .reset-button { width: 50px; height: 50px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 12px; background: #0c0f14; cursor: pointer; color: #8e96a0; transition: .2s; }
+    .reset-button:hover { color: white; border-color: var(--line-strong); }
+    .filter-meta { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 18px; color: var(--muted-2); font-size: 10px; }
+    .filter-meta__truth { display: flex; align-items: center; gap: 7px; }
+    .filter-meta__truth .icon { width: 14px; height: 14px; color: var(--green); }
+
+    /* Generation cards */
+    .generation-picker { display: none; padding: 0 30px 28px; }
+    .generation-picker.visible { display: block; }
+    .generation-head { display: flex; align-items: end; justify-content: space-between; margin-bottom: 12px; }
+    .generation-head h3 { margin: 0; font-size: 13px; letter-spacing: -.01em; }
+    .generation-head span { color: var(--muted-2); font-size: 10px; }
+    .generation-track { display: grid; grid-auto-flow: column; grid-auto-columns: 174px; gap: 10px; overflow-x: auto; padding: 2px 2px 10px; scrollbar-width: thin; scrollbar-color: #343a43 transparent; scroll-snap-type: x proximity; }
+    .generation-card { position: relative; height: 153px; padding: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: #0b0e12; cursor: pointer; scroll-snap-align: start; text-align: left; transition: border-color .2s, transform .2s, background .2s; }
+    .generation-card:hover { transform: translateY(-2px); border-color: var(--line-strong); }
+    .generation-card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(215,255,67,.1); }
+    .generation-card__image { height: 93px; display: grid; place-items: center; background: radial-gradient(circle at 50% 70%, #292e34, #13171c 64%); overflow: hidden; }
+    .generation-card__image img { width: 100%; height: 100%; object-fit: contain; }
+    .generation-card__image--any { font-size: 28px; color: var(--accent); }
+    .generation-card__body { padding: 9px 11px; }
+    .generation-card strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+    .generation-card small { display: block; margin-top: 3px; color: var(--muted-2); font-size: 9px; }
+    .generation-check { position: absolute; top: 8px; right: 8px; width: 19px; height: 19px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--accent-ink); opacity: 0; transform: scale(.7); transition: .2s; }
+    .generation-card.selected .generation-check { opacity: 1; transform: scale(1); }
+    .generation-check .icon { width: 11px; height: 11px; stroke-width: 2.5; }
+    .generation-skeleton { height: 153px; border-radius: 14px; background: linear-gradient(90deg, #11151b, #1a1f26, #11151b); background-size: 220% 100%; animation: shimmer 1.3s infinite; }
+
+    /* Results */
+    .results-section { padding: 33px 0 100px; min-height: 600px; }
+    .results-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 22px; }
+    .results-title__overline { color: var(--accent); font-size: 10px; font-weight: 720; text-transform: uppercase; letter-spacing: .16em; }
+    .results-title h2 { margin: 7px 0 0; font-size: clamp(28px, 3vw, 42px); letter-spacing: -.052em; }
+    .results-title h2 span { color: var(--muted-2); font-weight: 500; }
+    .results-tools { display: flex; align-items: center; gap: 9px; }
+    .results-sort { position: relative; }
+    .results-sort select { height: 42px; padding: 0 36px 0 13px; border: 1px solid var(--line); border-radius: 10px; color: #c6cbd2; background: #0d1014; appearance: none; outline: 0; font-size: 11px; }
+    .results-sort .select-arrow { right: 11px; width: 14px; height: 14px; }
+    .source-statuses { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .source-status { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.025); color: #abb1ba; font-size: 10px; }
+    .source-status__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted-2); }
+    .source-status--ok .source-status__dot { background: var(--green); box-shadow: 0 0 10px rgba(94,229,154,.5); }
+    .source-status--partial .source-status__dot, .source-status--empty .source-status__dot { background: var(--amber); }
+    .source-status--error .source-status__dot, .source-status--blocked .source-status__dot { background: var(--red); }
+    .source-status strong { color: #e7e9ec; }
+    .source-status em { color: var(--muted-2); font-style: normal; }
+    .source-warning { width: 100%; display: flex; align-items: flex-start; gap: 11px; padding: 13px 15px; border: 1px solid rgba(255,191,105,.2); border-radius: 12px; background: rgba(255,191,105,.055); color: #c9b18f; font-size: 11px; line-height: 1.45; }
+    .source-warning .icon { width: 17px; height: 17px; margin-top: 1px; color: var(--amber); }
+    .results-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
+
+    /* Listing card */
+    .listing-card { position: relative; min-width: 0; border: 1px solid var(--line); border-radius: var(--radius-lg); background: linear-gradient(155deg, #12161c, #0e1116); overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.16); transition: transform .23s, border-color .23s, box-shadow .23s; }
+    .listing-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.17); box-shadow: 0 20px 45px rgba(0,0,0,.3); }
+    .listing-card__media { position: relative; height: 310px; overflow: hidden; background: #171b20; cursor: zoom-in; }
+    .listing-card__media::after { content: ""; position: absolute; inset: auto 0 0; height: 46%; background: linear-gradient(transparent, rgba(6,8,10,.72)); pointer-events: none; }
+    .listing-card__media > img { width: 100%; height: 100%; object-fit: cover; transition: transform .55s ease, opacity .2s; }
+    .listing-card:hover .listing-card__media > img { transform: scale(1.025); }
+    .source-badge { position: absolute; top: 15px; left: 15px; z-index: 3; display: flex; align-items: center; gap: 8px; height: 31px; padding: 0 10px; border-radius: 8px; background: rgba(7,9,12,.8); backdrop-filter: blur(12px); font-size: 10px; font-weight: 760; }
+    .source-badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--source-color); box-shadow: 0 0 10px var(--source-color); }
+    .source-badge--onliner { --source-color: var(--onliner); }
+    .source-badge--kufar { --source-color: var(--kufar); }
+    .source-badge--av { --source-color: var(--av); }
+    .source-badge--dealer { --source-color: var(--dealer); }
+    .source-badge--autohouse { --source-color: var(--autohouse); }
+    .favorite-button { position: absolute; top: 15px; right: 15px; z-index: 3; width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.16); border-radius: 50%; background: rgba(7,9,12,.68); backdrop-filter: blur(10px); cursor: pointer; color: white; transition: .2s; }
+    .favorite-button:hover, .favorite-button.active { color: var(--accent); border-color: rgba(215,255,67,.45); }
+    .favorite-button.active .icon { fill: currentColor; }
+    .photo-counter { position: absolute; left: 15px; bottom: 13px; z-index: 3; display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 7px; color: #e8eaed; background: rgba(7,9,12,.68); backdrop-filter: blur(9px); font-size: 9px; }
+    .photo-counter .icon { width: 13px; height: 13px; }
+    .gallery-arrow { position: absolute; top: 50%; z-index: 3; width: 34px; height: 48px; display: grid; place-items: center; border: 0; border-radius: 9px; background: rgba(7,9,12,.58); color: white; cursor: pointer; opacity: 0; transform: translateY(-50%); transition: opacity .2s, background .2s; }
+    .listing-card:hover .gallery-arrow { opacity: 1; }
+    .gallery-arrow:hover { background: rgba(7,9,12,.9); }
+    .gallery-arrow--prev { left: 11px; }
+    .gallery-arrow--next { right: 11px; }
+    .gallery-arrow .icon { width: 17px; height: 17px; }
+    .listing-card__body { padding: 22px 23px 20px; }
+    .listing-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: start; }
+    .listing-kicker { margin-bottom: 6px; color: var(--muted-2); font-size: 9px; text-transform: uppercase; letter-spacing: .12em; }
+    .listing-title { margin: 0; font-size: clamp(19px, 2vw, 25px); line-height: 1.14; letter-spacing: -.038em; }
+    .listing-title a:hover { color: var(--accent); }
+    .listing-price { text-align: right; white-space: nowrap; }
+    .listing-price strong { display: block; color: var(--accent); font-size: 22px; letter-spacing: -.04em; }
+    .listing-price small { display: block; margin-top: 4px; color: var(--muted-2); font-size: 10px; }
+    .spec-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin: 20px 0 16px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--line); }
+    .spec { min-width: 0; padding: 11px 11px 10px; background: #0d1015; }
+    .spec span { display: block; color: var(--muted-2); font-size: 8px; text-transform: uppercase; letter-spacing: .08em; }
+    .spec strong { display: block; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #d9dce1; font-size: 11px; font-weight: 640; }
+    .generation-mini { min-height: 75px; display: flex; align-items: center; gap: 13px; margin: 0 0 16px; padding: 9px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,255,255,.022); }
+    .generation-mini__image { width: 91px; height: 56px; flex: 0 0 auto; display: grid; place-items: center; overflow: hidden; border-radius: 9px; background: radial-gradient(circle at 50% 70%, #2a3038, #171a20); }
+    .generation-mini__image img { width: 100%; height: 100%; object-fit: contain; }
+    .generation-mini__info { min-width: 0; }
+    .generation-mini__info span { display: block; margin-bottom: 4px; color: var(--accent); font-size: 8px; text-transform: uppercase; letter-spacing: .13em; }
+    .generation-mini__info strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+    .generation-mini__info small { display: block; margin-top: 3px; color: var(--muted-2); font-size: 9px; }
+    .seller-comment { position: relative; margin: 0 0 16px; padding: 14px 15px 13px 39px; border-left: 2px solid rgba(215,255,67,.55); border-radius: 0 10px 10px 0; background: rgba(215,255,67,.035); }
+    .seller-comment::before { content: "“"; position: absolute; left: 13px; top: 9px; color: var(--accent); font-family: Georgia, serif; font-size: 27px; line-height: 1; }
+    .seller-comment__label { margin-bottom: 5px; color: #87909c; font-size: 8px; text-transform: uppercase; letter-spacing: .11em; }
+    .seller-comment__text { margin: 0; color: #b8bdc5; font-size: 10px; line-height: 1.55; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .seller-comment.expanded .seller-comment__text { display: block; }
+    .comment-more { margin: 7px 0 0; padding: 0; border: 0; background: none; color: var(--accent); cursor: pointer; font-size: 9px; }
+    .detail-loading { display: flex; align-items: center; gap: 8px; color: var(--muted-2); }
+    .mini-spinner { width: 12px; height: 12px; border: 1px solid #3d444e; border-top-color: var(--accent); border-radius: 50%; animation: spin .75s linear infinite; }
+    @keyframes spin { to { transform: rotate(1turn); } }
+    .listing-footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-top: 15px; border-top: 1px solid var(--line); }
+    .seller-meta { min-width: 0; }
+    .seller-meta strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #cdd1d7; font-size: 10px; }
+    .seller-meta span { display: flex; align-items: center; gap: 5px; margin-top: 4px; color: var(--muted-2); font-size: 9px; }
+    .seller-meta .icon { width: 12px; height: 12px; }
+    .card-buttons { display: flex; align-items: center; gap: 7px; flex: 0 0 auto; }
+    .detail-button, .original-button { height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: 9px; cursor: pointer; font-size: 9px; font-weight: 700; transition: .2s; }
+    .detail-button { padding: 0 10px; border: 1px solid var(--line); background: #11151a; color: #bcc1c8; }
+    .detail-button:hover { border-color: var(--line-strong); color: white; }
+    .original-button { padding: 0 12px; border: 0; background: var(--accent); color: var(--accent-ink); }
+    .original-button:hover { background: #e2ff70; transform: translateY(-1px); }
+    .detail-button .icon, .original-button .icon { width: 14px; height: 14px; }
+    .card-extra { display: none; margin-top: 17px; padding-top: 17px; border-top: 1px solid var(--line); }
+    .listing-card.extra-open .card-extra { display: block; animation: reveal .22s ease-out; }
+    @keyframes reveal { from { opacity: 0; transform: translateY(-5px); } }
+    .detail-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px 14px; margin: 0 0 17px; }
+    .detail-fact { display: flex; justify-content: space-between; gap: 10px; padding-bottom: 6px; border-bottom: 1px dashed rgba(255,255,255,.08); font-size: 9px; }
+    .detail-fact span { color: var(--muted-2); }
+    .detail-fact strong { max-width: 58%; text-align: right; color: #c9cdd3; font-weight: 570; }
+    .equipment-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; font-size: 10px; }
+    .equipment-title span { color: var(--muted-2); font-size: 8px; }
+    .equipment-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .equipment-tag { padding: 6px 8px; border-radius: 7px; background: rgba(255,255,255,.045); color: #aeb4bc; font-size: 8px; }
+
+    /* Loading / empty */
+    .skeleton-card { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-lg); background: #101319; }
+    .skeleton-media { height: 310px; }
+    .skeleton-body { padding: 23px; }
+    .skeleton-line { height: 12px; margin-bottom: 11px; border-radius: 6px; }
+    .skeleton-line--title { width: 62%; height: 24px; }
+    .skeleton-line--price { width: 34%; }
+    .skeleton-media, .skeleton-line { background: linear-gradient(100deg, #13171d 12%, #20252c 28%, #13171d 44%); background-size: 220% 100%; animation: shimmer 1.35s ease-in-out infinite; }
+    @keyframes shimmer { to { background-position-x: -220%; } }
+    .empty-state { grid-column: 1 / -1; min-height: 380px; display: grid; place-items: center; padding: 50px; border: 1px dashed var(--line-strong); border-radius: var(--radius-lg); text-align: center; background: rgba(255,255,255,.015); }
+    .empty-state__icon { width: 68px; height: 68px; display: grid; place-items: center; margin: 0 auto 19px; border: 1px solid var(--line); border-radius: 50%; color: var(--accent); background: var(--accent-soft); }
+    .empty-state__icon .icon { width: 29px; height: 29px; }
+    .empty-state h3 { margin: 0; font-size: 21px; }
+    .empty-state p { max-width: 490px; margin: 10px auto 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .empty-state button { margin-top: 20px; padding: 11px 17px; border: 0; border-radius: 9px; background: var(--accent); color: var(--accent-ink); cursor: pointer; font-weight: 750; font-size: 11px; }
+    .load-more-wrap { display: none; justify-content: center; margin-top: 29px; }
+    .load-more-wrap.visible { display: flex; }
+    .load-more { min-width: 225px; height: 48px; display: flex; justify-content: center; align-items: center; gap: 9px; border: 1px solid var(--line-strong); border-radius: 12px; background: #11151a; cursor: pointer; color: #d3d6db; font-size: 11px; font-weight: 670; transition: .2s; }
+    .load-more:hover { border-color: rgba(215,255,67,.45); color: var(--accent); transform: translateY(-2px); }
+    .load-more:disabled { opacity: .5; cursor: wait; transform: none; }
+
+    /* How it works */
+    .trust-section { padding: 85px 0; border-top: 1px solid var(--line); background: #0a0d11; }
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 30px; }
+    .section-heading h2 { margin: 7px 0 0; font-size: clamp(30px, 4vw, 48px); letter-spacing: -.055em; }
+    .section-heading p { max-width: 515px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+    .trust-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .trust-card { min-height: 205px; padding: 23px; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(145deg, #12161b, #0d1014); }
+    .trust-card__num { color: var(--accent); font-size: 10px; letter-spacing: .12em; }
+    .trust-card__icon { width: 40px; height: 40px; display: grid; place-items: center; margin: 28px 0 19px; border-radius: 11px; color: var(--accent); background: var(--accent-soft); }
+    .trust-card h3 { margin: 0; font-size: 14px; }
+    .trust-card p { margin: 8px 0 0; color: var(--muted); font-size: 10px; line-height: 1.55; }
+    .adapters { margin-top: 17px; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+    .adapter-row { display: grid; grid-template-columns: 170px 120px minmax(0, 1fr); gap: 20px; align-items: center; padding: 16px 20px; background: #0d1014; font-size: 10px; }
+    .adapter-row + .adapter-row { border-top: 1px solid var(--line); }
+    .adapter-name { display: flex; align-items: center; gap: 9px; font-weight: 730; }
+    .adapter-name::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--adapter-color); }
+    .adapter-state { width: fit-content; padding: 5px 8px; border: 1px solid currentColor; border-radius: 6px; color: var(--green); font-size: 8px; text-transform: uppercase; letter-spacing: .08em; }
+    .adapter-state--diag { color: var(--amber); }
+    .adapter-desc { color: var(--muted); line-height: 1.45; }
+
+    /* Footer */
+    footer { padding: 42px 0 32px; border-top: 1px solid var(--line); background: #07090b; }
+    .footer-top { display: flex; justify-content: space-between; gap: 40px; padding-bottom: 31px; }
+    .footer-copy { max-width: 610px; margin-top: 13px; color: var(--muted-2); font-size: 10px; line-height: 1.6; }
+    .footer-links { display: flex; gap: 24px; align-items: flex-start; color: #9ca3ad; font-size: 10px; }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-bottom { display: flex; justify-content: space-between; gap: 20px; padding-top: 20px; border-top: 1px solid var(--line); color: #555d68; font-size: 9px; }
+
+    /* Lightbox and toast */
+    .lightbox { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 35px; background: rgba(3,4,6,.94); backdrop-filter: blur(16px); }
+    .lightbox.open { display: flex; }
+    .lightbox-image { max-width: min(1200px, 90vw); max-height: 84vh; object-fit: contain; border-radius: 12px; box-shadow: 0 30px 100px black; }
+    .lightbox-close, .lightbox-nav { position: absolute; display: grid; place-items: center; border: 1px solid var(--line-strong); background: rgba(16,19,24,.82); color: white; cursor: pointer; backdrop-filter: blur(9px); }
+    .lightbox-close { top: 24px; right: 24px; width: 43px; height: 43px; border-radius: 50%; }
+    .lightbox-nav { top: 50%; width: 48px; height: 64px; border-radius: 12px; transform: translateY(-50%); }
+    .lightbox-nav--prev { left: 24px; }
+    .lightbox-nav--next { right: 24px; }
+    .lightbox-count { position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); padding: 8px 12px; border-radius: 8px; background: rgba(16,19,24,.82); color: #c4c9d0; font-size: 10px; }
+    .toast-stack { position: fixed; z-index: 300; right: 20px; bottom: 20px; display: grid; gap: 9px; width: min(360px, calc(100% - 40px)); pointer-events: none; }
+    .toast { display: flex; gap: 11px; align-items: flex-start; padding: 14px 15px; border: 1px solid var(--line-strong); border-radius: 12px; background: rgba(18,22,28,.96); box-shadow: 0 18px 50px rgba(0,0,0,.45); color: #d9dce1; font-size: 10px; line-height: 1.45; animation: toastIn .25s ease-out; }
+    .toast .icon { width: 17px; height: 17px; color: var(--accent); }
+    .toast--error .icon { color: var(--red); }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } }
+
+    @media (max-width: 1180px) {
+      .hero-content { width: 76%; }
+      .form-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+      .field, .field--wide { grid-column: span 2; }
+      .search-actions { grid-column: span 2; }
+      .trust-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .container { width: min(calc(100% - 30px), var(--container)); }
+      .site-header { height: calc(67px + var(--safe-top)); }
+      .nav-links { display: none; }
+      .hero { min-height: 620px; }
+      .hero-content { width: 92%; padding-top: 78px; }
+      .hero h1 { font-size: clamp(50px, 12vw, 80px); }
+      .hero-scroll { display: none; }
+      .search-section { margin-top: -35px; }
+      .search-head { align-items: flex-start; flex-direction: column; }
+      .mode-tabs { width: 100%; overflow-x: auto; }
+      .mode-tab { flex: 1; }
+      .mode-tab span { text-align: center; padding-inline: 10px; }
+      .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .field, .field--wide, .field--half, .search-actions { grid-column: span 1; }
+      .search-actions { grid-column: 1 / -1; }
+      .results-grid { grid-template-columns: 1fr; }
+      .results-header { align-items: flex-start; }
+      .section-heading { align-items: flex-start; flex-direction: column; }
+    }
+    @media (max-width: 620px) {
+      .container { width: min(calc(100% - 22px), var(--container)); }
+      .brand-logo { font-size: 18px; }
+      .brand-logo__mark { width: 31px; height: 31px; }
+      .nav-live { padding: 8px 10px; }
+      .nav-live .nav-live__desktop { display: none; }
+      .hero { min-height: 580px; align-items: flex-start; }
+      .hero::before { background-position: 61% center; }
+      .hero::after { background: linear-gradient(90deg, rgba(6,8,10,.96), rgba(6,8,10,.63)), linear-gradient(0deg, #080a0d, transparent 44%); }
+      .hero-content { width: 100%; padding-top: 113px; }
+      .hero h1 { margin-top: 19px; font-size: 47px; }
+      .hero-lead { font-size: 15px; }
+      .hero-points { margin-top: 24px; }
+      .hero-point:nth-child(3) { display: none; }
+      .hero-stats { width: 100%; }
+      .hero-stat { flex: 1; min-width: 0; padding: 13px 12px; }
+      .hero-stat strong { font-size: 18px; }
+      .hero-stat span { font-size: 9px; }
+      .search-section { margin-top: -22px; }
+      .search-panel { border-radius: 20px; }
+      .search-head { padding: 21px 18px 17px; gap: 16px; }
+      .search-body { padding: 19px 18px 22px; }
+      .generation-picker { padding: 0 18px 22px; }
+      .source-row__label { width: 100%; }
+      .source-toggle span { padding: 8px 9px; font-size: 10px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field, .field--wide, .field--half, .search-actions { grid-column: 1; }
+      .filter-meta { align-items: flex-start; flex-direction: column; }
+      .results-section { padding-top: 21px; }
+      .results-header { gap: 14px; }
+      .results-title h2 { font-size: 29px; }
+      .results-sort select { width: 46px; padding: 0; font-size: 0; }
+      .results-sort::before { content: "↕"; position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; color: #c6cbd2; font-size: 17px; }
+      .results-sort .select-arrow { display: none; }
+      .listing-card__media, .skeleton-media { height: 235px; }
+      .listing-card__body { padding: 18px 16px 17px; }
+      .listing-head { grid-template-columns: 1fr; gap: 10px; }
+      .listing-price { text-align: left; display: flex; align-items: baseline; gap: 9px; }
+      .listing-price small { margin: 0; }
+      .spec-grid { grid-template-columns: repeat(2, 1fr); }
+      .listing-footer { align-items: flex-start; flex-direction: column; }
+      .card-buttons { width: 100%; }
+      .detail-button, .original-button { flex: 1; }
+      .gallery-arrow { opacity: .85; height: 42px; }
+      .detail-facts { grid-template-columns: 1fr; }
+      .generation-mini__image { width: 78px; }
+      .trust-section { padding: 60px 0; }
+      .trust-grid { grid-template-columns: 1fr; }
+      .adapter-row { grid-template-columns: 1fr auto; gap: 9px 15px; }
+      .adapter-desc { grid-column: 1 / -1; }
+      .footer-top, .footer-bottom { flex-direction: column; }
+      .footer-links { flex-wrap: wrap; }
+      .lightbox { padding: 14px; }
+      .lightbox-nav { top: auto; bottom: 20px; width: 44px; height: 44px; border-radius: 50%; transform: none; }
+      .lightbox-nav--prev { left: 20px; }
+      .lightbox-nav--next { right: 20px; }
+    }
+    /* iPhone 13 mini and other compact 375–430 px screens */
+    @media (max-width: 430px) {
+      html { scroll-padding-top: calc(74px + var(--safe-top)); }
+      .container {
+        width: calc(100% - 16px - var(--safe-left) - var(--safe-right));
+        margin-left: calc(8px + var(--safe-left));
+        margin-right: calc(8px + var(--safe-right));
+      }
+      .site-header { height: calc(64px + var(--safe-top)); }
+      .nav { gap: 10px; }
+      .brand-logo { gap: 8px; font-size: 17px; }
+      .brand-logo__mark { width: 30px; height: 30px; border-radius: 9px; }
+      .nav-live { min-height: 42px; padding: 0 10px; font-size: 10px; }
+
+      .hero { min-height: calc(604px + var(--safe-top)); }
+      .hero-content { padding-top: calc(102px + var(--safe-top)); padding-bottom: 54px; }
+      .eyebrow { gap: 9px; font-size: 10px; letter-spacing: .15em; }
+      .eyebrow::before { width: 23px; }
+      .hero h1 { margin: 18px 0 17px; font-size: clamp(41px, 12.3vw, 46px); line-height: .96; }
+      .hero-lead { font-size: 15px; line-height: 1.48; }
+      .hero-points { gap: 7px; margin-top: 22px; }
+      .hero-point { min-height: 40px; padding: 8px 10px; font-size: 10px; }
+      .hero-stats { margin-top: 29px; border-radius: 13px; }
+      .hero-stat { padding: 12px 8px; }
+      .hero-stat strong { font-size: 18px; }
+      .hero-stat span { margin-top: 4px; font-size: 9px; line-height: 1.25; }
+
+      .search-section { margin-top: -20px; }
+      .search-panel { border-radius: 18px; }
+      .search-head { padding: 20px 16px 16px; }
+      .search-head h2 { font-size: 20px; }
+      .search-head p { font-size: 11px; line-height: 1.45; }
+      .mode-tabs { gap: 3px; padding: 3px; scrollbar-width: none; }
+      .mode-tabs::-webkit-scrollbar { display: none; }
+      .mode-tab span { min-height: 44px; display: flex; align-items: center; justify-content: center; padding: 0 8px; font-size: 11px; }
+      .search-body { padding: 18px 16px 20px; }
+      .source-row { gap: 7px; margin-bottom: 20px; }
+      .source-row__label { margin-bottom: 2px; font-size: 10px; }
+      .source-toggle span { min-height: 44px; padding: 0 10px; font-size: 11px; }
+      .beta { font-size: 7px; }
+      .form-grid { gap: 12px; }
+      .field label { margin-bottom: 7px; font-size: 11px; }
+      .control { height: 52px; padding-left: 13px; font-size: 16px; }
+      .range-control input { height: 50px; padding-inline: 12px; font-size: 16px; }
+      .search-button { min-height: 52px; font-size: 13px; }
+      .reset-button { width: 52px; height: 52px; }
+      .filter-meta { gap: 10px; margin-top: 16px; font-size: 11px; line-height: 1.45; }
+      .generation-picker { padding: 0 16px 20px; }
+      .generation-head { align-items: flex-start; gap: 8px; }
+      .generation-head span { max-width: 47%; text-align: right; line-height: 1.3; }
+      .generation-track { grid-auto-columns: 164px; }
+
+      .results-section { padding-top: 24px; padding-bottom: 74px; }
+      .results-header { align-items: center; gap: 10px; margin-bottom: 18px; }
+      .results-title { min-width: 0; flex: 1; }
+      .results-title h2 { font-size: 27px; line-height: 1.05; }
+      .results-tools { flex: 0 0 auto; }
+      input, select, textarea { font-size: 16px; }
+      .results-sort { width: 46px; flex: 0 0 46px; overflow: hidden; border-radius: 10px; }
+      .results-sort select { width: 46px; max-width: 46px; height: 46px; font-size: 16px; color: transparent; }
+      .results-sort select option { color: #c6cbd2; }
+      .source-statuses { gap: 7px; margin-bottom: 16px; }
+      .source-status { max-width: 100%; min-height: 44px; flex-wrap: wrap; padding: 9px 11px; font-size: 11px; overflow-wrap: anywhere; }
+      .source-warning { padding: 12px; font-size: 12px; overflow-wrap: anywhere; }
+      .results-grid { gap: 14px; }
+
+      .listing-card { border-radius: 18px; }
+      .listing-card__media, .skeleton-media { height: 224px; }
+      .source-badge { top: 12px; left: 12px; max-width: calc(100% - 75px); height: 34px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .favorite-button { top: 10px; right: 10px; width: 44px; height: 44px; }
+      .photo-counter { left: 12px; bottom: 11px; font-size: 10px; }
+      .gallery-arrow { width: 44px; height: 50px; opacity: .9; }
+      .gallery-arrow--prev { left: 8px; }
+      .gallery-arrow--next { right: 8px; }
+      .listing-card__body { padding: 18px 15px 16px; }
+      .listing-kicker { font-size: 10px; line-height: 1.35; }
+      .listing-title { font-size: 22px; line-height: 1.12; overflow-wrap: anywhere; }
+      .listing-price strong { font-size: 21px; }
+      .listing-price small { font-size: 11px; }
+      .spec-grid { margin: 17px 0 14px; }
+      .spec { min-height: 58px; padding: 11px 10px; }
+      .spec span { font-size: 9px; }
+      .spec strong { font-size: 12px; line-height: 1.25; white-space: normal; overflow-wrap: anywhere; }
+      .generation-mini { gap: 10px; margin-bottom: 14px; }
+      .generation-mini__image { width: 76px; }
+      .generation-mini__info span { font-size: 9px; }
+      .generation-mini__info strong { font-size: 12px; }
+      .generation-mini__info small { font-size: 10px; }
+      .seller-comment { margin-bottom: 14px; padding: 13px 13px 12px 36px; }
+      .seller-comment__label { font-size: 9px; }
+      .seller-comment__text { font-size: 12px; line-height: 1.52; }
+      .comment-more { min-height: 44px; display: inline-flex; align-items: center; margin-top: 2px; font-size: 11px; }
+      .listing-footer { gap: 13px; }
+      .seller-meta { width: 100%; }
+      .seller-meta strong { font-size: 12px; }
+      .seller-meta span { align-items: flex-start; font-size: 10px; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; }
+      .card-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .detail-button, .original-button { min-width: 0; height: 44px; padding-inline: 8px; font-size: 11px; }
+      .detail-fact { align-items: flex-start; font-size: 11px; line-height: 1.35; }
+      .detail-fact strong { max-width: 62%; overflow-wrap: anywhere; }
+      .equipment-title { font-size: 11px; }
+      .equipment-tag { padding: 7px 8px; font-size: 10px; line-height: 1.35; overflow-wrap: anywhere; }
+      .empty-state { min-height: 330px; padding: 32px 18px; }
+      .empty-state p { font-size: 12px; }
+      .load-more { width: 100%; min-height: 50px; font-size: 12px; }
+
+      .trust-section { padding: 56px 0; }
+      .section-heading h2 { font-size: 34px; }
+      .section-heading p { font-size: 12px; }
+      .trust-card { min-height: 190px; padding: 20px; }
+      .trust-card h3 { font-size: 15px; }
+      .trust-card p { font-size: 11px; }
+      .adapter-row { padding: 15px 14px; font-size: 11px; }
+      .adapter-desc { line-height: 1.5; overflow-wrap: anywhere; }
+      footer { padding-bottom: calc(28px + var(--safe-bottom)); }
+      .footer-copy { font-size: 11px; }
+      .footer-links { gap: 18px; font-size: 11px; }
+
+      .lightbox { min-height: 100dvh; padding: calc(64px + var(--safe-top)) calc(10px + var(--safe-right)) calc(82px + var(--safe-bottom)) calc(10px + var(--safe-left)); }
+      .lightbox-image { max-width: 100%; max-height: calc(100dvh - 164px - var(--safe-top) - var(--safe-bottom)); }
+      .lightbox-close { top: calc(10px + var(--safe-top)); right: calc(10px + var(--safe-right)); width: 44px; height: 44px; }
+      .lightbox-nav { bottom: calc(12px + var(--safe-bottom)); }
+      .lightbox-nav--prev { left: calc(12px + var(--safe-left)); }
+      .lightbox-nav--next { right: calc(12px + var(--safe-right)); }
+      .lightbox-count { bottom: calc(70px + var(--safe-bottom)); }
+      .toast-stack { left: calc(10px + var(--safe-left)); right: calc(10px + var(--safe-right)); bottom: calc(10px + var(--safe-bottom)); width: auto; }
+      .toast { font-size: 12px; }
+    }
+
+    @media (max-width: 380px) {
+      .hero h1 { font-size: 42px; }
+      .mode-tab span { padding-inline: 6px; font-size: 10px; }
+      .source-toggle span { padding-inline: 9px; }
+      .results-title h2 { font-size: 25px; }
+      .detail-button, .original-button { font-size: 10px; }
+    }
+
+    @media (max-height: 430px) and (orientation: landscape) {
+      html { scroll-padding-top: calc(66px + var(--safe-top)); }
+      .container {
+        width: calc(100% - 24px - var(--safe-left) - var(--safe-right));
+        margin-left: calc(12px + var(--safe-left));
+        margin-right: calc(12px + var(--safe-right));
+      }
+      .site-header { height: calc(58px + var(--safe-top)); }
+      .hero { min-height: 520px; }
+      .hero-content { width: 72%; padding-top: calc(88px + var(--safe-top)); }
+      .hero-stats { margin-top: 24px; }
+
+      input, select, textarea { font-size: 16px; }
+      .control, .range-control input { font-size: 16px; }
+      .mode-tab span, .source-toggle span { min-height: 44px; display: flex; align-items: center; justify-content: center; }
+      .results-sort select { min-height: 44px; font-size: 16px; }
+      .favorite-button { width: 44px; height: 44px; }
+      .gallery-arrow { width: 44px; min-height: 48px; opacity: .88; }
+      .detail-button, .original-button { min-height: 44px; }
+      footer { padding-bottom: calc(32px + var(--safe-bottom)); }
+
+      .lightbox { min-height: 100dvh; padding: calc(58px + var(--safe-top)) calc(66px + var(--safe-right)) calc(58px + var(--safe-bottom)) calc(66px + var(--safe-left)); }
+      .lightbox-image { max-width: 100%; max-height: calc(100dvh - 116px - var(--safe-top) - var(--safe-bottom)); }
+      .lightbox-close { top: calc(8px + var(--safe-top)); right: calc(10px + var(--safe-right)); width: 44px; height: 44px; }
+      .lightbox-nav { width: 44px; height: 52px; }
+      .lightbox-nav--prev { left: calc(10px + var(--safe-left)); }
+      .lightbox-nav--next { right: calc(10px + var(--safe-right)); }
+      .lightbox-count { bottom: calc(8px + var(--safe-bottom)); }
+      .toast-stack { right: calc(10px + var(--safe-right)); bottom: calc(10px + var(--safe-bottom)); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <svg class="sr-only" aria-hidden="true" width="0" height="0">
+    <symbol id="i-car" viewBox="0 0 24 24"><path d="M3 14.5V12l2-5.5h14L21 12v5.5h-2V20h-3v-2.5H8V20H5v-2.5H3z"/><path d="M5 12h14M7 14.5h1m8 0h1"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.2c0 4.7 3.2 8.1 7.5 9.8 4.3-1.7 7.5-5.1 7.5-9.8V6z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="m13 2-8 12h7l-1 8 8-12h-7z"/></symbol>
+    <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13.5" r="3.5"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 5.8a5 5 0 0 0-7.1 0L12 7.5l-1.7-1.7a5 5 0 0 0-7.1 7.1L12 21l8.8-8.1a5 5 0 0 0 0-7.1z"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 13v6H5V6h6"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10m4 0h2M4 17h2m4 0h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.2"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 9v5m0 3v.2"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></symbol>
+  </svg>
+
+  <header class="site-header" id="siteHeader">
+    <div class="container nav">
+      <a class="brand-logo" href="#top" aria-label="MOTOR.BY — наверх">
+        <span class="brand-logo__mark"><svg class="icon"><use href="#i-car"></use></svg></span>
+        <span>MOTOR<em>.BY</em></span>
+      </a>
+      <nav class="nav-links" aria-label="Основная навигация">
+        <a href="#search">Поиск</a>
+        <a href="#results">Объявления</a>
+        <a href="#how">Как работает</a>
+      </nav>
+      <div class="nav-live" title="Backend работает и не использует демонстрационные объявления">
+        <span class="pulse"></span>
+        <span><span class="nav-live__desktop">Серверный сбор · </span>без API-ключей</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container">
+        <div class="hero-content">
+          <div class="eyebrow">Автомобили по всей Беларуси</div>
+          <h1 id="hero-title">Один поиск.<br><span class="outline">Вся лента.</span></h1>
+          <p class="hero-lead">Собираем реальные объявления прямо на сайте, приводим характеристики к единому виду и всегда оставляем ссылку на оригинал.</p>
+          <div class="hero-points">
+            <span class="hero-point"><svg class="icon"><use href="#i-database"></use></svg> Живые данные площадок</span>
+            <span class="hero-point"><svg class="icon"><use href="#i-shield"></use></svg> Без подмены демо-данными</span>
+            <span class="hero-point"><svg class="icon"><use href="#i-bolt"></use></svg> Кэш и частичная деградация</span>
+          </div>
+          <div class="hero-stats" aria-label="Возможности сервиса">
+            <div class="hero-stat"><strong>5</strong><span>рабочих источников</span></div>
+            <div class="hero-stat"><strong>0</strong><span>API-ключей</span></div>
+            <div class="hero-stat"><strong>1</strong><span>единая карточка</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-scroll">Листайте к поиску</div>
+    </section>
+
+    <section class="search-section" id="search" aria-labelledby="search-heading">
+      <div class="container">
+        <form class="search-panel" id="searchForm">
+          <div class="search-head">
+            <div>
+              <h2 id="search-heading">Найти автомобиль</h2>
+              <p>Фильтры одновременно переводятся в форматы выбранных площадок</p>
+            </div>
+            <div class="mode-tabs" role="radiogroup" aria-label="Состояние автомобиля">
+              <label class="mode-tab"><input type="radio" name="mode" value="all" checked><span>Все</span></label>
+              <label class="mode-tab"><input type="radio" name="mode" value="owned"><span>С пробегом</span></label>
+              <label class="mode-tab"><input type="radio" name="mode" value="new"><span>Новые</span></label>
+              <label class="mode-tab"><input type="radio" name="mode" value="electric"><span>Электро</span></label>
+            </div>
+          </div>
+
+          <div class="search-body">
+            <div class="source-row" aria-label="Источники поиска">
+              <span class="source-row__label">Источники</span>
+              <label class="source-toggle" style="--source-color:var(--onliner)"><input type="checkbox" name="source" value="onliner" checked><span>Onlíner</span></label>
+              <label class="source-toggle" style="--source-color:var(--kufar)"><input type="checkbox" name="source" value="kufar" checked><span>Kufar</span></label>
+              <label class="source-toggle" style="--source-color:var(--av)"><input type="checkbox" name="source" value="av" checked><span>AV.BY <b class="beta">LIVE</b></span></label>
+              <label class="source-toggle" style="--source-color:var(--dealer)" title="Новые автомобили официальных дилеров Атлант-М"><input type="checkbox" name="source" value="dealer" checked><span>Дилеры <b class="beta">LIVE</b></span></label>
+              <label class="source-toggle" style="--source-color:var(--autohouse)" title="Автомобили с пробегом из автохауса Атлант-М"><input type="checkbox" name="source" value="autohouse" checked><span>Автохаусы <b class="beta">LIVE</b></span></label>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="brandSelect">Марка</label>
+                <div class="control-wrap">
+                  <select class="control" id="brandSelect" name="brand"><option value="">Любая марка</option></select>
+                  <svg class="icon select-arrow"><use href="#i-chevron"></use></svg>
+                </div>
+              </div>
+              <div class="field">
+                <label for="modelSelect">Модель</label>
+                <div class="control-wrap">
+                  <select class="control" id="modelSelect" name="model" disabled><option value="">Любая модель</option></select>
+                  <svg class="icon select-arrow"><use href="#i-chevron"></use></svg>
+                </div>
+              </div>
+              <div class="field">
+                <label>Цена, BYN</label>
+                <div class="range-control">
+                  <input id="priceFrom" name="priceFrom" type="number" min="0" step="500" placeholder="От">
+                  <input id="priceTo" name="priceTo" type="number" min="0" step="500" placeholder="До">
+                </div>
+              </div>
+              <div class="field">
+                <label>Год выпуска</label>
+                <div class="range-control">
+                  <input id="yearFrom" name="yearFrom" type="number" min="1900" max="2030" placeholder="От">
+                  <input id="yearTo" name="yearTo" type="number" min="1900" max="2030" placeholder="До">
+                </div>
+              </div>
+
+              <div class="field field--half">
+                <label for="citySelect">Город / область</label>
+                <div class="control-wrap">
+                  <select class="control" id="citySelect" name="city">
+                    <option value="all">Вся Беларусь</option>
+                    <optgroup label="Города">
+                      <option value="minsk">Минск</option><option value="brest">Брест</option><option value="vitebsk">Витебск</option>
+                      <option value="gomel">Гомель</option><option value="grodno">Гродно</option><option value="mogilev">Могилёв</option>
+                      <option value="bobruisk">Бобруйск</option><option value="borisov">Борисов</option><option value="baranovichi">Барановичи</option>
+                      <option value="molodechno">Молодечно</option><option value="soligorsk">Солигорск</option><option value="polotsk">Полоцк</option>
+                    </optgroup>
+                    <optgroup label="Области">
+                      <option value="minsk_region">Минская область</option><option value="brest_region">Брестская область</option>
+                      <option value="vitebsk_region">Витебская область</option><option value="gomel_region">Гомельская область</option>
+                      <option value="grodno_region">Гродненская область</option><option value="mogilev_region">Могилёвская область</option>
+                    </optgroup>
+                  </select>
+                  <svg class="icon select-arrow"><use href="#i-chevron"></use></svg>
+                </div>
+              </div>
+              <div class="field field--half">
+                <label for="bodySelect">Кузов</label>
+                <div class="control-wrap">
+                  <select class="control" id="bodySelect" name="body">
+                    <option value="">Любой</option><option value="sedan">Седан</option><option value="universal">Универсал</option>
+                    <option value="hatchback">Хэтчбек</option><option value="liftback">Лифтбек</option><option value="suv">Внедорожник / SUV</option>
+                    <option value="minivan">Минивэн</option><option value="minibus">Микроавтобус</option><option value="coupe">Купе</option>
+                    <option value="cabriolet">Кабриолет</option><option value="pickup">Пикап</option><option value="van">Фургон</option>
+                  </select>
+                  <svg class="icon select-arrow"><use href="#i-chevron"></use></svg>
+                </div>
+              </div>
+              <div class="field field--half">
+                <label for="fuelSelect">Топливо</label>
+                <div class="control-wrap">
+                  <select class="control" id="fuelSelect" name="fuel">
+                    <option value="">Любое</option><option value="gasoline">Бензин</option><option value="diesel">Дизель</option>
+                    <option value="hybrid">Гибрид</option><option value="electric">Электро</option><option value="gas">Газ / бензин</option>
+                  </select>
+                  <svg class="icon select-arrow"><use href="#i-chevron"></use></svg>
+                </div>
+              </div>
+              <div class="field field--half">
+                <label for="transmissionSelect">Коробка</label>
+                <div class="control-wrap">
+                  <select class="control" id="transmissionSelect" name="transmission">
+                    <option value="">Любая</option><option value="automatic">Автомат</option><option value="mechanical">Механика</option>
+                  </select>
+                  <svg class="icon select-arrow"><use href="#i-chevron"></use></svg>
+                </div>
+              </div>
+              <div class="field field--half">
+                <label for="drivetrainSelect">Привод</label>
+                <div class="control-wrap">
+                  <select class="control" id="drivetrainSelect" name="drivetrain">
+                    <option value="">Любой</option><option value="front">Передний</option><option value="rear">Задний</option><option value="all">Полный</option>
+                  </select>
+                  <svg class="icon select-arrow"><use href="#i-chevron"></use></svg>
+                </div>
+              </div>
+              <div class="field field--half">
+                <label for="mileageTo">Пробег до, км</label>
+                <input class="control" id="mileageTo" name="mileageTo" type="number" min="0" step="5000" placeholder="Например, 150 000">
+              </div>
+              <div class="search-actions">
+                <button class="search-button" id="searchButton" type="submit"><svg class="icon"><use href="#i-search"></use></svg><span>Показать объявления</span></button>
+                <button class="reset-button" id="resetButton" type="button" aria-label="Сбросить фильтры" title="Сбросить фильтры"><svg class="icon"><use href="#i-refresh"></use></svg></button>
+              </div>
+            </div>
+
+            <div class="filter-meta">
+              <span class="filter-meta__truth"><svg class="icon"><use href="#i-check"></use></svg> Сервер не возвращает фиктивные объявления при ошибке источника</span>
+              <span id="catalogStatus">Загружаем каталог марок…</span>
+            </div>
+          </div>
+
+          <div class="generation-picker" id="generationPicker">
+            <div class="generation-head"><h3>Выберите поколение</h3><span>Фотографии из каталога Onlíner</span></div>
+            <div class="generation-track" id="generationTrack"></div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="results-section" id="results" aria-labelledby="results-heading">
+      <div class="container">
+        <div class="results-header">
+          <div class="results-title">
+            <div class="results-title__overline" id="resultsOverline">Живая выдача</div>
+            <h2 id="results-heading">Свежие объявления <span id="shownCount"></span></h2>
+          </div>
+          <div class="results-tools">
+            <div class="results-sort">
+              <label class="sr-only" for="sortSelect">Сортировка</label>
+              <select id="sortSelect"><option value="fresh">Сначала свежие</option><option value="priceAsc">Сначала дешевле</option><option value="priceDesc">Сначала дороже</option><option value="yearDesc">Сначала новее</option><option value="mileageAsc">Меньше пробег</option></select>
+              <svg class="icon select-arrow"><use href="#i-chevron"></use></svg>
+            </div>
+          </div>
+        </div>
+        <div class="source-statuses" id="sourceStatuses" aria-live="polite"></div>
+        <div class="results-grid" id="resultsGrid" aria-live="polite"></div>
+        <div class="load-more-wrap" id="loadMoreWrap"><button class="load-more" id="loadMoreButton" type="button"><svg class="icon"><use href="#i-layers"></use></svg> Показать следующую страницу</button></div>
+      </div>
+    </section>
+
+    <section class="trust-section" id="how" aria-labelledby="how-heading">
+      <div class="container">
+        <div class="section-heading">
+          <div><div class="results-title__overline">Прозрачная архитектура</div><h2 id="how-heading">Как это работает</h2></div>
+          <p>Каждый источник изолирован. Если одна площадка включает защиту или меняет разметку, API возвращает частичную выдачу и понятный статус — другие объявления не исчезают.</p>
+        </div>
+        <div class="trust-grid">
+          <article class="trust-card"><span class="trust-card__num">01</span><div class="trust-card__icon"><svg class="icon"><use href="#i-search"></use></svg></div><h3>Один набор фильтров</h3><p>Марка, поколение, цена, год, пробег и характеристики переводятся в параметры каждой площадки.</p></article>
+          <article class="trust-card"><span class="trust-card__num">02</span><div class="trust-card__icon"><svg class="icon"><use href="#i-database"></use></svg></div><h3>Серверный сбор</h3><p>Render Web Service получает публичные страницы и JSON, поэтому браузерные CORS-ограничения не мешают поиску.</p></article>
+          <article class="trust-card"><span class="trust-card__num">03</span><div class="trust-card__icon"><svg class="icon"><use href="#i-layers"></use></svg></div><h3>Единая карточка</h3><p>Цена, фото, поколение, двигатель, продавец, оснащение и комментарий приводятся к общей структуре.</p></article>
+          <article class="trust-card"><span class="trust-card__num">04</span><div class="trust-card__icon"><svg class="icon"><use href="#i-shield"></use></svg></div><h3>Честная деградация</h3><p>Кэш, таймауты и независимые ошибки. Тестовая запись никогда не маскируется под актуальное объявление.</p></article>
+        </div>
+        <div class="adapters" aria-label="Статус адаптеров">
+          <div class="adapter-row"><div class="adapter-name" style="--adapter-color:var(--onliner)">Onlíner</div><div class="adapter-state">Подключён</div><div class="adapter-desc">Публичный JSON-каталог, подробная карточка, оснащение и официальные изображения поколений.</div></div>
+          <div class="adapter-row"><div class="adapter-name" style="--adapter-color:var(--kufar)">Kufar</div><div class="adapter-state">Подключён</div><div class="adapter-desc">Структурированные SSR-данные каталога, фильтры, курсорная пагинация, галерея и комментарий продавца.</div></div>
+          <div class="adapter-row"><div class="adapter-name" style="--adapter-color:var(--av)">AV.BY</div><div class="adapter-state">Подключён</div><div class="adapter-desc">Публичный мобильный каталог: поиск, фильтры, полная карточка, реальные фотографии и резервный транспорт при блокировке прямого соединения.</div></div>
+          <div class="adapter-row"><div class="adapter-name" style="--adapter-color:var(--dealer)">Дилеры</div><div class="adapter-state">Подключён</div><div class="adapter-desc">Публичный stock-каталог Атлант-М: более 400 новых автомобилей, реальные цены и фото, статусы наличия, комплектации, оснащение и контакты официальных дилеров.</div></div>
+          <div class="adapter-row"><div class="adapter-name" style="--adapter-color:var(--autohouse)">Автохаусы</div><div class="adapter-state">Подключён</div><div class="adapter-desc">Каталог «Атлант-М Автомобили с пробегом»: около 500 активных машин, статусы, фотографии, адреса, технические параметры и полный комментарий автохауса.</div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-top">
+        <div>
+          <a class="brand-logo" href="#top"><span class="brand-logo__mark"><svg class="icon"><use href="#i-car"></use></svg></span><span>MOTOR<em>.BY</em></span></a>
+          <div class="footer-copy">Независимый интерфейс метапоиска. MOTOR.BY не является продавцом и не аффилирован с Onlíner, Kufar, AV.BY или Атлант-М. Объявления, фотографии и описания принадлежат их авторам, дилерам и соответствующим каталогам. Проверяйте цену, наличие и историю автомобиля на оригинальной странице.</div>
+        </div>
+        <div class="footer-links"><a href="#search">Поиск</a><a href="#results">Выдача</a><a href="/api/health" target="_blank" rel="noopener">API status</a></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 MOTOR.BY · Беларусь</span><span>Без API-ключей · с атрибуцией каждого источника</span></div>
+    </div>
+  </footer>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Галерея объявления">
+    <button class="lightbox-close" type="button" data-lightbox="close" aria-label="Закрыть"><svg class="icon"><use href="#i-close"></use></svg></button>
+    <button class="lightbox-nav lightbox-nav--prev" type="button" data-lightbox="prev" aria-label="Предыдущее фото"><svg class="icon"><use href="#i-left"></use></svg></button>
+    <img class="lightbox-image" id="lightboxImage" alt="Фото автомобиля">
+    <button class="lightbox-nav lightbox-nav--next" type="button" data-lightbox="next" aria-label="Следующее фото"><svg class="icon"><use href="#i-right"></use></svg></button>
+    <div class="lightbox-count" id="lightboxCount"></div>
+  </div>
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+  <script>
+    'use strict';
+
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+    const icon = (name, className = '') => `<svg class="icon ${className}" aria-hidden="true"><use href="#i-${name}"></use></svg>`;
+    const fallbackImage = '/assets/category-city.jpg';
+
+    const state = {
+      brands: [], models: [], generations: [], generationId: '',
+      items: new Map(), order: [], sourceStatus: [], page: 1, loading: false,
+      lastParams: null, favorites: new Set(), detailQueue: [], detailActive: 0,
+      detailQueued: new Set(), observer: null,
+      lightbox: { id: null, index: 0 },
+    };
+
+    const els = {
+      header: $('#siteHeader'), form: $('#searchForm'), searchButton: $('#searchButton'), resetButton: $('#resetButton'),
+      brand: $('#brandSelect'), model: $('#modelSelect'), catalogStatus: $('#catalogStatus'),
+      generationPicker: $('#generationPicker'), generationTrack: $('#generationTrack'),
+      grid: $('#resultsGrid'), statuses: $('#sourceStatuses'), shown: $('#shownCount'), overline: $('#resultsOverline'),
+      sort: $('#sortSelect'), loadWrap: $('#loadMoreWrap'), loadButton: $('#loadMoreButton'),
+      lightbox: $('#lightbox'), lightboxImage: $('#lightboxImage'), lightboxCount: $('#lightboxCount'), toastStack: $('#toastStack'),
+    };
+
+    try { state.favorites = new Set(JSON.parse(localStorage.getItem('motorby:favorites') || '[]')); } catch (_) {}
+
+    const escapeHTML = (value) => String(value ?? '')
+      .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+
+    const validUrl = (value) => {
+      try { const url = new URL(value); return url.protocol === 'https:' ? url.href : '#'; } catch (_) { return '#'; }
+    };
+    const mediaHosts = new Set([
+      'content.onliner.by', 'imgproxy.onliner.by', 'rms.kufar.by', 'avcdn.av.by',
+      'io.activecloud.com', 'dealers-service.atlantm.by',
+    ]);
+    function mediaUrl(value) {
+      if (!value) return fallbackImage;
+      try {
+        const url = new URL(value, location.origin);
+        if (url.origin === location.origin) return `${url.pathname}${url.search}`;
+        if (url.protocol === 'https:' && (mediaHosts.has(url.hostname) || /^rms\d+\.kufar\.by$/i.test(url.hostname))) {
+          return `/api/media?url=${encodeURIComponent(url.href)}`;
+        }
+      } catch (_) {}
+      return fallbackImage;
+    }
+
+    function formatNumber(value) {
+      const number = Number(value);
+      return Number.isFinite(number) ? new Intl.NumberFormat('ru-BY', { maximumFractionDigits: 0 }).format(number) : '—';
+    }
+    function formatPrice(value) { return value === null || value === undefined ? 'Цена не указана' : `${formatNumber(Math.round(value))} р.`; }
+    function formatUsd(value) { return value === null || value === undefined ? '' : `≈ $${formatNumber(Math.round(value))}`; }
+    function formatMileage(value) { return value === null || value === undefined ? 'Не указан' : `${formatNumber(value)} км`; }
+    function formatYears(years) {
+      if (!years || !years.from) return '';
+      return `${years.from} — ${years.to || 'н.в.'}`;
+    }
+    function relativeDate(value) {
+      const date = new Date(value || '');
+      if (Number.isNaN(date.getTime())) return 'дата не указана';
+      const seconds = Math.max(0, (Date.now() - date.getTime()) / 1000);
+      if (seconds < 60) return 'только что';
+      if (seconds < 3600) return `${Math.floor(seconds / 60)} мин назад`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)} ч назад`;
+      if (seconds < 172800) return 'вчера';
+      return new Intl.DateTimeFormat('ru-BY', { day: 'numeric', month: 'short' }).format(date);
+    }
+
+    function toast(message, type = 'info') {
+      const node = document.createElement('div');
+      node.className = `toast toast--${type}`;
+      node.innerHTML = `${icon(type === 'error' ? 'alert' : 'info')}<span>${escapeHTML(message)}</span>`;
+      els.toastStack.append(node);
+      setTimeout(() => node.remove(), 4600);
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(path, { headers: { accept: 'application/json' }, ...options });
+      let body;
+      try { body = await response.json(); } catch (_) { body = null; }
+      if (!response.ok) throw new Error(body?.message || `Ошибка сервера ${response.status}`);
+      return body;
+    }
+
+    function setSelectLoading(select, text) {
+      select.disabled = true;
+      select.innerHTML = `<option value="">${escapeHTML(text)}</option>`;
+    }
+
+    async function loadBrands() {
+      try {
+        const data = await api('/api/catalog/brands');
+        state.brands = data.brands || [];
+        const popular = state.brands.filter(item => item.popular);
+        const other = state.brands.filter(item => !item.popular);
+        els.brand.innerHTML = '<option value="">Любая марка</option>' +
+          (popular.length ? `<optgroup label="Популярные">${popular.map(brandOption).join('')}</optgroup>` : '') +
+          `<optgroup label="Все марки">${other.map(brandOption).join('')}</optgroup>`;
+        els.catalogStatus.textContent = `${state.brands.length} марок · ${data.augmented ? 'справочник площадок и дилеров' : data.live ? 'живой справочник' : 'резервный справочник'}`;
+      } catch (error) {
+        els.catalogStatus.textContent = 'Справочник марок временно недоступен';
+        toast(error.message, 'error');
+      }
+    }
+    function brandOption(brand) { return `<option value="${Number(brand.id)}" data-name="${escapeHTML(brand.name)}">${escapeHTML(brand.name)}</option>`; }
+
+    async function onBrandChange({ preserveModel = '' } = {}) {
+      state.models = []; state.generations = []; state.generationId = '';
+      hideGenerations();
+      const brandId = els.brand.value;
+      if (!brandId) {
+        els.model.innerHTML = '<option value="">Любая модель</option>'; els.model.disabled = true; return;
+      }
+      setSelectLoading(els.model, 'Загружаем модели…');
+      try {
+        const data = await api(`/api/catalog/models?brand=${encodeURIComponent(brandId)}`);
+        state.models = data.models || [];
+        els.model.innerHTML = '<option value="">Любая модель</option>' + state.models.map(model =>
+          `<option value="${Number(model.id)}" data-name="${escapeHTML(model.name)}" data-slug="${escapeHTML(model.slug)}">${escapeHTML(model.name)}</option>`).join('');
+        els.model.disabled = false;
+        if (preserveModel && state.models.some(item => String(item.id) === String(preserveModel))) {
+          els.model.value = String(preserveModel);
+          await onModelChange();
+        }
+      } catch (error) {
+        setSelectLoading(els.model, 'Модели недоступны');
+        toast(error.message, 'error');
+      }
+    }
+
+    async function onModelChange({ preserveGeneration = '' } = {}) {
+      state.generations = []; state.generationId = '';
+      if (!els.brand.value || !els.model.value) { hideGenerations(); return; }
+      els.generationPicker.classList.add('visible');
+      els.generationTrack.innerHTML = Array.from({ length: 5 }, () => '<div class="generation-skeleton"></div>').join('');
+      try {
+        const data = await api(`/api/catalog/generations?brand=${encodeURIComponent(els.brand.value)}&model=${encodeURIComponent(els.model.value)}`);
+        state.generations = data.generations || [];
+        if (!state.generations.length) { hideGenerations(); return; }
+        renderGenerations();
+        if (preserveGeneration && state.generations.some(item => String(item.id) === String(preserveGeneration))) selectGeneration(String(preserveGeneration));
+      } catch (error) {
+        els.generationTrack.innerHTML = `<div class="generation-card"><div class="generation-card__image generation-card__image--any">—</div><div class="generation-card__body"><strong>Поколения недоступны</strong><small>Поиск по модели работает</small></div></div>`;
+        toast(error.message, 'error');
+      }
+    }
+
+    function hideGenerations() { els.generationPicker.classList.remove('visible'); els.generationTrack.innerHTML = ''; }
+    function renderGenerations() {
+      const anyCard = `<button class="generation-card selected" type="button" data-generation=""><span class="generation-check">${icon('check')}</span><div class="generation-card__image generation-card__image--any">∞</div><div class="generation-card__body"><strong>Все поколения</strong><small>${state.generations.length} вариантов</small></div></button>`;
+      els.generationTrack.innerHTML = anyCard + state.generations.map(generation => `
+        <button class="generation-card" type="button" data-generation="${Number(generation.id)}">
+          <span class="generation-check">${icon('check')}</span>
+          <div class="generation-card__image"><img src="${mediaUrl(generation.image)}" alt="${escapeHTML(generation.name)}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'"></div>
+          <div class="generation-card__body"><strong>${escapeHTML(generation.name)}</strong><small>${escapeHTML(formatYears({ from: generation.yearFrom, to: generation.yearTo })) || 'Годы не указаны'}</small></div>
+        </button>`).join('');
+    }
+    function selectGeneration(id) {
+      state.generationId = id;
+      $$('.generation-card', els.generationTrack).forEach(card => card.classList.toggle('selected', card.dataset.generation === id));
+    }
+
+    function selectedOption(select) { return select.selectedOptions?.[0] || null; }
+    function collectParams(page = 1) {
+      const params = new URLSearchParams();
+      $$('input[name="source"]:checked', els.form).forEach(input => params.append('source', input.value));
+      const mode = $('input[name="mode"]:checked', els.form)?.value || 'all';
+      params.set('mode', mode);
+      params.set('page', String(page)); params.set('limit', '8');
+      const brandOption = selectedOption(els.brand), modelOption = selectedOption(els.model);
+      if (els.brand.value) {
+        params.set('brand', els.brand.value);
+        params.set('brandName', brandOption?.dataset.name || brandOption?.textContent || '');
+      }
+      if (els.model.value) {
+        params.set('model', els.model.value);
+        params.set('modelName', modelOption?.dataset.name || (modelOption?.textContent || '').split(' · ')[0]);
+        if (modelOption?.dataset.slug) params.set('modelSlug', modelOption.dataset.slug);
+      }
+      if (state.generationId) {
+        const generation = state.generations.find(item => String(item.id) === String(state.generationId));
+        params.set('generation', state.generationId);
+        if (generation) params.set('generationName', generation.name);
+      }
+      const controls = ['priceFrom', 'priceTo', 'yearFrom', 'yearTo', 'city', 'body', 'fuel', 'transmission', 'drivetrain', 'mileageTo'];
+      for (const name of controls) {
+        const control = els.form.elements[name];
+        if (control?.value && control.value !== 'all') params.set(name, control.value);
+        else if (name === 'city' && control?.value === 'all') params.set('city', 'all');
+      }
+      return params;
+    }
+
+    function showSkeletons(count = 6) {
+      els.grid.innerHTML = Array.from({ length: count }, () => `<article class="skeleton-card" aria-hidden="true"><div class="skeleton-media"></div><div class="skeleton-body"><div class="skeleton-line skeleton-line--title"></div><div class="skeleton-line skeleton-line--price"></div><div class="skeleton-line"></div><div class="skeleton-line" style="width:82%"></div></div></article>`).join('');
+    }
+
+    function validateForm() {
+      const sources = $$('input[name="source"]:checked', els.form);
+      if (!sources.length) { toast('Выберите хотя бы один источник', 'error'); return false; }
+      const priceFrom = Number($('#priceFrom').value || 0), priceTo = Number($('#priceTo').value || 0);
+      const yearFrom = Number($('#yearFrom').value || 0), yearTo = Number($('#yearTo').value || 0);
+      if (priceFrom && priceTo && priceFrom > priceTo) { toast('Цена «от» не может быть больше цены «до»', 'error'); return false; }
+      if (yearFrom && yearTo && yearFrom > yearTo) { toast('Год «от» не может быть больше года «до»', 'error'); return false; }
+      return true;
+    }
+
+    async function runSearch({ append = false, scroll = true } = {}) {
+      if (state.loading || !validateForm()) return;
+      state.loading = true;
+      if (!append) {
+        state.page = 1; state.items.clear(); state.order = []; state.detailQueue = []; state.detailQueued.clear();
+        showSkeletons(); els.statuses.innerHTML = ''; els.loadWrap.classList.remove('visible');
+      }
+      els.searchButton.disabled = true; els.loadButton.disabled = true;
+      const params = collectParams(state.page);
+      state.lastParams = params;
+      if (!append) updateBrowserUrl(params);
+      if (scroll && !append) $('#results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      try {
+        const data = await api(`/api/search?${params}`);
+        if (data.mock !== false || data.live !== true) throw new Error('Сервер не подтвердил, что данные живые');
+        state.sourceStatus = data.sourceStatus || [];
+        for (const item of data.items || []) {
+          if (!state.items.has(item.id)) state.order.push(item.id);
+          state.items.set(item.id, item);
+        }
+        renderStatuses(); sortAndRender();
+        const canLoad = state.page < 5 && state.sourceStatus.some(status => ['ok', 'partial'].includes(status.state) && (status.total === null || status.total > status.count));
+        els.loadWrap.classList.toggle('visible', canLoad && state.order.length > 0);
+        const fetched = new Date(data.fetchedAt);
+        els.overline.textContent = Number.isNaN(fetched.getTime()) ? 'Живая выдача' : `Получено ${fetched.toLocaleTimeString('ru-BY', { hour: '2-digit', minute: '2-digit' })}`;
+      } catch (error) {
+        if (append) state.page = Math.max(1, state.page - 1);
+        if (!append && !state.order.length) renderFatalError(error.message);
+        toast(error.message, 'error');
+      } finally {
+        state.loading = false; els.searchButton.disabled = false; els.loadButton.disabled = false;
+      }
+    }
+
+    function renderStatuses() {
+      const statuses = state.sourceStatus;
+      const chips = statuses.map(status => `<a class="source-status source-status--${escapeHTML(status.state)}" href="${validUrl(status.sourceUrl)}" target="_blank" rel="noopener" title="${escapeHTML(status.message || '')}"><span class="source-status__dot"></span><strong>${escapeHTML(status.label)}</strong><span>${Number.isFinite(status.total) ? `${formatNumber(status.total)} всего` : escapeHTML(status.state)}</span><em>${status.latencyMs ? `${formatNumber(status.latencyMs)} мс` : ''}</em></a>`).join('');
+      const warnings = statuses.filter(status => status.notice || !['ok', 'empty'].includes(status.state) || (status.message && status.message.includes('сопостав')));
+      els.statuses.innerHTML = chips + warnings.map(status => `<div class="source-warning">${icon('alert')}<span><strong>${escapeHTML(status.label)}:</strong> ${escapeHTML(status.message)}</span></div>`).join('');
+    }
+
+    function sortedIds() {
+      const ids = [...state.order];
+      const value = els.sort.value;
+      const number = (item, key, fallback) => Number.isFinite(Number(item?.[key])) ? Number(item[key]) : fallback;
+      ids.sort((aId, bId) => {
+        const a = state.items.get(aId), b = state.items.get(bId);
+        if (value === 'priceAsc') return number(a, 'priceByn', Infinity) - number(b, 'priceByn', Infinity);
+        if (value === 'priceDesc') return number(b, 'priceByn', -Infinity) - number(a, 'priceByn', -Infinity);
+        if (value === 'yearDesc') return number(b, 'year', -Infinity) - number(a, 'year', -Infinity);
+        if (value === 'mileageAsc') return number(a, 'mileage', Infinity) - number(b, 'mileage', Infinity);
+        return (Date.parse(b?.updatedAt || b?.createdAt || 0) || 0) - (Date.parse(a?.updatedAt || a?.createdAt || 0) || 0);
+      });
+      return ids;
+    }
+
+    function sortAndRender() {
+      if (!state.order.length) { renderEmpty(); return; }
+      const ids = sortedIds();
+      els.grid.innerHTML = ids.map(id => cardHTML(state.items.get(id))).join('');
+      els.shown.textContent = `· ${state.order.length}`;
+      setupDetailObserver();
+    }
+
+    function sourceClass(item) { return ['onliner', 'kufar', 'av', 'dealer', 'autohouse'].includes(item.source) ? item.source : 'kufar'; }
+    function engineLabel(item) {
+      const volume = item.engineVolume ? `${String(item.engineVolume).replace('.', ',')} л` : '';
+      const power = item.enginePower ? `${formatNumber(item.enginePower)} л.с.` : '';
+      return [item.fuel, volume, power].filter(Boolean).join(' · ') || 'Не указан';
+    }
+
+    function cardHTML(item) {
+      const images = item.images?.length ? item.images : [fallbackImage];
+      const generationTitle = [item.brand, item.model, item.generation].filter(Boolean).join(' ');
+      const years = formatYears(item.generationYears);
+      const sourceDate = item.updatedAt || item.createdAt;
+      const details = [
+        ['Каталог', item.sourceCatalog], ['Состояние', item.state], ['Модификация', item.modification],
+        ['Цвет', item.color], ['VIN', item.vin], ['Поколение', item.generation],
+        ['Определение поколения', item.generationMethod === 'catalog-year-unique' ? 'Однозначный диапазон года Onlíner' : ''],
+        ['Телефон', item.seller?.phone],
+        ['Цена до скидки', item.priceOriginalByn && item.priceOriginalByn > item.priceByn ? formatPrice(item.priceOriginalByn) : ''],
+        ['Обновлено', sourceDate ? relativeDate(sourceDate) : ''],
+      ].filter(([, value]) => value);
+      const equipment = (item.equipment || []).slice(0, 18);
+      const commentLabel = item.descriptionLabel || 'Комментарий продавца';
+      const comment = item.descriptionLoaded
+        ? `<p class="seller-comment__text">${escapeHTML(item.description || 'Описание не добавлено продавцом.')}</p><button class="comment-more" type="button" data-action="comment-toggle">Показать полностью</button>`
+        : `<div class="detail-loading"><span class="mini-spinner"></span><span>Загружаем данные источника…</span></div>`;
+      return `<article class="listing-card" data-id="${escapeHTML(item.id)}" data-source="${escapeHTML(item.source)}" data-detail-loaded="${item.detailLoaded === true ? '1' : '0'}" data-auto-detail="${item.source === 'av' ? '0' : '1'}">
+        <div class="listing-card__media" data-action="open-gallery" data-index="0">
+          <img src="${mediaUrl(images[0])}" alt="${escapeHTML(item.title)}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'">
+          <span class="source-badge source-badge--${sourceClass(item)}">${escapeHTML(item.sourceLabel)}</span>
+          <button class="favorite-button ${state.favorites.has(item.id) ? 'active' : ''}" type="button" data-action="favorite" aria-label="Добавить в избранное">${icon('heart')}</button>
+          ${images.length > 1 ? `<button class="gallery-arrow gallery-arrow--prev" type="button" data-action="prev-image" aria-label="Предыдущее фото">${icon('left')}</button><button class="gallery-arrow gallery-arrow--next" type="button" data-action="next-image" aria-label="Следующее фото">${icon('right')}</button>` : ''}
+          <span class="photo-counter">${icon('camera')} <b data-photo-current>1</b> / <b data-photo-total>${images.length}</b></span>
+        </div>
+        <div class="listing-card__body">
+          <div class="listing-head">
+            <div><div class="listing-kicker">${escapeHTML(item.state || 'Автомобиль')}${sourceDate ? ` · ${escapeHTML(relativeDate(sourceDate))}` : ''}</div><h3 class="listing-title"><a href="${validUrl(item.sourceUrl)}" target="_blank" rel="noopener">${escapeHTML(item.title)}</a></h3></div>
+            <div class="listing-price"><strong>${escapeHTML(formatPrice(item.priceByn))}</strong><small>${escapeHTML(formatUsd(item.priceUsd))}</small></div>
+          </div>
+          <div class="spec-grid">
+            ${specHTML('Год', item.year || '—')}${specHTML('Пробег', formatMileage(item.mileage))}${specHTML('Двигатель', engineLabel(item))}
+            ${specHTML('Коробка', item.transmission || '—')}${specHTML('Кузов', item.body || '—')}${specHTML('Привод', item.drivetrain || '—')}
+          </div>
+          <div class="generation-mini">
+            <div class="generation-mini__image"><img src="${mediaUrl(item.generationImage || images[0])}" alt="Поколение ${escapeHTML(item.generation)}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImage}'"></div>
+            <div class="generation-mini__info"><span>Карточка поколения</span><strong>${escapeHTML(generationTitle || item.title)}</strong><small>${escapeHTML(years || item.generation || 'Поколение не указано площадкой')}</small></div>
+          </div>
+          <div class="seller-comment" data-comment><div class="seller-comment__label">${escapeHTML(commentLabel)}</div><div data-comment-content>${comment}</div></div>
+          <div class="listing-footer">
+            <div class="seller-meta"><strong data-seller>${escapeHTML(item.seller?.name || 'Продавец')}</strong><span>${icon('pin')} ${escapeHTML(item.location || 'Беларусь')}</span></div>
+            <div class="card-buttons">
+              <button class="detail-button" type="button" data-action="extra-toggle">${icon('sliders')} Все данные</button>
+              <a class="original-button" href="${validUrl(item.sourceUrl)}" target="_blank" rel="noopener">Оригинал ${icon('external')}</a>
+            </div>
+          </div>
+          <div class="card-extra">
+            <div class="detail-facts" data-detail-facts>${details.map(detailFactHTML).join('') || '<span style="color:var(--muted-2);font-size:9px">Дополнительные параметры загружаются…</span>'}</div>
+            <div class="equipment-title"><strong>Оснащение и характеристики</strong><span data-equipment-count>${equipment.length ? `${equipment.length} показано` : 'загрузка'}</span></div>
+            <div class="equipment-list" data-equipment>${equipment.map(equipmentHTML).join('') || '<span class="equipment-tag">Загружаем с площадки…</span>'}</div>
+          </div>
+        </div>
+      </article>`;
+    }
+
+    function specHTML(label, value) { return `<div class="spec"><span>${escapeHTML(label)}</span><strong title="${escapeHTML(value)}">${escapeHTML(value)}</strong></div>`; }
+    function detailFactHTML([label, value]) { return `<div class="detail-fact"><span>${escapeHTML(label)}</span><strong>${escapeHTML(value)}</strong></div>`; }
+    function equipmentHTML(item) { return `<span class="equipment-tag" title="${escapeHTML(item.group || '')}">${escapeHTML(item.name)}${item.value ? ` · ${escapeHTML(item.value)}` : ''}</span>`; }
+
+    function renderEmpty() {
+      els.shown.textContent = '· 0';
+      const hasErrors = state.sourceStatus.length && state.sourceStatus.every(status => ['error', 'blocked'].includes(status.state));
+      els.grid.innerHTML = `<div class="empty-state"><div><div class="empty-state__icon">${icon(hasErrors ? 'alert' : 'search')}</div><h3>${hasErrors ? 'Источники не ответили' : 'Объявлений не найдено'}</h3><p>${hasErrors ? 'Это не заменено демонстрационными карточками. Попробуйте ещё раз позже или отключите источник со статусом ошибки.' : 'Попробуйте расширить диапазон цены и года, убрать поколение или выбрать всю Беларусь.'}</p><button type="button" data-action="reset-search">Сбросить фильтры</button></div></div>`;
+      els.loadWrap.classList.remove('visible');
+    }
+    function renderFatalError(message) {
+      state.sourceStatus = [];
+      els.shown.textContent = '';
+      els.grid.innerHTML = `<div class="empty-state"><div><div class="empty-state__icon">${icon('alert')}</div><h3>Поиск временно недоступен</h3><p>${escapeHTML(message)}. Фиктивные объявления не показываются.</p><button type="button" data-action="retry-search">Повторить</button></div></div>`;
+    }
+
+    function setupDetailObserver() {
+      state.observer?.disconnect();
+      state.observer = new IntersectionObserver(entries => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const card = entry.target;
+            if (card.dataset.detailLoaded !== '1') queueDetail(card.dataset.id);
+            state.observer.unobserve(card);
+          }
+        }
+      }, { rootMargin: '450px 0px' });
+      $$('.listing-card[data-detail-loaded="0"][data-auto-detail="1"]', els.grid).forEach(card => state.observer.observe(card));
+    }
+
+    function queueDetail(id, priority = false) {
+      if (!id || state.detailQueued.has(id) || state.items.get(id)?.detailLoaded === true) return;
+      state.detailQueued.add(id);
+      priority ? state.detailQueue.unshift(id) : state.detailQueue.push(id);
+      processDetailQueue();
+    }
+    function processDetailQueue() {
+      while (state.detailActive < 2 && state.detailQueue.length) {
+        const id = state.detailQueue.shift();
+        state.detailActive++;
+        loadDetail(id).finally(() => { state.detailActive--; processDetailQueue(); });
+      }
+    }
+    async function loadDetail(id) {
+      const [source, sourceId] = String(id).split(':');
+      if (!['onliner', 'kufar', 'av', 'dealer', 'autohouse'].includes(source) || !/^[a-z0-9_-]{1,40}$/i.test(sourceId || '')) return;
+      try {
+        const data = await api(`/api/listing/${source}/${sourceId}`);
+        if (data.mock !== false || !data.item) throw new Error('Некорректный ответ карточки');
+        const previous = state.items.get(id) || {};
+        const merged = { ...previous, ...data.item, id };
+        state.items.set(id, merged);
+        updateCardDetail(merged);
+      } catch (error) {
+        const card = cardById(id);
+        const content = $('[data-comment-content]', card);
+        if (content) content.innerHTML = `<p class="seller-comment__text">Полное описание сейчас недоступно. Откройте оригинал объявления.</p>`;
+      }
+    }
+    function cardById(id) { return $$('.listing-card', els.grid).find(card => card.dataset.id === id) || null; }
+    function updateCardDetail(item) {
+      const card = cardById(item.id); if (!card) return;
+      card.dataset.detailLoaded = '1';
+      const content = $('[data-comment-content]', card);
+      if (content) content.innerHTML = `<p class="seller-comment__text">${escapeHTML(item.description || 'Описание не добавлено продавцом.')}</p><button class="comment-more" type="button" data-action="comment-toggle">Показать полностью</button>`;
+      const commentLabel = $('.seller-comment__label', card);
+      if (commentLabel) commentLabel.textContent = item.descriptionLabel || 'Комментарий продавца';
+      const seller = $('[data-seller]', card); if (seller) seller.textContent = item.seller?.name || 'Продавец';
+      const sourceDate = item.updatedAt || item.createdAt;
+      const details = [
+        ['Каталог', item.sourceCatalog], ['Состояние', item.state], ['Модификация', item.modification],
+        ['Цвет', item.color], ['VIN', item.vin], ['Поколение', item.generation],
+        ['Определение поколения', item.generationMethod === 'catalog-year-unique' ? 'Однозначный диапазон года Onlíner' : ''],
+        ['Мощность', item.enginePower ? `${formatNumber(item.enginePower)} л.с.` : ''], ['Телефон', item.seller?.phone],
+        ['Цена до скидки', item.priceOriginalByn && item.priceOriginalByn > item.priceByn ? formatPrice(item.priceOriginalByn) : ''],
+        ['Обновлено', sourceDate ? relativeDate(sourceDate) : ''],
+      ].filter(([, value]) => value);
+      const facts = $('[data-detail-facts]', card); if (facts) facts.innerHTML = details.map(detailFactHTML).join('');
+      const equipment = item.equipment || [];
+      const equipmentNode = $('[data-equipment]', card); if (equipmentNode) equipmentNode.innerHTML = equipment.length ? equipment.map(equipmentHTML).join('') : '<span class="equipment-tag">Источник не указал оснащение</span>';
+      const count = $('[data-equipment-count]', card); if (count) count.textContent = `${equipment.length} параметров`;
+      const total = $('[data-photo-total]', card); if (total) total.textContent = String(Math.max(1, item.images?.length || 0));
+
+      const title = $('.listing-title a', card); if (title) title.textContent = item.title;
+      const specValues = $$('.spec-grid .spec strong', card);
+      const values = [item.year || '—', formatMileage(item.mileage), engineLabel(item), item.transmission || '—', item.body || '—', item.drivetrain || '—'];
+      specValues.forEach((node, index) => { node.textContent = values[index]; node.title = values[index]; });
+      const generationImage = $('.generation-mini__image img', card);
+      if (generationImage && (item.generationImage || item.images?.[0])) generationImage.src = mediaUrl(item.generationImage || item.images[0]);
+      const generationInfo = $('.generation-mini__info', card);
+      if (generationInfo) {
+        const strong = $('strong', generationInfo), small = $('small', generationInfo);
+        if (strong) strong.textContent = [item.brand, item.model, item.generation].filter(Boolean).join(' ') || item.title;
+        if (small) small.textContent = formatYears(item.generationYears) || item.generation || 'Поколение не указано площадкой';
+      }
+      const media = $('.listing-card__media', card);
+      if (media && item.images?.length > 1 && !$('.gallery-arrow', media)) {
+        const counter = $('.photo-counter', media);
+        counter?.insertAdjacentHTML('beforebegin', `<button class="gallery-arrow gallery-arrow--prev" type="button" data-action="prev-image" aria-label="Предыдущее фото">${icon('left')}</button><button class="gallery-arrow gallery-arrow--next" type="button" data-action="next-image" aria-label="Следующее фото">${icon('right')}</button>`);
+      }
+    }
+
+    function cardImageStep(card, direction) {
+      const item = state.items.get(card.dataset.id); if (!item?.images?.length) return;
+      const media = $('.listing-card__media', card), image = $('.listing-card__media > img', card);
+      let index = Number(media.dataset.index || 0);
+      index = (index + direction + item.images.length) % item.images.length;
+      media.dataset.index = String(index); image.style.opacity = '.45';
+      image.src = mediaUrl(item.images[index]);
+      image.onload = () => { image.style.opacity = '1'; };
+      const current = $('[data-photo-current]', card); if (current) current.textContent = String(index + 1);
+    }
+
+    function openLightbox(id, index = 0) {
+      const item = state.items.get(id); if (!item?.images?.length) return;
+      state.lightbox = { id, index: Math.max(0, Math.min(index, item.images.length - 1)) };
+      renderLightbox(); els.lightbox.classList.add('open'); document.body.classList.add('modal-open');
+      $('.lightbox-close', els.lightbox)?.focus();
+    }
+    function closeLightbox() { els.lightbox.classList.remove('open'); document.body.classList.remove('modal-open'); }
+    function stepLightbox(direction) {
+      const item = state.items.get(state.lightbox.id); if (!item?.images?.length) return;
+      state.lightbox.index = (state.lightbox.index + direction + item.images.length) % item.images.length; renderLightbox();
+    }
+    function renderLightbox() {
+      const item = state.items.get(state.lightbox.id); if (!item) return;
+      els.lightboxImage.src = mediaUrl(item.images[state.lightbox.index]);
+      els.lightboxImage.alt = `${item.title}, фото ${state.lightbox.index + 1}`;
+      els.lightboxCount.textContent = `${state.lightbox.index + 1} / ${item.images.length}`;
+    }
+
+    function updateBrowserUrl(params) {
+      const visible = new URLSearchParams(params);
+      visible.delete('limit'); visible.delete('page');
+      const query = visible.toString();
+      history.replaceState(null, '', query ? `?${query}#results` : location.pathname);
+    }
+
+    async function restoreUrlFilters() {
+      const params = new URLSearchParams(location.search);
+      if (!params.size) return;
+      for (const input of $$('input[name="source"]', els.form)) input.checked = params.getAll('source').includes(input.value);
+      if (!params.getAll('source').length) $$('input[name="source"]', els.form).filter(i => ['onliner', 'kufar', 'av', 'dealer', 'autohouse'].includes(i.value)).forEach(i => i.checked = true);
+      const mode = params.get('mode'); const modeInput = mode && $(`input[name="mode"][value="${CSS.escape(mode)}"]`, els.form); if (modeInput) modeInput.checked = true;
+      const controls = ['priceFrom','priceTo','yearFrom','yearTo','city','body','fuel','transmission','drivetrain','mileageTo'];
+      controls.forEach(name => { if (params.has(name) && els.form.elements[name]) els.form.elements[name].value = params.get(name); });
+      if (params.get('brand') && state.brands.some(item => String(item.id) === params.get('brand'))) {
+        els.brand.value = params.get('brand');
+        await onBrandChange({ preserveModel: params.get('model') || '' });
+        if (params.get('model') && params.get('generation')) selectGeneration(params.get('generation'));
+      }
+    }
+
+    function resetForm({ search = true } = {}) {
+      els.form.reset();
+      $$('input[name="source"]', els.form).forEach(input => { input.checked = ['onliner', 'kufar', 'av', 'dealer', 'autohouse'].includes(input.value); });
+      els.model.disabled = true; els.model.innerHTML = '<option value="">Любая модель</option>';
+      state.generationId = ''; state.models = []; state.generations = []; hideGenerations();
+      if (search) runSearch({ scroll: true });
+    }
+
+    els.form.addEventListener('submit', event => { event.preventDefault(); runSearch({ scroll: true }); });
+    els.brand.addEventListener('change', () => onBrandChange());
+    els.model.addEventListener('change', () => onModelChange());
+    els.resetButton.addEventListener('click', () => resetForm());
+    els.sort.addEventListener('change', sortAndRender);
+    els.generationTrack.addEventListener('click', event => {
+      const card = event.target.closest('[data-generation]'); if (card) selectGeneration(card.dataset.generation);
+    });
+    els.loadButton.addEventListener('click', async () => {
+      state.page += 1; await runSearch({ append: true, scroll: false });
+    });
+
+    els.grid.addEventListener('click', event => {
+      const actionNode = event.target.closest('[data-action]'); if (!actionNode) return;
+      const action = actionNode.dataset.action;
+      if (['reset-search', 'retry-search'].includes(action)) { action === 'reset-search' ? resetForm() : runSearch(); return; }
+      const card = actionNode.closest('.listing-card'); if (!card) return;
+      const id = card.dataset.id;
+      if (action === 'favorite') {
+        event.stopPropagation();
+        state.favorites.has(id) ? state.favorites.delete(id) : state.favorites.add(id);
+        localStorage.setItem('motorby:favorites', JSON.stringify([...state.favorites]));
+        actionNode.classList.toggle('active', state.favorites.has(id));
+        toast(state.favorites.has(id) ? 'Объявление сохранено в этом браузере' : 'Объявление удалено из сохранённых');
+      } else if (action === 'prev-image' || action === 'next-image') {
+        event.stopPropagation(); cardImageStep(card, action === 'next-image' ? 1 : -1);
+      } else if (action === 'open-gallery') {
+        if (event.target.closest('button')) return;
+        openLightbox(id, Number(actionNode.dataset.index || 0));
+      } else if (action === 'comment-toggle') {
+        const comment = $('[data-comment]', card); comment?.classList.toggle('expanded');
+        actionNode.textContent = comment?.classList.contains('expanded') ? 'Свернуть' : 'Показать полностью';
+        if (card.dataset.detailLoaded !== '1') queueDetail(id, true);
+      } else if (action === 'extra-toggle') {
+        card.classList.toggle('extra-open');
+        actionNode.innerHTML = card.classList.contains('extra-open') ? `${icon('sliders')} Свернуть` : `${icon('sliders')} Все данные`;
+        if (card.dataset.detailLoaded !== '1') queueDetail(id, true);
+      }
+    });
+
+    els.lightbox.addEventListener('click', event => {
+      const action = event.target.closest('[data-lightbox]')?.dataset.lightbox;
+      if (action === 'close' || event.target === els.lightbox) closeLightbox();
+      if (action === 'prev') stepLightbox(-1);
+      if (action === 'next') stepLightbox(1);
+    });
+    document.addEventListener('keydown', event => {
+      if (!els.lightbox.classList.contains('open')) return;
+      if (event.key === 'Escape') closeLightbox();
+      if (event.key === 'ArrowLeft') stepLightbox(-1);
+      if (event.key === 'ArrowRight') stepLightbox(1);
+    });
+    window.addEventListener('scroll', () => els.header.classList.toggle('scrolled', scrollY > 20), { passive: true });
+
+    // Restore a shareable search URL first, then request one real feed.
+    (async function bootstrap() {
+      await loadBrands();
+      if (location.search) await restoreUrlFilters();
+      await runSearch({ scroll: false });
+    })();
+  </script>
+</body>
+</html>

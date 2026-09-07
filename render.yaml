@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: motor-by
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.1
+      - key: NODE_ENV
+        value: production
+      - key: SEARCH_CACHE_TTL
+        value: "180"
+      - key: DETAIL_CACHE_TTL
+        value: "600"
+      - key: CATALOG_CACHE_TTL
+        value: "21600"
+      - key: AV_TAXONOMY_CACHE_TTL
+        value: "43200"
+      - key: AV_SOURCE_TIMEOUT_MS
+        value: "14000"
