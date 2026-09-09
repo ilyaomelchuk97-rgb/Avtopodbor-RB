@@ -1,6 +1,6 @@
 {
   "name": "motor-by-aggregator",
-  "version": "1.4.0",
+  "version": "1.4.2",
   "private": true,
   "description": "Keyless server-side Belarus car listing aggregator for Render",
   "main": "server.js",
