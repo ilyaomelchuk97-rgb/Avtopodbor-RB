@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '1.4.0';
+const VERSION = '1.4.2';
 const SHELL_CACHE = `motor-by-shell-${VERSION}`;
 const IMAGE_CACHE = `motor-by-images-${VERSION}`;
 const CACHE_PREFIX = 'motor-by-';
