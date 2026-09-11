@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#080a0d">
+  <meta name="application-version" content="1.5.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="MOTOR.BY">
@@ -15,6 +16,7 @@
   <link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180">
   <link rel="manifest" href="/manifest.webmanifest">
+  <script id="theme-bootstrap">try{const t=JSON.parse(localStorage.getItem('motorby:pref:theme')||'"dark"');document.documentElement.dataset.theme=t==='light'?'light':'dark'}catch(_){document.documentElement.dataset.theme='dark'}</script>
   <style>
     :root {
       color-scheme: dark;
@@ -49,6 +51,34 @@
       --safe-right: env(safe-area-inset-right, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --safe-left: env(safe-area-inset-left, 0px);
+      --glass: rgba(17,20,26,.82);
+      --glass-strong: rgba(12,15,20,.92);
+      --glass-edge: rgba(255,255,255,.16);
+      --hero-overlay-left: rgba(6,8,10,.98);
+    }
+    html[data-theme="light"] {
+      color-scheme: light;
+      --bg: #eaf3ff;
+      --bg-soft: #f4f8ff;
+      --panel: rgba(255,255,255,.54);
+      --panel-solid: #f8fbff;
+      --panel-2: rgba(230,240,255,.72);
+      --line: rgba(28,73,125,.13);
+      --line-strong: rgba(28,92,165,.24);
+      --text: #11243d;
+      --muted: #5f7188;
+      --muted-2: #8292a6;
+      --accent: #1677ff;
+      --accent-soft: rgba(22,119,255,.12);
+      --accent-ink: #ffffff;
+      --green: #00a7b7;
+      --amber: #ed9c2f;
+      --red: #e54b65;
+      --shadow: 0 30px 90px rgba(54,101,157,.2);
+      --glass: rgba(255,255,255,.5);
+      --glass-strong: rgba(247,251,255,.74);
+      --glass-edge: rgba(255,255,255,.92);
+      --hero-overlay-left: rgba(239,247,255,.98);
     }
 
     * { box-sizing: border-box; }
@@ -157,6 +187,7 @@
       box-shadow: var(--shadow); overflow: hidden;
     }
     .search-panel::before { content: ""; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(215,255,67,.55), transparent); }
+    .search-panel:has(.body-picker.open) { overflow: visible; }
     .mobile-filter-bar { display: none; }
     .search-head { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 27px 30px 21px; border-bottom: 1px solid var(--line); }
     .search-head h2 { margin: 0; font-size: 21px; letter-spacing: -.035em; }
@@ -194,6 +225,21 @@
     .control:focus { border-color: rgba(215,255,67,.55); box-shadow: 0 0 0 4px rgba(215,255,67,.07); background: #0f1217; }
     .control:disabled { opacity: .5; cursor: not-allowed; }
     .select-arrow { position: absolute; right: 14px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); pointer-events: none; color: #6d7580; }
+    .body-picker { position: relative; }
+    .body-picker__native { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    .body-picker__button { display: grid; grid-template-columns: minmax(0,1fr) 64px 16px; gap: 7px; align-items: center; padding: 0 12px 0 14px; cursor: pointer; text-align: left; }
+    .body-picker__button > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .body-picker__preview { width: 64px; height: 29px; fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .body-picker__chevron { width: 16px; height: 16px; color: #6d7580; transition: transform .2s; }
+    .body-picker.open .body-picker__chevron { transform: rotate(180deg); }
+    .body-field.picker-open { position: relative; z-index: 55; }
+    .body-picker__menu { position: absolute; z-index: 50; top: calc(100% + 8px); left: 0; width: max(250px,100%); max-height: 330px; padding: 7px; overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--line-strong); border-radius: 14px; background: rgba(12,15,20,.96); box-shadow: 0 22px 60px rgba(0,0,0,.48); backdrop-filter: blur(24px) saturate(150%); -webkit-backdrop-filter: blur(24px) saturate(150%); }
+    .body-picker__menu button { width: 100%; min-height: 43px; display: grid; grid-template-columns: minmax(0,1fr) 78px; gap: 10px; align-items: center; padding: 5px 9px 5px 11px; border: 0; border-radius: 9px; background: transparent; color: #cbd0d7; cursor: pointer; text-align: left; font-size: 11px; }
+    .body-picker__menu button:hover, .body-picker__menu button[aria-selected="true"] { color: var(--accent); background: var(--accent-soft); }
+    .body-picker__menu svg { width: 78px; height: 31px; fill: none; stroke: currentColor; stroke-width: 1.45; stroke-linecap: round; stroke-linejoin: round; }
+    html[data-theme="light"] .body-picker__menu { border-color: rgba(255,255,255,.9); background: rgba(245,250,255,.88); box-shadow: inset 1px 1px 0 #fff,0 24px 60px rgba(43,91,145,.22); }
+    html[data-theme="light"] .body-picker__menu button { color: #385675; }
+    html[data-theme="light"] .body-picker__menu button:hover, html[data-theme="light"] .body-picker__menu button[aria-selected="true"] { color: #0869df; background: rgba(22,119,255,.1); }
     .range-control { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 12px; background: #0c0f14; overflow: hidden; transition: border-color .2s; }
     .range-control:focus-within { border-color: rgba(215,255,67,.55); box-shadow: 0 0 0 4px rgba(215,255,67,.07); }
     .range-control input { min-width: 0; height: 48px; padding: 0 13px; border: 0; color: white; background: transparent; outline: 0; font-size: 13px; }
@@ -309,9 +355,10 @@
     .market-price__track { position: relative; height: 5px; border-radius: 99px; background: linear-gradient(90deg,var(--green) 0 33%,var(--accent) 33% 67%,var(--red) 67% 100%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
     .market-price__marker { position: absolute; top: 50%; left: var(--market-position); width: 3px; height: 13px; border-radius: 99px; background: #fff; box-shadow: 0 0 0 2px #0d1116,0 0 9px rgba(255,255,255,.75); transform: translate(-50%,-50%); }
     .market-price__range { display: flex; justify-content: space-between; gap: 6px; margin-top: 7px; color: var(--muted-2); font-size: 7px; font-variant-numeric: tabular-nums; }
-    .market-price--empty .market-price__track { background: repeating-linear-gradient(90deg,#313741 0 8px,#222831 8px 13px); opacity: .62; }
-    .market-price--empty .market-price__head strong { color: var(--muted); }
-    .market-price--empty .market-price__range { justify-content: flex-start; }
+    .market-price--estimate .market-price__track { background: linear-gradient(90deg,#252b34,#596473 50%,#252b34); }
+    .market-price--estimate .market-price__head strong { color: #aeb8c5; }
+    .market-price--estimate .market-price__range { justify-content: center; color: #8994a2; }
+    .market-price--loading .market-price__head span::after { content: ""; display: inline-block; width: 5px; height: 5px; margin-left: 4px; border: 1px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; }
     .spec-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin: 20px 0 16px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--line); }
     .spec { min-width: 0; padding: 11px 11px 10px; background: #0d1015; }
     .spec span { display: block; color: var(--muted-2); font-size: 8px; text-transform: uppercase; letter-spacing: .08em; }
@@ -774,6 +821,46 @@
     .personal-note:focus { border-color: rgba(215,255,67,.5); box-shadow: 0 0 0 3px rgba(215,255,67,.06); }
     .personal-note-status { display: block; min-height: 14px; margin-top: 4px; color: var(--muted-2); font-size: 8px; text-align: right; }
 
+    .vin-layer { position: fixed; inset: 0; z-index: 245; display: none; place-items: center; padding: max(18px,var(--safe-top)) max(14px,var(--safe-right)) max(18px,var(--safe-bottom)) max(14px,var(--safe-left)); background: rgba(3,4,7,.76); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+    .vin-layer.open { display: grid; }
+    .vin-dialog { width: min(760px,100%); max-height: min(820px,calc(100dvh - 30px)); overflow-y: auto; overscroll-behavior: contain; padding: 24px; border: 1px solid var(--line-strong); border-radius: 24px; background: linear-gradient(150deg,#151a22,#0b0f14); box-shadow: 0 35px 100px rgba(0,0,0,.58); }
+    .vin-dialog__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+    .vin-dialog__eyebrow { color: var(--accent); font-size: 9px; font-weight: 780; letter-spacing: .15em; text-transform: uppercase; }
+    .vin-dialog h2 { margin: 7px 0 0; font-size: 28px; letter-spacing: -.045em; }
+    .vin-close { width: 43px; height: 43px; flex: 0 0 auto; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: #11151b; cursor: pointer; }
+    .vin-summary { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 18px; padding: 15px; border: 1px solid var(--line); border-radius: 15px; background: rgba(255,255,255,.025); }
+    .vin-summary code { display: block; color: var(--accent); font: 760 18px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing: .08em; }
+    .vin-summary span { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; }
+    .vin-decoder { margin-top: 14px; }
+    .vin-loading { min-height: 82px; display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--muted); font-size: 11px; }
+    .vin-facts { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1px; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: var(--line); }
+    .vin-fact { min-width: 0; padding: 11px 12px; background: #0d1116; }
+    .vin-fact span { display: block; color: var(--muted-2); font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
+    .vin-fact strong { display: block; margin-top: 5px; overflow-wrap: anywhere; color: #dce0e5; font-size: 10px; }
+    .vin-checks-title { margin: 20px 0 9px; font-size: 13px; }
+    .vin-checks { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+    .vin-check { display: flex; gap: 10px; align-items: flex-start; padding: 11px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,255,255,.022); }
+    .vin-check .icon { width: 17px; height: 17px; color: var(--accent); }
+    .vin-check strong { display: block; font-size: 10px; }
+    .vin-check span { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; line-height: 1.4; }
+    .vin-provider { margin-top: 15px; padding: 15px; border: 1px solid rgba(215,255,67,.2); border-radius: 14px; background: var(--accent-soft); }
+    .vin-provider p { margin: 0; color: #bfc5cd; font-size: 10px; line-height: 1.55; }
+    .vin-provider__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .vin-provider__primary, .vin-provider__secondary { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 13px; border-radius: 10px; font-size: 10px; font-weight: 750; }
+    .vin-provider__primary { border: 0; color: var(--accent-ink); background: var(--accent); }
+    .vin-provider__secondary { border: 1px solid var(--line-strong); color: #c8cdd4; background: #10141a; }
+    .vin-disclaimer { margin: 13px 1px 0; color: var(--muted-2); font-size: 9px; line-height: 1.55; }
+    .vin-button { height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 10px; border: 1px solid rgba(215,255,67,.24); border-radius: 9px; color: var(--accent); background: var(--accent-soft); cursor: pointer; font-size: 9px; font-weight: 720; }
+    .vin-button .icon { width: 14px; height: 14px; }
+    .vin-button:disabled { color: var(--muted-2); border-color: var(--line); background: rgba(255,255,255,.025); cursor: not-allowed; }
+    html[data-theme="light"] .vin-layer { background: rgba(71,112,159,.25); }
+    html[data-theme="light"] .vin-dialog { color: #17324f; border-color: rgba(255,255,255,.92); background: linear-gradient(145deg,rgba(250,253,255,.94),rgba(224,239,255,.84)); box-shadow: inset 1px 1px 0 #fff,0 35px 100px rgba(46,91,143,.25); backdrop-filter: blur(32px) saturate(180%); }
+    html[data-theme="light"] .vin-close, html[data-theme="light"] .vin-summary, html[data-theme="light"] .vin-check, html[data-theme="light"] .vin-provider__secondary { color: #284966; border-color: rgba(46,103,165,.14); background: rgba(255,255,255,.5); }
+    html[data-theme="light"] .vin-facts { border-color: rgba(53,108,168,.13); background: rgba(53,108,168,.13); }
+    html[data-theme="light"] .vin-fact { background: rgba(248,252,255,.66); }
+    html[data-theme="light"] .vin-fact strong { color: #173854; }
+    html[data-theme="light"] .vin-provider p { color: #395975; }
+
     .personal-layer { position: fixed; inset: 0; z-index: 240; display: none; justify-content: flex-end; background: rgba(3,4,6,.72); backdrop-filter: blur(8px); }
     .personal-layer.open { display: flex; }
     .personal-dialog { width: min(520px, 100%); height: 100%; overflow-y: auto; overscroll-behavior: contain; padding: calc(25px + var(--safe-top)) calc(24px + var(--safe-right)) calc(28px + var(--safe-bottom)) 24px; border-left: 1px solid var(--line-strong); background: linear-gradient(155deg,#141820,#0c0f14 66%); box-shadow: -30px 0 80px rgba(0,0,0,.46); animation: personalIn .28s ease-out; }
@@ -910,7 +997,94 @@
       .activity-row { grid-template-columns: 48px minmax(0,1fr); }
       .activity-row img { width: 48px; height: 36px; }
       .activity-row em { grid-column: 2; }
+      .vin-dialog { max-height: calc(100dvh - 18px); padding: 16px 13px; border-radius: 19px; }
+      .vin-dialog h2 { font-size: 24px; }
+      .vin-summary { align-items: flex-start; flex-direction: column; }
+      .vin-summary code { font-size: 15px; }
+      .vin-facts { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .vin-checks { grid-template-columns: 1fr; }
+      .vin-provider__actions > a { width: 100%; }
+      .card-buttons { width: 100%; flex-wrap: wrap; }
+      .detail-button { grid-column: 1; grid-row: 1; }
+      .original-button { grid-column: 2; grid-row: 1; }
+      .vin-button { min-height: 44px; grid-column: 1 / -1; grid-row: 2; }
       body.density-compact .listing-card__media { height: 168px; }
+    }
+
+    /* Bright liquid-glass theme: translucent lenses, refractive side highlights and blue accents. */
+    html[data-theme="light"] body {
+      background:
+        radial-gradient(circle at 7% 11%, rgba(74,163,255,.32), transparent 29rem),
+        radial-gradient(circle at 93% 32%, rgba(106,92,255,.18), transparent 32rem),
+        radial-gradient(circle at 42% 78%, rgba(62,210,226,.2), transparent 34rem),
+        linear-gradient(145deg,#e8f3ff 0%,#f9fcff 48%,#e7f2ff 100%);
+      color: var(--text);
+    }
+    body, .site-header, .search-panel, .listing-card, .personal-dialog, footer { transition: color .32s ease, background .32s ease, border-color .32s ease, box-shadow .32s ease; }
+    html[data-theme="light"] ::selection { background: rgba(22,119,255,.24); color: #0c315f; }
+    html[data-theme="light"] .site-header.scrolled { background: rgba(236,246,255,.66); border-color: rgba(255,255,255,.82); box-shadow: 0 9px 35px rgba(45,93,145,.1); backdrop-filter: blur(28px) saturate(185%); -webkit-backdrop-filter: blur(28px) saturate(185%); }
+    html[data-theme="light"] .nav-links, html[data-theme="light"] .header-action { color: #334e70; }
+    html[data-theme="light"] .header-action { border-color: rgba(255,255,255,.9); background: rgba(255,255,255,.42); box-shadow: inset 1px 1px 0 rgba(255,255,255,.96),inset -1px -1px 0 rgba(59,123,193,.1),0 10px 30px rgba(54,106,163,.12); backdrop-filter: blur(22px) saturate(180%); -webkit-backdrop-filter: blur(22px) saturate(180%); }
+    html[data-theme="light"] .header-action:hover { color: #0f5fc4; border-color: rgba(22,119,255,.3); background: rgba(255,255,255,.7); }
+    html[data-theme="light"] .header-action--favorites.has-favorites { color: #0b5fc8; border-color: rgba(22,119,255,.28); background: rgba(22,119,255,.1); }
+    html[data-theme="light"] .header-action__badge { border-color: #edf6ff; }
+    html[data-theme="light"] .hero::before { background-image: url('/assets/hero-car-light.jpg'); background-position: center 48%; filter: saturate(.98) contrast(1.01); }
+    html[data-theme="light"] .hero::after { background: linear-gradient(90deg,rgba(238,247,255,.99) 0%,rgba(238,247,255,.91) 37%,rgba(238,247,255,.18) 69%,rgba(220,238,255,.26) 100%),linear-gradient(0deg,#eaf3ff 0%,transparent 27%,rgba(255,255,255,.08) 100%); }
+    html[data-theme="light"] .hero { border-color: rgba(45,98,157,.13); }
+    html[data-theme="light"] .hero h1 { color: #102a49; text-shadow: 0 8px 35px rgba(255,255,255,.75); }
+    html[data-theme="light"] .hero h1 .outline { color: transparent; -webkit-text-stroke-color: rgba(21,91,170,.58); }
+    html[data-theme="light"] .hero-lead { color: #405b78; }
+    html[data-theme="light"] .hero-scroll { color: #54718f; }
+    html[data-theme="light"] :where(.search-panel,.listing-card,.generation-card,.source-status,.results-sort,.density-toggle,.personal-section,.personal-stat,.personal-favorite,.favorites-feed-banner,.saved-search__load,.activity-row) {
+      border-color: rgba(255,255,255,.86);
+      background: linear-gradient(145deg,rgba(255,255,255,.62),rgba(232,243,255,.38));
+      box-shadow: inset 1px 1px 0 rgba(255,255,255,.98),inset -1px -1px 0 rgba(40,106,179,.11),0 18px 48px rgba(55,105,160,.13);
+      backdrop-filter: blur(26px) saturate(185%); -webkit-backdrop-filter: blur(26px) saturate(185%);
+    }
+    html[data-theme="light"] :where(.search-panel,.listing-card,.personal-section,.generation-card) { position: relative; isolation: isolate; }
+    html[data-theme="light"] :where(.search-panel,.listing-card,.personal-section,.generation-card)::after {
+      content: ""; position: absolute; inset: 0; z-index: 8; border-radius: inherit; pointer-events: none;
+      background: radial-gradient(ellipse at -3% 50%,rgba(255,255,255,.96),rgba(97,170,245,.2) 3%,transparent 11%),radial-gradient(ellipse at 103% 50%,rgba(255,255,255,.96),rgba(73,149,232,.18) 3%,transparent 11%);
+      mix-blend-mode: screen; opacity: .78;
+    }
+    html[data-theme="light"] .search-panel::before { inset: 1px; height: auto; z-index: 7; border-radius: inherit; background: linear-gradient(90deg,rgba(43,133,230,.32),transparent 9%,transparent 91%,rgba(43,133,230,.28)); pointer-events: none; }
+    html[data-theme="light"] .listing-card { color: #142943; }
+    html[data-theme="light"] .listing-card:hover { border-color: rgba(255,255,255,.98); box-shadow: inset 1px 1px 0 #fff,inset -1px -1px 0 rgba(22,119,255,.12),0 25px 58px rgba(42,99,160,.2); }
+    html[data-theme="light"] .listing-kicker, html[data-theme="light"] .spec span, html[data-theme="light"] .seller-meta span, html[data-theme="light"] .generation-mini__info small { color: #71839a; }
+    html[data-theme="light"] .spec-grid { border-color: rgba(66,119,177,.14); background: rgba(66,119,177,.14); }
+    html[data-theme="light"] .spec, html[data-theme="light"] .detail-fact, html[data-theme="light"] .generation-mini { background: rgba(246,250,255,.56); border-color: rgba(49,108,172,.12); }
+    html[data-theme="light"] .spec strong, html[data-theme="light"] .seller-meta strong, html[data-theme="light"] .generation-mini__info strong, html[data-theme="light"] .detail-fact strong { color: #173453; }
+    html[data-theme="light"] .seller-comment { color: #355471; border-left-color: rgba(22,119,255,.6); background: rgba(22,119,255,.055); }
+    html[data-theme="light"] .seller-comment__text { color: #45617d; }
+    html[data-theme="light"] .control, html[data-theme="light"] .range-control, html[data-theme="light"] .mode-tabs, html[data-theme="light"] .reset-button, html[data-theme="light"] .detail-button, html[data-theme="light"] .load-more, html[data-theme="light"] .personal-secondary, html[data-theme="light"] .personal-close, html[data-theme="light"] .personal-note {
+      color: #233f60; border-color: rgba(47,104,167,.16); background: rgba(255,255,255,.5); box-shadow: inset 1px 1px 0 rgba(255,255,255,.88);
+    }
+    html[data-theme="light"] .control:focus { border-color: rgba(22,119,255,.46); background: rgba(255,255,255,.76); box-shadow: 0 0 0 4px rgba(22,119,255,.09); }
+    html[data-theme="light"] input, html[data-theme="light"] select, html[data-theme="light"] textarea, html[data-theme="light"] .range-control input { color: #173453; }
+    html[data-theme="light"] select option { color: #173453; background: #f4f9ff; }
+    html[data-theme="light"] .mode-tabs { background: rgba(235,244,255,.58); }
+    html[data-theme="light"] .source-toggle span { color: #536b86; border-color: rgba(52,107,169,.13); background: rgba(255,255,255,.38); }
+    html[data-theme="light"] .source-toggle input:checked + span { color: #155798; border-color: rgba(22,119,255,.25); background: rgba(22,119,255,.09); }
+    html[data-theme="light"] .results-sort select { color: #294764; }
+    html[data-theme="light"] .source-status { color: #536c86; }
+    html[data-theme="light"] .source-status strong { color: #183a5e; }
+    html[data-theme="light"] .source-warning { color: #79551f; border-color: rgba(214,145,38,.2); background: rgba(255,214,147,.22); }
+    html[data-theme="light"] .market-price { color: #294765; }
+    html[data-theme="light"] .market-price__marker { box-shadow: 0 0 0 2px #dcecff,0 0 10px rgba(12,73,142,.45); }
+    html[data-theme="light"] .original-button:hover, html[data-theme="light"] .search-button:hover { color: white; background: #0868e3; }
+    html[data-theme="light"] footer { color: #5d7188; border-color: rgba(47,101,162,.13); background: rgba(238,246,255,.74); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+    html[data-theme="light"] .brand-logo { color: #112c4c; }
+    html[data-theme="light"] .personal-layer { background: rgba(89,126,168,.22); }
+    html[data-theme="light"] .personal-dialog { color: #17324f; border-color: rgba(255,255,255,.9); background: linear-gradient(150deg,rgba(250,253,255,.9),rgba(225,239,255,.76)); box-shadow: -30px 0 90px rgba(44,91,143,.24); backdrop-filter: blur(34px) saturate(175%); -webkit-backdrop-filter: blur(34px) saturate(175%); }
+    html[data-theme="light"] .personal-empty, html[data-theme="light"] .personal-footnote { color: #74869b; }
+    html[data-theme="light"] .personal-favorite__main, html[data-theme="light"] .saved-search__load, html[data-theme="light"] .activity-row { color: #1b3858; }
+    html[data-theme="light"] .toast { color: #1e3c5d; border-color: rgba(255,255,255,.9); background: rgba(244,250,255,.9); box-shadow: 0 20px 55px rgba(40,88,143,.22); backdrop-filter: blur(22px); }
+    html[data-theme="light"] .empty-state { border-color: rgba(44,104,171,.22); background: rgba(255,255,255,.32); }
+    html[data-theme="light"] .search-panel.filters-collapsed { background: rgba(239,247,255,.8); box-shadow: 0 14px 38px rgba(46,95,148,.16); }
+
+    @media (max-width: 620px) {
+      html[data-theme="light"] .hero::before { background-position: 60% center; }
+      html[data-theme="light"] .hero::after { background: linear-gradient(90deg,rgba(238,247,255,.97),rgba(238,247,255,.7)),linear-gradient(0deg,#eaf3ff,transparent 46%); }
     }
 
     @media (max-width: 1180px) {
@@ -924,7 +1098,7 @@
       .market-price__head { gap: 4px; }
     }
     @media (min-width: 360px) and (max-width: 430px) {
-      .header-action--favorites { width: auto; min-width: 106px; padding: 0 10px; }
+      .header-action--favorites { width: auto; min-width: 96px; padding: 0 7px; }
       .header-action--favorites .header-action__text { display: inline; }
       .header-actions:has(#installAppButton:not([hidden])) .header-action--favorites { width: 38px; min-width: 38px; padding: 0; }
       .header-actions:has(#installAppButton:not([hidden])) .header-action--favorites .header-action__text { display: none; }
@@ -960,6 +1134,21 @@
     <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m3 0-1 14H7L6 7m4 4v6m4-6v6"/></symbol>
     <symbol id="i-swipe" viewBox="0 0 24 24"><path d="M4 12h16m0 0-4-4m4 4-4 4M4 12l4-4m-4 4 4 4"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 15.2A8.5 8.5 0 0 1 8.8 4 8.6 8.6 0 1 0 20 15.2z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v5c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V6z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></symbol>
+    <symbol id="body-any" viewBox="0 0 72 32"><path d="M5 22h62M10 22l5-8h27l9 8M42 14h9l10 8"/><circle cx="20" cy="23" r="4"/><circle cx="54" cy="23" r="4"/></symbol>
+    <symbol id="body-sedan" viewBox="0 0 72 32"><path d="M5 22 9 17l11-2 8-8h18l11 9 9 2 2 4H5zM27 15h26M35 8v7"/><circle cx="19" cy="23" r="4"/><circle cx="55" cy="23" r="4"/></symbol>
+    <symbol id="body-universal" viewBox="0 0 72 32"><path d="M5 22 9 17l11-2 7-8h29l8 9 4 2v4H5zM26 15h36M35 8v7M54 8v7"/><circle cx="19" cy="23" r="4"/><circle cx="56" cy="23" r="4"/></symbol>
+    <symbol id="body-hatchback" viewBox="0 0 72 32"><path d="M7 22 11 16l10-2 8-8h20l13 10 3 6H7zM27 14h30M38 7l-1 7"/><circle cx="20" cy="23" r="4"/><circle cx="54" cy="23" r="4"/></symbol>
+    <symbol id="body-liftback" viewBox="0 0 72 32"><path d="M5 22 10 16l11-2 8-7h18l17 11 3 4H5zM27 14h29M38 8l-1 6"/><circle cx="19" cy="23" r="4"/><circle cx="55" cy="23" r="4"/></symbol>
+    <symbol id="body-suv" viewBox="0 0 72 32"><path d="M5 23 8 14l10-2 7-8h28l11 9 4 3v7H5zM23 12h38M34 5v7M54 5v7"/><circle cx="19" cy="24" r="5"/><circle cx="56" cy="24" r="5"/></symbol>
+    <symbol id="body-minivan" viewBox="0 0 72 32"><path d="M5 23 8 10l8-6h35l12 8 5 5v6H5zM15 11h45M27 5v12M49 5v12"/><circle cx="18" cy="24" r="4"/><circle cx="56" cy="24" r="4"/></symbol>
+    <symbol id="body-minibus" viewBox="0 0 72 32"><path d="M4 23V6l5-3h48l10 7v13H4zM10 8h49M22 4v13M39 4v13M56 4v13"/><circle cx="17" cy="24" r="4"/><circle cx="57" cy="24" r="4"/></symbol>
+    <symbol id="body-coupe" viewBox="0 0 72 32"><path d="M6 22 11 16l13-2 9-8h13l16 11 5 5H6zM27 14h28M38 7l-2 7"/><circle cx="19" cy="23" r="4"/><circle cx="55" cy="23" r="4"/></symbol>
+    <symbol id="body-cabriolet" viewBox="0 0 72 32"><path d="M6 22 11 16l14-2 8-6h12l7 6 10 3 5 5H6zM31 14h21M44 8l6 6"/><circle cx="19" cy="23" r="4"/><circle cx="55" cy="23" r="4"/></symbol>
+    <symbol id="body-pickup" viewBox="0 0 72 32"><path d="M4 23 8 14l8-2 7-8h19l7 9h18v10H4zM21 12h27M32 5v8M52 15h13"/><circle cx="17" cy="24" r="5"/><circle cx="57" cy="24" r="5"/></symbol>
+    <symbol id="body-van" viewBox="0 0 72 32"><path d="M4 23V7l5-4h39l16 10 4 4v6H4zM10 8h43M24 4v13M48 4v13"/><circle cx="17" cy="24" r="4"/><circle cx="57" cy="24" r="4"/></symbol>
   </svg>
 
   <header class="site-header" id="siteHeader">
@@ -975,6 +1164,7 @@
         </nav>
         <div class="header-actions">
           <button class="header-action" id="installAppButton" type="button" hidden title="Установить приложение"><svg class="icon" aria-hidden="true"><use href="#i-download"></use></svg><span class="header-action__text">Установить</span></button>
+          <button class="header-action header-action--theme" id="themeToggleButton" type="button" title="Включить светлую тему" aria-label="Включить светлую тему" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-sun"></use></svg><span class="header-action__text">Светлая</span></button>
           <button class="header-action header-action--favorites" id="personalPanelButton" type="button" title="Избранные автомобили" aria-label="Открыть избранные автомобили" aria-haspopup="dialog" aria-controls="personalPanel"><svg class="icon" aria-hidden="true"><use href="#i-heart"></use></svg><span class="header-action__text">Избранное</span><span class="header-action__badge" id="personalBadge" hidden>0</span></button>
         </div>
       </div>
@@ -1078,16 +1268,30 @@
                   <svg class="icon select-arrow"><use href="#i-chevron"></use></svg>
                 </div>
               </div>
-              <div class="field field--half">
-                <label for="bodySelect">Кузов</label>
-                <div class="control-wrap">
-                  <select class="control" id="bodySelect" name="body">
+              <div class="field field--half body-field">
+                <label for="bodyPickerButton">Кузов</label>
+                <div class="body-picker" id="bodyPicker">
+                  <select class="body-picker__native" id="bodySelect" name="body" tabindex="-1" aria-hidden="true">
                     <option value="">Любой</option><option value="sedan">Седан</option><option value="universal">Универсал</option>
                     <option value="hatchback">Хэтчбек</option><option value="liftback">Лифтбек</option><option value="suv">Внедорожник / SUV</option>
                     <option value="minivan">Минивэн</option><option value="minibus">Микроавтобус</option><option value="coupe">Купе</option>
                     <option value="cabriolet">Кабриолет</option><option value="pickup">Пикап</option><option value="van">Фургон</option>
                   </select>
-                  <svg class="icon select-arrow"><use href="#i-chevron"></use></svg>
+                  <button class="control body-picker__button" id="bodyPickerButton" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="bodyPickerMenu"><span id="bodyPickerLabel">Любой</span><svg class="body-picker__preview" aria-hidden="true"><use href="#body-any"></use></svg><svg class="icon body-picker__chevron"><use href="#i-chevron"></use></svg></button>
+                  <div class="body-picker__menu" id="bodyPickerMenu" role="listbox" aria-label="Выберите тип кузова" hidden>
+                    <button type="button" role="option" data-body-value="" aria-selected="true"><span>Любой</span><svg><use href="#body-any"></use></svg></button>
+                    <button type="button" role="option" data-body-value="sedan" aria-selected="false"><span>Седан</span><svg><use href="#body-sedan"></use></svg></button>
+                    <button type="button" role="option" data-body-value="universal" aria-selected="false"><span>Универсал</span><svg><use href="#body-universal"></use></svg></button>
+                    <button type="button" role="option" data-body-value="hatchback" aria-selected="false"><span>Хэтчбек</span><svg><use href="#body-hatchback"></use></svg></button>
+                    <button type="button" role="option" data-body-value="liftback" aria-selected="false"><span>Лифтбек</span><svg><use href="#body-liftback"></use></svg></button>
+                    <button type="button" role="option" data-body-value="suv" aria-selected="false"><span>Внедорожник / SUV</span><svg><use href="#body-suv"></use></svg></button>
+                    <button type="button" role="option" data-body-value="minivan" aria-selected="false"><span>Минивэн</span><svg><use href="#body-minivan"></use></svg></button>
+                    <button type="button" role="option" data-body-value="minibus" aria-selected="false"><span>Микроавтобус</span><svg><use href="#body-minibus"></use></svg></button>
+                    <button type="button" role="option" data-body-value="coupe" aria-selected="false"><span>Купе</span><svg><use href="#body-coupe"></use></svg></button>
+                    <button type="button" role="option" data-body-value="cabriolet" aria-selected="false"><span>Кабриолет</span><svg><use href="#body-cabriolet"></use></svg></button>
+                    <button type="button" role="option" data-body-value="pickup" aria-selected="false"><span>Пикап</span><svg><use href="#body-pickup"></use></svg></button>
+                    <button type="button" role="option" data-body-value="van" aria-selected="false"><span>Фургон</span><svg><use href="#body-van"></use></svg></button>
+                  </div>
                 </div>
               </div>
               <div class="field field--half">
@@ -1217,6 +1421,13 @@
     </section>
   </div>
 
+  <div class="vin-layer" id="vinReportPanel" role="presentation">
+    <section class="vin-dialog" role="dialog" aria-modal="true" aria-labelledby="vinReportTitle">
+      <div class="vin-dialog__head"><div><div class="vin-dialog__eyebrow">Проверка истории автомобиля</div><h2 id="vinReportTitle">Отчёт по VIN</h2></div><button class="vin-close" id="vinReportClose" type="button" aria-label="Закрыть VIN-отчёт"><svg class="icon"><use href="#i-close"></use></svg></button></div>
+      <div id="vinReportContent"></div>
+    </section>
+  </div>
+
   <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Галерея объявления">
     <button class="lightbox-close" type="button" data-lightbox="close" aria-label="Закрыть"><svg class="icon"><use href="#i-close"></use></svg></button>
     <button class="lightbox-nav lightbox-nav--prev" type="button" data-lightbox="prev" aria-label="Предыдущее фото"><svg class="icon"><use href="#i-left"></use></svg></button>
@@ -1250,11 +1461,11 @@
 
     const state = {
       brands: [], models: [], generations: [], generationIds: [],
-      items: new Map(), marketItems: new Map(), order: [], sourceStatus: [], page: 1, loading: false,
+      items: new Map(), marketItems: new Map(), marketSamples: new Map(), marketQueue: [], marketQueued: new Set(), marketActive: 0, marketRunId: 0, marketScheduled: 0, marketController: null, marketObserver: null, order: [], sourceStatus: [], page: 1, loading: false,
       lastParams: null, favorites: new Set(), detailQueue: [], detailActive: 0,
       detailQueued: new Set(), observer: null, imageObserver: null, viewObserver: null, viewTimers: new Map(),
-      personalRecords: new Map(), preferences: new Map(), savedSearches: [], density: 'comfortable', favoriteFeed: false,
-      lightbox: { id: null, index: 0 },
+      personalRecords: new Map(), preferences: new Map(), savedSearches: [], density: 'comfortable', theme: document.documentElement.dataset.theme === 'light' ? 'light' : 'dark', favoriteFeed: false,
+      vinListingId: null, lightbox: { id: null, index: 0 },
     };
     const lightboxZoom = {
       scale: 1, x: 0, y: 0, startScale: 1, startX: 0, startY: 0,
@@ -1275,11 +1486,13 @@
       grid: $('#resultsGrid'), statuses: $('#sourceStatuses'), shown: $('#shownCount'), overline: $('#resultsOverline'), headingText: $('#resultsHeadingText'),
       sort: $('#sortSelect'), density: $('#densityToggle'), loadWrap: $('#loadMoreWrap'), loadButton: $('#loadMoreButton'),
       mobileSettings: $('#mobileSettingsButton'), mobileSummary: $('#mobileFilterSummary'),
-      installButton: $('#installAppButton'), personalButton: $('#personalPanelButton'), personalBadge: $('#personalBadge'),
+      installButton: $('#installAppButton'), themeToggle: $('#themeToggleButton'), themeMeta: $('meta[name="theme-color"]'), personalButton: $('#personalPanelButton'), personalBadge: $('#personalBadge'),
       personalPanel: $('#personalPanel'), personalImport: $('#personalImportInput'), savedSearches: $('#savedSearches'), personalActivity: $('#personalActivity'),
       personalFavorites: $('#personalFavorites'), favoritesSection: $('#personalFavoritesSection'), showFavorites: $('#showFavoritesButton'),
       personalFavoriteCount: $('#personalFavoriteCount'), personalViewedCount: $('#personalViewedCount'), personalChangeCount: $('#personalChangeCount'),
       searchHead: $('.search-head'), formGrid: $('.form-grid'), filterMeta: $('.filter-meta'),
+      bodySelect: $('#bodySelect'), bodyPicker: $('#bodyPicker'), bodyPickerButton: $('#bodyPickerButton'), bodyPickerMenu: $('#bodyPickerMenu'), bodyPickerLabel: $('#bodyPickerLabel'),
+      vinPanel: $('#vinReportPanel'), vinContent: $('#vinReportContent'), vinClose: $('#vinReportClose'),
       lightbox: $('#lightbox'), lightboxImage: $('#lightboxImage'), lightboxCount: $('#lightboxCount'), lightboxDots: $('#lightboxDots'), toastStack: $('#toastStack'),
     };
 
@@ -1948,6 +2161,20 @@
       try { localStorage.setItem(`motorby:pref:${key}`, JSON.stringify(value)); } catch (_) {}
       return personalPut('preferences', { key, value, updatedAt: new Date().toISOString() });
     }
+    function applyTheme(value, persist = true) {
+      state.theme = value === 'light' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = state.theme;
+      if (els.themeMeta) els.themeMeta.content = state.theme === 'light' ? '#eaf3ff' : '#080a0d';
+      if (els.themeToggle) {
+        const light = state.theme === 'light';
+        els.themeToggle.setAttribute('aria-pressed', String(light));
+        els.themeToggle.setAttribute('aria-label', light ? 'Включить тёмную тему' : 'Включить светлую тему');
+        els.themeToggle.title = light ? 'Включить тёмную тему' : 'Включить светлую тему';
+        const use = $('use', els.themeToggle); if (use) use.setAttribute('href', light ? '#i-moon' : '#i-sun');
+        const label = $('.header-action__text', els.themeToggle); if (label) label.textContent = light ? 'Тёмная' : 'Светлая';
+      }
+      if (persist) setPersonalPreference('theme', state.theme);
+    }
     function applyDensity(value, persist = true) {
       state.density = value === 'compact' ? 'compact' : 'comfortable';
       document.body.classList.toggle('density-compact', state.density === 'compact');
@@ -1969,7 +2196,7 @@
       } catch (error) {
         console.warn('[personal db disabled]', error);
       }
-      for (const key of ['density', 'sort', 'lastSearch', 'lastResultIds']) {
+      for (const key of ['density', 'theme', 'sort', 'lastSearch', 'lastResultIds']) {
         if (state.preferences.has(key)) continue;
         try {
           const value = JSON.parse(localStorage.getItem(`motorby:pref:${key}`) || 'null');
@@ -1987,6 +2214,7 @@
       }
       for (const record of state.personalRecords.values()) if (record.favorite) state.favorites.add(record.id);
       applyDensity(personalPreference('density', 'comfortable'), false);
+      applyTheme(personalPreference('theme', state.theme), false);
       const sort = personalPreference('sort', 'fresh');
       if ([...els.sort.options].some(option => option.value === sort)) els.sort.value = sort;
       renderPersonalPanel();
@@ -2003,7 +2231,7 @@
         generationYears: item.generationYears || null, year: item.year ?? null, mileage: item.mileage ?? null,
         priceByn: numeric(item.priceByn), priceUsd: numeric(item.priceUsd),
         fuel: item.fuel || '', engineVolume: item.engineVolume ?? null, enginePower: item.enginePower ?? null,
-        transmission: item.transmission || '', body: item.body || '', drivetrain: item.drivetrain || '',
+        transmission: item.transmission || '', body: item.body || '', drivetrain: item.drivetrain || '', vin: item.vin || '',
         state: item.state || '', location: item.location || '', seller: item.seller ? { name: item.seller.name || '', type: item.seller.type || '' } : null,
         description: String(item.description || '').slice(0, 3000),
       };
@@ -2174,7 +2402,7 @@
         await personalPut('searches', search);
       }
       state.favorites = new Set([...state.personalRecords.values()].filter(record => record.favorite).map(record => record.id));
-      applyDensity(personalPreference('density', state.density), false); renderPersonalPanel(); sortAndRender();
+      applyDensity(personalPreference('density', state.density), false); applyTheme(personalPreference('theme', state.theme), false); renderPersonalPanel(); sortAndRender();
       toast(`Импортировано объявлений: ${listings.length}`);
     }
     async function clearPersonalHistory() {
@@ -2225,7 +2453,7 @@
         brand: record.brand, model: record.model, generation: record.generation, generationYears: record.generationYears,
         year: record.year, mileage: record.mileage, priceByn: record.priceByn, priceUsd: record.priceUsd,
         fuel: record.fuel, engineVolume: record.engineVolume, enginePower: record.enginePower, transmission: record.transmission,
-        body: record.body, drivetrain: record.drivetrain, state: record.available === false ? 'Последний статус: снято' : 'Последнее сохранённое состояние',
+        body: record.body, drivetrain: record.drivetrain, vin: record.vin || '', state: record.available === false ? 'Последний статус: снято' : 'Последнее сохранённое состояние',
         location: record.location, seller: record.seller, description: record.description || 'Локальная копия последнего сохранённого состояния объявления.',
         descriptionLoaded: true, detailLoaded: true, updatedAt: record.lastSeenAt,
       };
@@ -2331,7 +2559,64 @@
       await Promise.allSettled(workers); renderPersonalPanel();
     }
     function syncBodyModal() {
-      document.body.classList.toggle('modal-open', els.lightbox.classList.contains('open') || els.personalPanel.classList.contains('open'));
+      document.body.classList.toggle('modal-open', els.lightbox.classList.contains('open') || els.personalPanel.classList.contains('open') || els.vinPanel.classList.contains('open'));
+    }
+    function vinChecksHTML() {
+      const checks = [
+        ['ДТП и страховые расчёты','События и расчёт повреждений у поставщика отчёта'],
+        ['Ремонты и повреждения','Зафиксированные работы и оценка ущерба'],
+        ['Пробег','Хронология доступных показаний одометра'],
+        ['Залоги и ограничения','Доступные реестры обременений и запретов'],
+        ['Розыск','Переход к официальной проверке МВД Беларуси'],
+        ['Регистрации и владельцы','Доступная история регистрационных действий'],
+        ['Техосмотры и страхование','Даты и записи, доступные поставщику'],
+        ['Продажи, такси, отзывы','Архив объявлений и иные найденные события'],
+      ];
+      return checks.map(([title, text]) => `<div class="vin-check">${icon('shield')}<div><strong>${escapeHTML(title)}</strong><span>${escapeHTML(text)}</span></div></div>`).join('');
+    }
+    function renderVinMissing(item) {
+      els.vinContent.innerHTML = `<div class="vin-summary"><div><code>VIN НЕ ОПУБЛИКОВАН</code><span>${escapeHTML(item?.title || 'Это объявление')}</span></div></div><div class="vin-provider"><p><strong>Продавец или площадка не передали полный 17-символьный VIN.</strong> Без него нельзя достоверно проверить ДТП, пробег, ремонты, залоги, розыск, регистрации и техосмотры. MOTOR.BY не подставляет и не угадывает VIN.</p><div class="vin-provider__actions"><a class="vin-provider__secondary" href="${validUrl(item?.sourceUrl)}" target="_blank" rel="noopener">Открыть объявление ${icon('external')}</a></div></div><p class="vin-disclaimer">Попросите продавца сообщить полный VIN и сверяйте его с кузовом и документами до оплаты отчёта.</p>`;
+    }
+    function renderVinReport(item, vin, data = null, error = '') {
+      const decoder = data?.decoder || {};
+      const facts = [
+        ['Марка',decoder.make],['Модель',decoder.model],['Модельный год',decoder.modelYear],
+        ['Производитель',decoder.manufacturer],['Тип ТС',decoder.vehicleType],['Кузов',decoder.bodyClass],
+        ['Страна производства',decoder.plantCountry],['Город производства',decoder.plantCity],
+        ['Двигатель',decoder.displacementL ? `${decoder.displacementL} л${decoder.engineCylinders ? ` · ${decoder.engineCylinders} цил.` : ''}` : ''],
+        ['Топливо',decoder.fuelType],['Привод',decoder.driveType],['Коробка',decoder.transmission],['Двери',decoder.doors],
+      ].filter(([, value]) => value);
+      const reportUrl = data?.reportUrl || `https://av.by/vin/prereport/${encodeURIComponent(vin)}`;
+      const kufarUrl = data?.kufarUrl || 'https://vin.kufar.by/';
+      const officialUrl = data?.officialSearchUrl || 'https://e-pasluga.by/services/gai-transport/35901proverka-nahozdenia-transportnogo-sredstva-v-rozyske-po-polnomu-sovpadeniu';
+      const decoderHTML = error
+        ? `<div class="source-warning">${icon('alert')}<span><strong>Расшифровка сейчас недоступна:</strong> ${escapeHTML(error)}. Прямые проверки по VIN остаются доступны ниже.</span></div>`
+        : facts.length
+          ? `<div class="vin-facts">${facts.map(([label,value]) => `<div class="vin-fact"><span>${escapeHTML(label)}</span><strong>${escapeHTML(value)}</strong></div>`).join('')}</div>`
+          : `<div class="source-warning">${icon('info')}<span>Публичный технический декодер не нашёл характеристик для этого VIN. Это не означает, что история автомобиля чистая.</span></div>`;
+      els.vinContent.innerHTML = `<div class="vin-summary"><div><code>${escapeHTML(vin)}</code><span>${escapeHTML(item.title)} · VIN опубликован продавцом</span></div></div><div class="vin-decoder">${decoderHTML}</div><h3 class="vin-checks-title">Что проверяет полный отчёт</h3><div class="vin-checks">${vinChecksHTML()}</div><div class="vin-provider"><p><strong>Полная история не является открытым бесплатным API.</strong> MOTOR.BY показывает бесплатную техническую расшифровку, а ДТП, ремонты, пробег, ограничения и регистрационные события предлагает проверить у профильного поставщика без выдуманных результатов.</p><div class="vin-provider__actions"><a class="vin-provider__primary" href="${validUrl(reportUrl)}" target="_blank" rel="noopener">Полный отчёт AV.BY ${icon('external')}</a><a class="vin-provider__secondary" href="${validUrl(kufarUrl)}" target="_blank" rel="noopener">Залоги и история Kufar</a><a class="vin-provider__secondary" href="${validUrl(officialUrl)}" target="_blank" rel="noopener">Розыск МВД РБ</a></div></div><p class="vin-disclaimer">Техническая расшифровка: публичный NHTSA vPIC. Она не содержит историю эксплуатации. Отчёт AV.BY коммерческий; полнота истории зависит от доступных реестров, и отсутствие события в отчёте не гарантирует его отсутствия.</p>`;
+    }
+    async function openVinReport(id) {
+      state.vinListingId = id; els.vinPanel.classList.add('open'); syncBodyModal(); els.vinClose.focus();
+      els.vinContent.innerHTML = `<div class="vin-loading"><span class="mini-spinner"></span><span>Проверяем, опубликован ли VIN…</span></div>`;
+      let item = state.items.get(id);
+      if (item && !publishedVin(item) && item.detailLoaded !== true && navigator.onLine) {
+        await loadDetail(id); item = state.items.get(id) || item;
+      }
+      if (state.vinListingId !== id) return;
+      const vin = publishedVin(item);
+      if (!vin) { renderVinMissing(item); return; }
+      els.vinContent.innerHTML = `<div class="vin-summary"><div><code>${escapeHTML(vin)}</code><span>${escapeHTML(item.title)} · VIN опубликован продавцом</span></div></div><div class="vin-loading"><span class="mini-spinner"></span><span>Получаем бесплатную техническую расшифровку…</span></div>`;
+      try {
+        const data = await api(`/api/vin/${encodeURIComponent(vin)}`);
+        if (state.vinListingId === id) renderVinReport(item, vin, data);
+      } catch (error) {
+        if (state.vinListingId === id) renderVinReport(item, vin, null, error.message);
+      }
+    }
+    function closeVinReport() {
+      const id = state.vinListingId; state.vinListingId = null; els.vinPanel.classList.remove('open'); syncBodyModal();
+      const button = id && cardById(id) && $('[data-action="vin-report"]', cardById(id)); button?.focus();
     }
     function openPersonalPanel() {
       renderPersonalPanel(); els.personalPanel.classList.add('open'); syncBodyModal();
@@ -2466,6 +2751,32 @@
         state.generationIds = [...state.generationIds, id];
       }
       syncGenerationSelection();
+    }
+
+    const BODY_SYMBOLS = new Set(['sedan','universal','hatchback','liftback','suv','minivan','minibus','coupe','cabriolet','pickup','van']);
+    function syncBodyPicker() {
+      if (!els.bodySelect || !els.bodyPickerButton) return;
+      const value = els.bodySelect.value;
+      const option = selectedOption(els.bodySelect);
+      if (els.bodyPickerLabel) els.bodyPickerLabel.textContent = option?.textContent || 'Любой';
+      const use = $('.body-picker__preview use', els.bodyPickerButton); if (use) use.setAttribute('href', `#body-${BODY_SYMBOLS.has(value) ? value : 'any'}`);
+      $$('[data-body-value]', els.bodyPickerMenu).forEach(button => button.setAttribute('aria-selected', String(button.dataset.bodyValue === value)));
+    }
+    function closeBodyPicker({ focus = false } = {}) {
+      if (!els.bodyPicker) return;
+      els.bodyPicker.classList.remove('open'); els.bodyPicker.closest('.body-field')?.classList.remove('picker-open');
+      els.bodyPickerButton.setAttribute('aria-expanded', 'false'); els.bodyPickerMenu.hidden = true;
+      if (focus) els.bodyPickerButton.focus();
+    }
+    function openBodyPicker() {
+      els.bodyPicker.classList.add('open'); els.bodyPicker.closest('.body-field')?.classList.add('picker-open');
+      els.bodyPickerButton.setAttribute('aria-expanded', 'true'); els.bodyPickerMenu.hidden = false;
+      const selected = $('[data-body-value][aria-selected="true"]', els.bodyPickerMenu); selected?.scrollIntoView({ block: 'nearest' });
+    }
+    function selectBody(value) {
+      if (![...els.bodySelect.options].some(option => option.value === value)) return;
+      els.bodySelect.value = value; syncBodyPicker(); closeBodyPicker({ focus: true });
+      els.bodySelect.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     function selectedOption(select) { return select.selectedOptions?.[0] || null; }
@@ -2663,7 +2974,8 @@
         state.favoriteFeed = false; document.body.classList.remove('favorite-feed-mode');
         els.headingText.textContent = 'Свежие объявления';
         state.page = 1; state.items.clear(); state.marketItems.clear(); state.order = []; state.detailQueue = []; state.detailQueued.clear();
-        state.observer?.disconnect(); state.imageObserver?.disconnect(); state.viewObserver?.disconnect();
+        state.marketController?.abort(); state.marketController = new AbortController(); state.marketRunId += 1; state.marketScheduled = 0; state.marketQueue = []; state.marketQueued.clear(); state.marketActive = 0;
+        state.observer?.disconnect(); state.marketObserver?.disconnect(); state.imageObserver?.disconnect(); state.viewObserver?.disconnect();
         for (const timer of state.viewTimers.values()) clearTimeout(timer); state.viewTimers.clear();
         showSkeletons(); els.statuses.innerHTML = ''; els.loadWrap.classList.remove('visible');
       }
@@ -2732,6 +3044,7 @@
       els.grid.innerHTML = ids.map(id => cardHTML(state.items.get(id))).join('');
       els.shown.textContent = `· ${state.order.length}`;
       setupDetailObserver(); setupSmartImageObserver();
+      queueMicrotask(queueMarketEnrichment);
     }
 
     function sourceClass(item) { return ['onliner', 'kufar', 'av', 'dealer', 'autohouse'].includes(item.source) ? item.source : 'kufar'; }
@@ -2755,18 +3068,31 @@
       if (price >= 1000000) return `${new Intl.NumberFormat('ru-BY', { maximumFractionDigits: 1 }).format(price / 1000000)} млн`;
       return `${new Intl.NumberFormat('ru-BY', { maximumFractionDigits: price < 10000 ? 1 : 0 }).format(price / 1000)} тыс.`;
     }
+    function marketSampleKey(item) {
+      const brand = marketToken(item?.brand), model = marketToken(item?.model);
+      return brand && model ? `${brand}|${model}|${marketCondition(item)}` : '';
+    }
+    function marketSampleMode(item) {
+      const condition = marketCondition(item);
+      return condition === 'new' ? 'new' : condition === 'used' ? 'owned' : 'all';
+    }
     function marketComparison(item) {
       const brand = marketToken(item.brand), model = marketToken(item.model);
       const price = Number(item.priceByn);
-      if (!brand || !model || !Number.isFinite(price) || price <= 0) return null;
+      const key = marketSampleKey(item);
+      if (!Number.isFinite(price) || price <= 0) return null;
+      const scopeBase = [item.brand, item.model].filter(Boolean).join(' ') || 'эта модель';
+      if (!brand || !model) return { available: false, count: 1, scope: scopeBase, average: price, key: '' };
       const condition = marketCondition(item);
       const universe = state.marketItems.size ? [...state.marketItems.values()] : [...state.items.values()];
-      const unique = new Map(universe.map(candidate => [candidate.id, candidate]));
+      const enriched = state.marketSamples.get(key) || [];
+      const unique = new Map([...universe, ...enriched].map(candidate => [candidate.id, candidate]));
       unique.set(item.id, item);
       let candidates = [...unique.values()].filter(candidate =>
         marketToken(candidate.brand) === brand && marketToken(candidate.model) === model
-        && marketCondition(candidate) === condition && Number.isFinite(Number(candidate.priceByn)) && Number(candidate.priceByn) > 0);
-      let scope = [item.brand, item.model].filter(Boolean).join(' ');
+        && (condition === 'other' || marketCondition(candidate) === condition)
+        && Number.isFinite(Number(candidate.priceByn)) && Number(candidate.priceByn) > 0);
+      let scope = scopeBase;
       const generation = marketToken(item.generation);
       if (generation) {
         const sameGeneration = candidates.filter(candidate => marketToken(candidate.generation) === generation);
@@ -2778,22 +3104,95 @@
         if (closeYears.length >= 3) { candidates = closeYears; scope += ' · годы ±3'; }
       }
       const prices = candidates.map(candidate => Number(candidate.priceByn)).sort((a, b) => a - b);
-      if (prices.length < 2) return { available: false, count: prices.length, scope };
+      const average = prices.length ? prices.reduce((sum, value) => sum + value, 0) / prices.length : price;
+      if (prices.length < 2) return { available: false, count: prices.length, scope, average, key };
       const minimum = prices[0], maximum = prices.at(-1);
       const ratio = maximum === minimum ? .5 : Math.max(0, Math.min(1, (price - minimum) / (maximum - minimum)));
       const level = maximum === minimum ? 'mid' : ratio <= .33 ? 'low' : ratio >= .67 ? 'high' : 'mid';
       const labels = { low: 'Низкая цена', mid: 'Средняя по рынку', high: 'Высокая цена' };
-      return { available: true, count: prices.length, minimum, maximum, position: Math.max(4, Math.min(96, ratio * 100)), level, label: labels[level], scope };
+      return { available: true, count: prices.length, minimum, maximum, average, position: Math.max(4, Math.min(96, ratio * 100)), level, label: labels[level], scope, key };
     }
     function marketPriceHTML(item) {
       const comparison = marketComparison(item);
       if (!comparison?.available) {
-        const scope = comparison?.scope || [item.brand, item.model].filter(Boolean).join(' ') || 'эта модель';
-        const title = `Для честного сравнения ${scope} нужно минимум два сопоставимых автомобиля в текущей живой выдаче.`;
-        return `<div class="market-price market-price--empty" role="img" aria-label="${escapeHTML(title)}" title="${escapeHTML(title)}"><div class="market-price__head"><span>Рынок</span><strong>Мало данных</strong></div><div class="market-price__track"></div><div class="market-price__range"><span>Нужно ≥ 2 похожих авто</span></div></div>`;
+        const average = comparison?.average || Number(item.priceByn);
+        const scope = comparison?.scope || [item.brand, item.model].filter(Boolean).join(' ') || 'этой модели';
+        const loading = comparison?.key && state.marketQueued.has(comparison.key);
+        const title = loading
+          ? `Ищем дополнительную рыночную выборку ${scope}. Пока маркер установлен по центру, а цена объявления показана как ориентировочная средняя.`
+          : `Сопоставимой выборки ${scope} недостаточно. Маркер установлен по центру; ${formatPrice(average)} — ориентир, а не подтверждённая рыночная статистика.`;
+        return `<div class="market-price market-price--estimate${loading ? ' market-price--loading' : ''}" role="img" aria-label="${escapeHTML(title)}" title="${escapeHTML(title)}" style="--market-position:50%"><div class="market-price__head"><span>${loading ? 'Уточняем рынок' : 'Рынок · ориентир'}</span><strong>Средняя цена</strong></div><div class="market-price__track"><i class="market-price__marker" aria-hidden="true"></i></div><div class="market-price__range"><span>≈ ${escapeHTML(marketCompactPrice(average))}</span></div></div>`;
       }
-      const title = `${comparison.label}: ${formatPrice(item.priceByn)}. Диапазон ${comparison.scope} в текущей живой выдаче — от ${formatPrice(comparison.minimum)} до ${formatPrice(comparison.maximum)}, сопоставимых автомобилей: ${comparison.count}.`;
+      const title = `${comparison.label}: ${formatPrice(item.priceByn)}. Диапазон ${comparison.scope} в живой рыночной выборке — от ${formatPrice(comparison.minimum)} до ${formatPrice(comparison.maximum)}, сопоставимых автомобилей: ${comparison.count}.`;
       return `<div class="market-price market-price--${comparison.level}" role="img" aria-label="${escapeHTML(title)}" title="${escapeHTML(title)}" style="--market-position:${comparison.position.toFixed(1)}%"><div class="market-price__head"><span>Рынок · ${comparison.count}</span><strong>${comparison.label}</strong></div><div class="market-price__track"><i class="market-price__marker" aria-hidden="true"></i></div><div class="market-price__range"><span>${escapeHTML(marketCompactPrice(comparison.minimum))}</span><span>${escapeHTML(marketCompactPrice(comparison.maximum))}</span></div></div>`;
+    }
+    function updateMarketWidgets(key) {
+      for (const item of state.items.values()) {
+        if (marketSampleKey(item) !== key) continue;
+        const card = cardById(item.id), current = card && $('.market-price', card);
+        if (current) current.outerHTML = marketPriceHTML(item);
+      }
+    }
+    function enqueueMarketItem(item) {
+      if (state.marketScheduled >= 26) return;
+      const comparison = item && marketComparison(item), key = comparison?.key;
+      if (!key || comparison.available || state.marketSamples.has(key) || state.marketQueued.has(key)) return;
+      if (!state.marketController) state.marketController = new AbortController();
+      state.marketQueued.add(key); state.marketScheduled += 1;
+      state.marketQueue.push({ key, item, runId: state.marketRunId, signal: state.marketController.signal });
+      updateMarketWidgets(key); drainMarketQueue();
+    }
+    function queueMarketEnrichment() {
+      state.marketObserver?.disconnect(); state.marketObserver = null;
+      if (state.offlineMode || state.favoriteFeed || !navigator.onLine) return;
+      const cards = $$('.listing-card', els.grid);
+      if (!('IntersectionObserver' in window)) { cards.slice(0, 6).forEach(card => enqueueMarketItem(state.items.get(card.dataset.id))); return; }
+      state.marketObserver = new IntersectionObserver(entries => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          enqueueMarketItem(state.items.get(entry.target.dataset.id)); state.marketObserver?.unobserve(entry.target);
+        }
+      }, { rootMargin: '700px 0px' });
+      cards.forEach(card => {
+        const comparison = marketComparison(state.items.get(card.dataset.id));
+        if (comparison?.key && !comparison.available && !state.marketSamples.has(comparison.key)) state.marketObserver.observe(card);
+      });
+    }
+    function drainMarketQueue() {
+      while (state.marketActive < 2 && state.marketQueue.length) {
+        const task = state.marketQueue.shift();
+        if (task.runId !== state.marketRunId || task.signal.aborted) { state.marketQueued.delete(task.key); continue; }
+        state.marketActive += 1;
+        enrichMarketSample(task).finally(() => {
+          if (task.runId !== state.marketRunId) return;
+          state.marketActive = Math.max(0, state.marketActive - 1); state.marketQueued.delete(task.key);
+          updateMarketWidgets(task.key); drainMarketQueue();
+        });
+      }
+    }
+    async function enrichMarketSample(task) {
+      const params = new URLSearchParams({ brandName: task.item.brand, modelName: task.item.model, mode: marketSampleMode(task.item) });
+      const brandId = Number(task.item.brandId), modelId = Number(task.item.modelId);
+      // Taxonomy IDs are source-specific. Only Onlíner cards can safely pass
+      // their IDs; every other source is resolved by exact brand/model names.
+      if (task.item.source === 'onliner' && brandId > 0) params.set('brand', String(brandId));
+      if (task.item.source === 'onliner' && modelId > 0) params.set('model', String(modelId));
+      try {
+        const data = await api(`/api/market?${params}`, { signal: task.signal });
+        if (data?.mock !== false || !Array.isArray(data.sample)) throw new Error('Некорректная рыночная выборка');
+        state.marketSamples.set(task.key, data.sample);
+      } catch (error) {
+        if (error.name !== 'AbortError' && task.runId === state.marketRunId) state.marketSamples.set(task.key, []);
+      }
+    }
+
+    function normalizeVin(value) { return String(value || '').toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '').slice(0, 17); }
+    function publishedVin(item) { const vin = normalizeVin(item?.vin); return /^[A-HJ-NPR-Z0-9]{17}$/.test(vin) ? vin : ''; }
+    function vinButtonHTML(item) {
+      const vin = publishedVin(item), confirmedMissing = item.detailLoaded === true && !vin;
+      const label = confirmedMissing ? 'VIN не опубликован' : 'Полный VIN-отчёт';
+      const title = confirmedMissing ? 'Продавец не опубликовал полный 17-символьный VIN' : 'Расшифровка VIN и переход к полной проверке истории';
+      return `<button class="vin-button" type="button" data-action="vin-report" title="${escapeHTML(title)}"${confirmedMissing ? ' disabled' : ''}>${icon('vin')} ${label}</button>`;
     }
 
     function cardHTML(item) {
@@ -2843,6 +3242,7 @@
             <div class="seller-meta"><strong data-seller>${escapeHTML(item.seller?.name || 'Продавец')}</strong><span>${icon('pin')} ${escapeHTML(item.location || 'Беларусь')}</span></div>
             <div class="card-buttons">
               <button class="detail-button" type="button" data-action="extra-toggle" aria-label="Все данные объявления" aria-expanded="false">${icon('sliders')} Все данные</button>
+              ${vinButtonHTML(item)}
               <a class="original-button" href="${validUrl(item.sourceUrl)}" target="_blank" rel="noopener">Оригинал ${icon('external')}</a>
             </div>
           </div>
@@ -2953,6 +3353,7 @@
       const commentLabel = $('.seller-comment__label', card);
       if (commentLabel) commentLabel.textContent = item.descriptionLabel || 'Комментарий продавца';
       const seller = $('[data-seller]', card); if (seller) seller.textContent = item.seller?.name || 'Продавец';
+      const vinButton = $('[data-action="vin-report"]', card); if (vinButton) vinButton.outerHTML = vinButtonHTML(item);
       const sourceDate = item.updatedAt || item.createdAt;
       const details = [
         ['Каталог', item.sourceCatalog], ['Состояние', item.state], ['Модификация', item.modification],
@@ -3140,6 +3541,7 @@
           preserveGenerations: params.getAll('generation'),
         });
       }
+      syncBodyPicker();
     }
 
     function resetForm({ search = true } = {}) {
@@ -3147,7 +3549,7 @@
       els.form.reset();
       $$('input[name="source"]', els.form).forEach(input => { input.checked = ['onliner', 'kufar', 'av', 'dealer', 'autohouse'].includes(input.value); });
       els.model.disabled = true; els.model.innerHTML = '<option value="">Любая модель</option>';
-      state.generationIds = []; state.models = []; state.generations = []; hideGenerations();
+      state.generationIds = []; state.models = []; state.generations = []; hideGenerations(); syncBodyPicker(); closeBodyPicker();
       if (search && !(mobileFilterMedia.matches && document.body.classList.contains('mobile-awaiting-search'))) {
         runSearch({ scroll: true, collapseMobile: mobileFilterMedia.matches });
       }
@@ -3221,6 +3623,12 @@
     els.resetButton.addEventListener('click', () => resetForm());
     els.sort.addEventListener('change', () => { setPersonalPreference('sort', els.sort.value); sortAndRender(); });
     els.density.addEventListener('click', () => applyDensity(state.density === 'compact' ? 'comfortable' : 'compact'));
+    els.themeToggle.addEventListener('click', () => applyTheme(state.theme === 'light' ? 'dark' : 'light'));
+    els.bodyPickerButton.addEventListener('click', () => els.bodyPicker.classList.contains('open') ? closeBodyPicker() : openBodyPicker());
+    els.bodyPickerMenu.addEventListener('click', event => { const option = event.target.closest('[data-body-value]'); if (option) selectBody(option.dataset.bodyValue); });
+    els.bodySelect.addEventListener('change', syncBodyPicker);
+    document.addEventListener('pointerdown', event => { if (els.bodyPicker.classList.contains('open') && !els.bodyPicker.contains(event.target)) closeBodyPicker(); });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape' && els.bodyPicker.classList.contains('open')) { event.preventDefault(); closeBodyPicker({ focus: true }); } });
     els.installButton.addEventListener('click', requestAppInstall);
     els.personalButton.addEventListener('click', openPersonalPanel);
     $$('input[name="source"]', els.form).forEach(input => input.addEventListener('change', () => queueMobileSourceRefresh(input)));
@@ -3251,6 +3659,7 @@
       }
       const card = actionNode.closest('.listing-card'); if (!card) return;
       const id = card.dataset.id;
+      if (action === 'vin-report') { event.stopPropagation(); openVinReport(id); return; }
       if (action === 'favorite') {
         event.stopPropagation();
         state.favorites.has(id) ? state.favorites.delete(id) : state.favorites.add(id);
@@ -3302,6 +3711,8 @@
       try { await importPersonalData(file); } catch (error) { toast(error.message, 'error'); }
       els.personalImport.value = '';
     });
+    els.vinClose.addEventListener('click', closeVinReport);
+    els.vinPanel.addEventListener('click', event => { if (event.target === els.vinPanel) closeVinReport(); });
 
     els.lightbox.addEventListener('click', event => {
       const action = event.target.closest('[data-lightbox]')?.dataset.lightbox;
@@ -3409,6 +3820,7 @@
         }
         return;
       }
+      if (event.key === 'Escape' && els.vinPanel.classList.contains('open')) { closeVinReport(); return; }
       if (event.key === 'Escape' && els.personalPanel.classList.contains('open')) { closePersonalPanel(); return; }
       if (!els.lightbox.classList.contains('open')) return;
       if (event.key === 'Escape') closeLightbox();
@@ -3420,6 +3832,7 @@
 
     // Phones open directly on the expanded filters and wait for an explicit
     // search. Desktop keeps the immediate live feed; shared filter URLs work on both.
+    applyTheme(state.theme, false); syncBodyPicker();
     initPwa();
     (async function bootstrap() {
       await initPersonalDatabase();
@@ -3445,5 +3858,5 @@
       setTimeout(revalidateFavorites, 2500);
     })();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a388b715cacfeeb7',t:'MTc4ODk4MzM1NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
