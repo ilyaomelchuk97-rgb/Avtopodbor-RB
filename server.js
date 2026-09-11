@@ -15,7 +15,7 @@ const { performance } = require('node:perf_hooks');
 
 const PORT = Number(process.env.PORT || 8080);
 const ROOT = __dirname;
-const APP_VERSION = '1.4.2';
+const APP_VERSION = '1.5.0';
 const USER_AGENT = process.env.SOURCE_USER_AGENT ||
   `MotorBY-Aggregator/${APP_VERSION} (+https://render.com; low-rate cached public catalogue reader)`;
 const SEARCH_TTL = clampInt(process.env.SEARCH_CACHE_TTL, 30, 900, 180);
@@ -23,6 +23,7 @@ const DETAIL_TTL = clampInt(process.env.DETAIL_CACHE_TTL, 60, 3600, 600);
 const CATALOG_TTL = clampInt(process.env.CATALOG_CACHE_TTL, 300, 86400, 21600);
 const AV_TAXONOMY_TTL = clampInt(process.env.AV_TAXONOMY_CACHE_TTL, 1800, 172800, 43200);
 const AV_REQUEST_TIMEOUT = clampInt(process.env.AV_SOURCE_TIMEOUT_MS, 5000, 30000, 14000);
+const MARKET_CACHE_TTL = clampInt(process.env.MARKET_CACHE_TTL, 300, 3600, 1200);
 
 const ONLINER_SEARCH = 'https://ab.onliner.by/sdapi/ab.api/search/vehicles';
 const ONLINER_SCHEMA = 'https://ab.onliner.by/sdapi/ab.api/schemas/vehicles/search';
@@ -33,6 +34,7 @@ const AV_ANDROID_API = 'https://android-api.av.by/';
 const JINA_READER = 'https://r.jina.ai/';
 const ATLANT_STOCK_API = 'https://stock-service.atlantm.by/api';
 const ATLANT_PUBLIC_ROOT = 'https://atlantm.by/cars';
+const NHTSA_VIN_API = 'https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended';
 const MEDIA_HOSTS = new Set([
   'content.onliner.by', 'imgproxy.onliner.by', 'rms.kufar.by', 'avcdn.av.by',
   'io.activecloud.com', 'dealers-service.atlantm.by',
@@ -2050,6 +2052,93 @@ async function getKufarDetail(id) {
   return normaliseKufarDetail(data);
 }
 
+async function resolveOnlinerMarketTaxonomy(filters) {
+  let brandId = Number(filters.brandId) > 0 ? Number(filters.brandId) : null;
+  let modelId = Number(filters.modelId) > 0 ? Number(filters.modelId) : null;
+  try {
+    if (!brandId && filters.brandName) {
+      const schema = await getOnlinerSchema();
+      const values = schema?.properties?.car?.items?.properties?.manufacturer?.['x-enum'] || [];
+      const brand = values.find((item) => brandIdentity(item.title) === brandIdentity(filters.brandName));
+      brandId = brand ? Number(brand.value) : null;
+    }
+    if (brandId && !modelId && filters.modelName) {
+      const data = await cache.remember(`onliner:models:${brandId}`, CATALOG_TTL,
+        () => sourceFetch(`${ONLINER_API}/manufacturers/${brandId}`, { source: 'onliner', type: 'json' }));
+      const model = (data?.models || []).find((item) => modelIdentity(item.name) === modelIdentity(filters.modelName));
+      modelId = model ? Number(model.id) : null;
+    }
+  } catch (_) { /* Kufar can still provide a market sample by name. */ }
+  return { brandId, modelId };
+}
+
+async function buildMarketSample(filters) {
+  const brandName = cleanText(filters.brandName).slice(0, 80);
+  const modelName = cleanText(filters.modelName).slice(0, 80);
+  const mode = filters.mode === 'new' ? 'new' : filters.mode === 'owned' ? 'owned' : 'all';
+  const identity = `${brandIdentity(brandName)}:${modelIdentity(modelName)}:${mode}`;
+  return cache.remember(`market:${identity}`, MARKET_CACHE_TTL, async () => {
+    const taxonomy = await resolveOnlinerMarketTaxonomy(filters);
+    const base = {
+      ...filters,
+      sources: taxonomy.brandId && taxonomy.modelId ? ['onliner', 'kufar'] : ['kufar'],
+      brandId: taxonomy.brandId,
+      modelId: taxonomy.modelId,
+      brandName,
+      modelName,
+      generationIds: [], generationNames: [], generationId: null, generationName: '',
+      priceFrom: null, priceTo: null, yearFrom: null, yearTo: null, mileageTo: null,
+      body: '', fuel: '', transmission: '', drivetrain: '', city: 'all',
+      mode, limit: 16,
+    };
+    const pages = await Promise.all([1, 2].map((page) => runSearch({ ...base, page })));
+    const seen = new Set();
+    const sample = pages.flatMap((page) => page.items || []).filter((item) => {
+      if (!item?.id || seen.has(item.id) || !Number.isFinite(Number(item.priceByn)) || Number(item.priceByn) <= 0) return false;
+      if (brandName && brandIdentity(item.brand) !== brandIdentity(brandName)) return false;
+      if (modelName && modelIdentity(item.model) !== modelIdentity(modelName)) return false;
+      seen.add(item.id);
+      return true;
+    }).slice(0, 64).map((item) => ({
+      id: item.id, source: item.source, brand: item.brand, model: item.model,
+      generation: item.generation || '', year: item.year ?? null, priceByn: item.priceByn,
+      state: item.state || '', sourceCatalog: item.sourceCatalog || '', mileage: item.mileage ?? null,
+    }));
+    return {
+      live: true, mock: false, brand: brandName, model: modelName, mode,
+      sample, count: sample.length, fetchedAt: new Date().toISOString(),
+      sources: pages.flatMap((page) => page.sourceStatus || []).map((status) => ({
+        source: status.source, state: status.state, count: status.count, total: status.total,
+      })),
+    };
+  }, { staleSeconds: 7200 });
+}
+
+function normaliseVin(value) {
+  return cleanText(value).toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '').slice(0, 17);
+}
+
+function vinFormatValid(vin) {
+  return /^[A-HJ-NPR-Z0-9]{17}$/.test(vin);
+}
+
+async function decodeVin(vin) {
+  const target = `${NHTSA_VIN_API}/${encodeURIComponent(vin)}?format=json`;
+  const data = await cache.remember(`vin:decode:${vin}`, 86400,
+    () => sourceFetch(target, { source: 'vin', type: 'json', timeout: 14000 }), { staleSeconds: 604800 });
+  const value = data?.Results?.[0] || {};
+  const field = (name) => cleanText(value[name]);
+  return {
+    decoded: Boolean(field('Make') || field('Manufacturer') || field('Model') || field('ModelYear')),
+    make: field('Make'), model: field('Model'), modelYear: field('ModelYear'),
+    manufacturer: field('Manufacturer'), vehicleType: field('VehicleType'), bodyClass: field('BodyClass'),
+    plantCountry: field('PlantCountry'), plantCity: field('PlantCity'),
+    engineCylinders: field('EngineCylinders'), displacementL: field('DisplacementL'),
+    fuelType: field('FuelTypePrimary'), driveType: field('DriveType'), transmission: field('TransmissionStyle'),
+    doors: field('Doors'), errorCode: field('ErrorCode'), errorText: field('ErrorText'),
+  };
+}
+
 async function runSearch(filters) {
   const tasks = filters.sources.map(async (source) => {
     const started = performance.now();
@@ -2103,7 +2192,7 @@ function rateAllowed(req, kind = 'api') {
     for (const [key, bucket] of rateBuckets) if (bucket.resetAt < now) rateBuckets.delete(key);
   }
   const key = `${ipOf(req)}:${kind}`;
-  const max = kind === 'search' ? 18 : kind === 'detail' ? 60 : kind === 'media' ? 300 : 120;
+  const max = kind === 'search' ? 18 : kind === 'market' ? 30 : kind === 'detail' ? 60 : kind === 'media' ? 300 : 120;
   let bucket = rateBuckets.get(key);
   if (!bucket || bucket.resetAt < now) bucket = { count: 0, resetAt: now + 60000 };
   bucket.count += 1;
@@ -2276,7 +2365,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (pathname.startsWith('/api/')) {
-      const kind = pathname === '/api/search' ? 'search' : pathname.startsWith('/api/listing/') ? 'detail' : pathname === '/api/media' ? 'media' : 'api';
+      const kind = pathname === '/api/search' ? 'search' : pathname === '/api/market' ? 'market' : pathname.startsWith('/api/listing/') || pathname.startsWith('/api/vin/') ? 'detail' : pathname === '/api/media' ? 'media' : 'api';
       const rate = rateAllowed(req, kind);
       if (!rate.allowed) {
         sendJson(res, 429, { error: 'rate_limit', message: 'Слишком много запросов. Повторите через минуту.' }, {
@@ -2344,6 +2433,22 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
+      if (pathname === '/api/market') {
+        const filters = normaliseSearch(url);
+        if (!filters.brandName || !filters.modelName || filters.brandName.length > 80 || filters.modelName.length > 80) {
+          sendJson(res, 400, { error: 'invalid_market_query', message: 'Для рыночной выборки укажите марку и модель' });
+          return;
+        }
+        try {
+          const payload = await buildMarketSample(filters);
+          sendJson(res, 200, payload, {
+            'server-timing': `market;dur=${Math.round(performance.now() - started)}`,
+            'x-ratelimit-remaining': String(rate.remaining),
+          });
+        } catch (error) { apiError(res, error, error?.code ? 502 : 500); }
+        return;
+      }
+
       if (pathname === '/api/search') {
         const filters = normaliseSearch(url);
         const payload = await runSearch(filters);
@@ -2351,6 +2456,26 @@ const server = http.createServer(async (req, res) => {
           'server-timing': `app;dur=${Math.round(performance.now() - started)}`,
           'x-ratelimit-remaining': String(rate.remaining),
         });
+        return;
+      }
+
+      const vinMatch = pathname.match(/^\/api\/vin\/([a-z0-9-]{1,24})$/i);
+      if (vinMatch) {
+        const vin = normaliseVin(vinMatch[1]);
+        if (!vinFormatValid(vin)) {
+          sendJson(res, 400, { error: 'invalid_vin', message: 'VIN должен состоять из 17 допустимых символов' });
+          return;
+        }
+        try {
+          const decoder = await decodeVin(vin);
+          sendJson(res, 200, {
+            live: true, mock: false, vin, decoder, checkedAt: new Date().toISOString(),
+            reportUrl: `https://av.by/vin/prereport/${encodeURIComponent(vin)}`,
+            kufarUrl: 'https://vin.kufar.by/',
+            officialSearchUrl: 'https://e-pasluga.by/services/gai-transport/35901proverka-nahozdenia-transportnogo-sredstva-v-rozyske-po-polnomu-sovpadeniu',
+            notice: 'Данные о ДТП, страховых расчётах, ремонтах, владельцах и ограничениях доступны только у специализированных поставщиков отчётов; MOTOR.BY их не выдумывает.',
+          }, { 'server-timing': `vin;dur=${Math.round(performance.now() - started)}` });
+        } catch (error) { apiError(res, error, error?.code ? 502 : 500); }
         return;
       }
 
