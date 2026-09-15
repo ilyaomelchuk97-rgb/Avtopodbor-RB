@@ -15,7 +15,7 @@ const { performance } = require('node:perf_hooks');
 
 const PORT = Number(process.env.PORT || 8080);
 const ROOT = __dirname;
-const APP_VERSION = '1.5.0';
+const APP_VERSION = '1.5.6';
 const USER_AGENT = process.env.SOURCE_USER_AGENT ||
   `MotorBY-Aggregator/${APP_VERSION} (+https://render.com; low-rate cached public catalogue reader)`;
 const SEARCH_TTL = clampInt(process.env.SEARCH_CACHE_TTL, 30, 900, 180);
@@ -35,6 +35,20 @@ const JINA_READER = 'https://r.jina.ai/';
 const ATLANT_STOCK_API = 'https://stock-service.atlantm.by/api';
 const ATLANT_PUBLIC_ROOT = 'https://atlantm.by/cars';
 const NHTSA_VIN_API = 'https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended';
+const VIN_HISTORY_CHECKS = Object.freeze([
+  { key: 'accidents', title: 'ДТП в Беларуси и России', coverage: 'Зарегистрированные аварии и страховые события' },
+  { key: 'damage', title: 'Повреждения и расчёты ремонта', coverage: 'Зафиксированные повреждения, работы и расчётная стоимость' },
+  { key: 'mileage', title: 'Пробег за 10 лет', coverage: 'Доступная хронология показаний одометра' },
+  { key: 'maintenance', title: 'Обслуживание и техосмотры', coverage: 'Записи ТО, диагностических и технических осмотров' },
+  { key: 'owners', title: 'Регистрации и владельцы', coverage: 'Доступные регистрационные действия и периоды владения' },
+  { key: 'legal', title: 'Залоги, ограничения и розыск', coverage: 'Юридические риски в доступных реестрах' },
+  { key: 'customs', title: 'Таможенное оформление', coverage: 'Доступные сведения о ввозе и оформлении' },
+  { key: 'sales', title: 'История продаж', coverage: 'Архивные объявления, цены, фото и описания' },
+  { key: 'commercial_use', title: 'Такси и каршеринг', coverage: 'Зафиксированное коммерческое использование' },
+  { key: 'insurance', title: 'Страхование и выплаты', coverage: 'Доступные полисы и страховые расчёты' },
+  { key: 'salvage', title: 'Аварийные аукционы', coverage: 'Следы продажи повреждённого автомобиля' },
+  { key: 'recalls', title: 'Отзывные кампании', coverage: 'Кампании производителя и выполненные работы' },
+]);
 const MEDIA_HOSTS = new Set([
   'content.onliner.by', 'imgproxy.onliner.by', 'rms.kufar.by', 'avcdn.av.by',
   'io.activecloud.com', 'dealers-service.atlantm.by',
@@ -257,6 +271,7 @@ function normaliseSearch(url) {
     yearTo: asNumber(url.searchParams.get('yearTo')),
     mileageTo: asNumber(url.searchParams.get('mileageTo')),
     mode: ['all', 'owned', 'new', 'electric'].includes(url.searchParams.get('mode')) ? url.searchParams.get('mode') : 'all',
+    sort: ['fresh', 'yearDesc', 'yearAsc', 'priceAsc', 'priceDesc', 'mileageAsc', 'mileageDesc'].includes(url.searchParams.get('sort')) ? url.searchParams.get('sort') : 'fresh',
     body: cleanText(url.searchParams.get('body')),
     fuel: cleanText(url.searchParams.get('fuel')),
     transmission: cleanText(url.searchParams.get('transmission')),
@@ -502,11 +517,17 @@ function appendRange(params, key, from, to) {
   if (to !== null) params.set(`${key}[to]`, String(to));
 }
 
+const ONLINER_SORT = Object.freeze({
+  fresh: 'created_at:desc', priceAsc: 'price:asc', priceDesc: 'price:desc',
+  yearDesc: 'year:desc', yearAsc: 'year:asc', mileageAsc: 'odometer:asc', mileageDesc: 'odometer:desc',
+});
+
 function buildOnlinerUrl(filters) {
   const params = new URLSearchParams();
   params.set('extended', 'true');
   params.set('limit', String(filters.limit));
   params.set('page', String(filters.page));
+  params.set('order', ONLINER_SORT[filters.sort] || ONLINER_SORT.fresh);
 
   if (filters.brandId) params.set('car[0][manufacturer]', String(filters.brandId));
   if (filters.modelId) params.set('car[0][model]', String(filters.modelId));
@@ -822,9 +843,15 @@ function addKufarEnum(params, key, value) {
   params.set(key, Array.isArray(value) ? `v.or:${value.join(',')}` : value);
 }
 
+const KUFAR_SORT = Object.freeze({
+  fresh: 'lst.d', priceAsc: 'prc.a', priceDesc: 'prc.d',
+  yearDesc: 'rgd.d', yearAsc: 'rgd.a', mileageAsc: 'mlg.a', mileageDesc: 'mlg.d',
+});
+
 async function buildKufarUrl(filters) {
   const taxonomy = await resolveKufarTaxonomy(filters);
   const url = new URL(KUFAR_ROOT);
+  url.searchParams.set('sort', KUFAR_SORT[filters.sort] || KUFAR_SORT.fresh);
   if (taxonomy.brand) url.searchParams.set('cbnd2', taxonomy.brand);
   if (taxonomy.model) url.searchParams.set('cmdl2', taxonomy.model);
   if (taxonomy.generations?.length > 1) addKufarEnum(url.searchParams, 'cgen2', taxonomy.generations);
@@ -1215,6 +1242,10 @@ function setAvRange(params, name, from, to) {
   if (to !== null) params.set(`${name}[max]`, String(to));
 }
 
+const AV_SORT = Object.freeze({
+  fresh: 4, priceAsc: 2, priceDesc: 3, yearDesc: 6, yearAsc: 7, mileageAsc: 8, mileageDesc: 4,
+});
+
 async function buildAvRequest(filters) {
   const taxonomy = await resolveAvTaxonomy(filters);
   if (taxonomy.unmapped) return { unmapped: taxonomy.unmapped, publicUrl: AV_ROOT };
@@ -1223,7 +1254,7 @@ async function buildAvRequest(filters) {
 
   const params = new URLSearchParams();
   params.set('page', String(filters.page));
-  params.set('sort', '4');
+  params.set('sort', String(AV_SORT[filters.sort] || AV_SORT.fresh));
   if (taxonomy.generations?.length) {
     taxonomy.generations.forEach((generation, index) => {
       params.set(`brands[${index}][brand]`, String(taxonomy.brand));
@@ -1431,6 +1462,45 @@ async function getAvDetail(id) {
     () => fetchAvJson(`offers/${encodeURIComponent(id)}`), { staleSeconds: 3600 });
   if (!response.data?.id) throw new SourceError('av', 'format_changed', 'AV.BY изменил формат карточки объявления');
   return normaliseAv(response.data, { detailed: true });
+}
+
+/* The official Android client uses this endpoint to reveal an advert VIN.
+   AV.BY currently requires an account JWT and applies its own viewing limits.
+   We still probe the documented mobile route: if AV.BY makes the VIN available,
+   it is returned; otherwise the frontend immediately offers manual entry. */
+async function getAvListingVin(id) {
+  if (!/^\d{1,16}$/.test(String(id || ''))) {
+    return { live: true, mock: false, vin: '', status: 'invalid_advert', message: 'Некорректный номер объявления AV.BY' };
+  }
+  return cache.remember(`av:listing-vin:${id}`, 300, async () => {
+    try {
+      const response = await fetchAvJson(`offer-types/cars/offers/${encodeURIComponent(id)}/vin`, { timeout: 9000 });
+      const payload = response.data?.data && typeof response.data.data === 'object' ? response.data.data : response.data;
+      const vin = normaliseVin(payload?.vin || payload?.originalVin || payload?.vinInfo?.vin);
+      if (vinFormatValid(vin)) {
+        return {
+          live: true, mock: false, vin, status: 'available', provider: 'AV.BY Android API',
+          transport: response.transport, checkedAt: new Date().toISOString(),
+          reportUrl: `https://av.by/vin/prereport/${encodeURIComponent(vin)}`,
+          message: 'Полный VIN получен из официального мобильного API AV.BY.',
+        };
+      }
+      return {
+        live: true, mock: false, vin: '', status: 'not_published', provider: 'AV.BY Android API',
+        checkedAt: new Date().toISOString(),
+        message: 'Официальный мобильный API AV.BY не передал полный VIN. Его можно ввести вручную.',
+      };
+    } catch (error) {
+      const authRequired = ['http_401', 'http_403'].includes(error?.code);
+      return {
+        live: true, mock: false, vin: '', status: authRequired ? 'av_login_required' : 'temporarily_unavailable',
+        provider: 'AV.BY Android API', checkedAt: new Date().toISOString(),
+        message: authRequired
+          ? 'AV.BY требует авторизацию пользователя для просмотра полного VIN. Введите VIN вручную — логины и пароли AV.BY сайт не запрашивает.'
+          : 'Мобильный API AV.BY сейчас не вернул полный VIN. Введите его вручную.',
+      };
+    }
+  }, { staleSeconds: 1800 });
 }
 
 const ATLANT_CONFIG = {
@@ -2139,6 +2209,31 @@ async function decodeVin(vin) {
   };
 }
 
+function sortSearchItems(items, sort = 'fresh') {
+  const numeric = (left, right, key, direction) => {
+    const a = Number(left?.[key]), b = Number(right?.[key]);
+    const hasA = Number.isFinite(a), hasB = Number.isFinite(b);
+    if (!hasA && !hasB) return 0;
+    if (!hasA) return 1;
+    if (!hasB) return -1;
+    return (a - b) * direction;
+  };
+  items.sort((left, right) => {
+    let result = 0;
+    if (sort === 'priceAsc') result = numeric(left, right, 'priceByn', 1);
+    else if (sort === 'priceDesc') result = numeric(left, right, 'priceByn', -1);
+    else if (sort === 'yearDesc') result = numeric(left, right, 'year', -1);
+    else if (sort === 'yearAsc') result = numeric(left, right, 'year', 1);
+    else if (sort === 'mileageAsc') result = numeric(left, right, 'mileage', 1);
+    else if (sort === 'mileageDesc') result = numeric(left, right, 'mileage', -1);
+    if (result) return result;
+    const byDate = (Date.parse(right?.updatedAt || right?.createdAt || 0) || 0)
+      - (Date.parse(left?.updatedAt || left?.createdAt || 0) || 0);
+    return byDate || String(left?.id || '').localeCompare(String(right?.id || ''), 'ru');
+  });
+  return items;
+}
+
 async function runSearch(filters) {
   const tasks = filters.sources.map(async (source) => {
     const started = performance.now();
@@ -2167,7 +2262,7 @@ async function runSearch(filters) {
     seen.add(item.id);
     return true;
   });
-  items.sort((a, b) => (Date.parse(b.updatedAt || b.createdAt || 0) || 0) - (Date.parse(a.updatedAt || a.createdAt || 0) || 0));
+  sortSearchItems(items, filters.sort);
   return {
     live: true,
     mock: false,
@@ -2293,7 +2388,7 @@ function securityHeaders(contentType = '') {
     'referrer-policy': 'strict-origin-when-cross-origin',
     'permissions-policy': 'camera=(), microphone=(), geolocation=()',
     // Do not set X-Frame-Options/frame-ancestors: Render and Arena previews use a sandboxed iframe.
-    'content-security-policy': "default-src 'self'; img-src 'self' data: https://content.onliner.by https://imgproxy.onliner.by https://rms.kufar.by https://avcdn.av.by https://io.activecloud.com https://dealers-service.atlantm.by; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://android-api.av.by https://content.onliner.by https://imgproxy.onliner.by https://rms.kufar.by https://avcdn.av.by https://io.activecloud.com https://dealers-service.atlantm.by; base-uri 'self'; form-action 'self'", 
+    'content-security-policy': "default-src 'self'; img-src 'self' data: https://content.onliner.by https://imgproxy.onliner.by https://rms.kufar.by https://avcdn.av.by https://io.activecloud.com https://dealers-service.atlantm.by; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://android-api.av.by; worker-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'",  
   };
   if (contentType) headers['content-type'] = contentType;
   return headers;
@@ -2400,6 +2495,7 @@ const server = http.createServer(async (req, res) => {
             transport: avRuntime.transport,
             searchDelivery: 'browser-direct-with-server-fallback',
             detailDelivery: 'browser-direct-with-server-fallback',
+            vinDelivery: 'official-mobile-endpoint-with-manual-fallback',
             imageDelivery: 'browser-direct-avcdn',
             lastSuccessAt: avRuntime.lastSuccessAt,
             lastFailureAt: avRuntime.lastFailureAt,
@@ -2459,6 +2555,16 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
+      const avListingVinMatch = pathname.match(/^\/api\/av\/vin\/(\d{1,16})$/i);
+      if (avListingVinMatch) {
+        const payload = await getAvListingVin(avListingVinMatch[1]);
+        sendJson(res, 200, payload, {
+          'server-timing': `av-vin;dur=${Math.round(performance.now() - started)}`,
+          'x-ratelimit-remaining': String(rate.remaining),
+        });
+        return;
+      }
+
       const vinMatch = pathname.match(/^\/api\/vin\/([a-z0-9-]{1,24})$/i);
       if (vinMatch) {
         const vin = normaliseVin(vinMatch[1]);
@@ -2466,16 +2572,35 @@ const server = http.createServer(async (req, res) => {
           sendJson(res, 400, { error: 'invalid_vin', message: 'VIN должен состоять из 17 допустимых символов' });
           return;
         }
-        try {
-          const decoder = await decodeVin(vin);
-          sendJson(res, 200, {
-            live: true, mock: false, vin, decoder, checkedAt: new Date().toISOString(),
-            reportUrl: `https://av.by/vin/prereport/${encodeURIComponent(vin)}`,
-            kufarUrl: 'https://vin.kufar.by/',
-            officialSearchUrl: 'https://e-pasluga.by/services/gai-transport/35901proverka-nahozdenia-transportnogo-sredstva-v-rozyske-po-polnomu-sovpadeniu',
-            notice: 'Данные о ДТП, страховых расчётах, ремонтах, владельцах и ограничениях доступны только у специализированных поставщиков отчётов; MOTOR.BY их не выдумывает.',
-          }, { 'server-timing': `vin;dur=${Math.round(performance.now() - started)}` });
-        } catch (error) { apiError(res, error, error?.code ? 502 : 500); }
+        let decoder = {};
+        let decoderStatus = 'available';
+        let decoderMessage = '';
+        try { decoder = await decodeVin(vin); }
+        catch (error) {
+          // The technical decoder is optional. A temporary NHTSA block must not
+          // prevent manual VIN entry or access to the AV.BY/provider checks.
+          decoderStatus = 'temporarily_unavailable';
+          decoderMessage = cleanText(error?.publicMessage || error?.message || 'Техническая расшифровка временно недоступна');
+        }
+        sendJson(res, 200, {
+          live: true, mock: false, vin, decoder, decoderStatus, decoderMessage, checkedAt: new Date().toISOString(),
+          reportUrl: `https://av.by/vin/prereport/${encodeURIComponent(vin)}`,
+          kufarUrl: 'https://vin.kufar.by/',
+          officialSearchUrl: 'https://e-pasluga.by/services/gai-transport/35901proverka-nahozdenia-transportnogo-sredstva-v-rozyske-po-polnomu-sovpadeniu',
+          history: {
+            included: false,
+            status: 'provider_required',
+            provider: 'AV.BY',
+            checks: VIN_HISTORY_CHECKS,
+            message: 'Количество ДТП, ремонтов, владельцев и другие события становятся доступны после получения коммерческого отчёта у поставщика.',
+          },
+          providers: [
+            { id: 'av', label: 'Полный отчёт AV.BY', url: `https://av.by/vin/prereport/${encodeURIComponent(vin)}`, primary: true },
+            { id: 'kufar', label: 'Залоги и история Kufar', url: 'https://vin.kufar.by/' },
+            { id: 'mvd', label: 'Розыск МВД РБ', url: 'https://e-pasluga.by/services/gai-transport/35901proverka-nahozdenia-transportnogo-sredstva-v-rozyske-po-polnomu-sovpadeniu' },
+          ],
+          notice: 'Данные о ДТП, страховых расчётах, ремонтах, владельцах и ограничениях доступны только у специализированных поставщиков отчётов; MOTOR.BY их не выдумывает.',
+        }, { 'server-timing': `vin;dur=${Math.round(performance.now() - started)}` });
         return;
       }
 
