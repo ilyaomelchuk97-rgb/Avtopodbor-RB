@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#080a0d">
-  <meta name="application-version" content="1.5.0">
+  <meta name="application-version" content="1.5.6">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="MOTOR.BY">
@@ -31,14 +31,14 @@
       --muted: #969da8;
       --muted-2: #68707c;
       --accent: #d7ff43;
-      --accent-soft: rgba(215, 255, 67, .12);
+      --accent-soft: color-mix(in srgb,var(--accent) 12%,transparent);
       --accent-ink: #0a0d03;
       --green: #5ee59a;
       --amber: #ffbf69;
       --red: #ff7078;
-      --onliner: #ffdc22;
-      --kufar: #ff5f63;
-      --av: #3f9dff;
+      --onliner: #f0444c;
+      --kufar: #18c879;
+      --av: #218cff;
       --dealer: #b98cff;
       --autohouse: #39dbc5;
       --shadow: 0 28px 80px rgba(0, 0, 0, .42);
@@ -68,12 +68,12 @@
       --text: #11243d;
       --muted: #5f7188;
       --muted-2: #8292a6;
-      --accent: #1677ff;
-      --accent-soft: rgba(22,119,255,.12);
+      --accent: #075dbf;
+      --accent-soft: rgba(7,93,191,.12);
       --accent-ink: #ffffff;
-      --green: #00a7b7;
-      --amber: #ed9c2f;
-      --red: #e54b65;
+      --green: #007c92;
+      --amber: #a96600;
+      --red: #bd2949;
       --shadow: 0 30px 90px rgba(54,101,157,.2);
       --glass: rgba(255,255,255,.5);
       --glass-strong: rgba(247,251,255,.74);
@@ -87,7 +87,7 @@
       margin: 0;
       min-width: 320px;
       background:
-        radial-gradient(circle at 8% 16%, rgba(215, 255, 67, .045), transparent 24rem),
+        radial-gradient(circle at 8% 16%, color-mix(in srgb,var(--accent) 4.5%,transparent), transparent 24rem),
         radial-gradient(circle at 90% 48%, rgba(74, 112, 255, .04), transparent 30rem),
         var(--bg);
       color: var(--text);
@@ -128,7 +128,7 @@
     .brand-logo { display: inline-flex; align-items: center; gap: 11px; font-weight: 840; letter-spacing: -.04em; font-size: 21px; }
     .brand-logo__mark {
       position: relative; width: 34px; height: 34px; display: grid; place-items: center;
-      border: 1px solid rgba(215, 255, 67, .5); border-radius: 10px; background: rgba(215, 255, 67, .08);
+      border: 1px solid color-mix(in srgb,var(--accent) 50%,transparent); border-radius: 10px; background: color-mix(in srgb,var(--accent) 8%,transparent);
       color: var(--accent); transform: skewX(-7deg);
     }
     .brand-logo__mark svg { transform: skewX(7deg); }
@@ -145,7 +145,12 @@
     }
     .header-action:hover { color: white; border-color: rgba(255,255,255,.3); background: rgba(24,28,35,.9); }
     .header-action .icon { width: 16px; height: 16px; color: var(--accent); }
-    .header-action--favorites.has-favorites { border-color: rgba(215,255,67,.42); background: rgba(215,255,67,.09); color: white; }
+    .theme-picker { min-height: 42px; display: flex; align-items: center; gap: 3px; padding: 3px; border: 1px solid var(--line); border-radius: 13px; background: rgba(15,18,23,.66); box-shadow: inset 1px 1px 0 rgba(255,255,255,.07),0 9px 24px rgba(0,0,0,.15); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); }
+    .theme-choice { min-height: 34px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 9px; border: 0; border-radius: 9px; color: #8f98a4; background: transparent; cursor: pointer; font-size: 9px; font-weight: 730; transition: color .18s,background .18s,box-shadow .18s,transform .18s; }
+    .theme-choice:hover { color: white; }
+    .theme-choice[aria-pressed="true"] { color: var(--accent-ink); background: var(--accent); box-shadow: 0 6px 18px var(--accent-soft),inset 1px 1px 0 rgba(255,255,255,.35); }
+    .theme-choice .icon { width: 14px; height: 14px; }
+    .header-action--favorites.has-favorites { border-color: color-mix(in srgb,var(--accent) 42%,transparent); background: color-mix(in srgb,var(--accent) 9%,transparent); color: white; }
     .header-action--favorites.has-favorites .icon { fill: currentColor; }
     .header-action__badge {
       position: absolute; top: -5px; right: -5px; min-width: 17px; height: 17px; display: grid; place-items: center; padding: 0 4px;
@@ -186,7 +191,7 @@
       background: linear-gradient(145deg, rgba(21,25,32,.98), rgba(13,16,21,.98));
       box-shadow: var(--shadow); overflow: hidden;
     }
-    .search-panel::before { content: ""; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(215,255,67,.55), transparent); }
+    .search-panel::before { content: ""; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in srgb,var(--accent) 55%,transparent), transparent); }
     .search-panel:has(.body-picker.open) { overflow: visible; }
     .mobile-filter-bar { display: none; }
     .search-head { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 27px 30px 21px; border-bottom: 1px solid var(--line); }
@@ -196,7 +201,7 @@
     .mode-tab { position: relative; }
     .mode-tab input { position: absolute; opacity: 0; pointer-events: none; }
     .mode-tab span { display: block; padding: 10px 15px; border-radius: 9px; color: var(--muted); cursor: pointer; white-space: nowrap; font-size: 12px; font-weight: 650; transition: .2s; }
-    .mode-tab input:checked + span { color: var(--accent-ink); background: var(--accent); box-shadow: 0 6px 20px rgba(215,255,67,.13); }
+    .mode-tab input:checked + span { color: var(--accent-ink); background: var(--accent); box-shadow: 0 6px 20px color-mix(in srgb,var(--accent) 13%,transparent); }
     .search-body { padding: 25px 30px 29px; }
     .source-row { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; margin-bottom: 22px; }
     .source-row__label { margin-right: 4px; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .12em; }
@@ -204,7 +209,7 @@
     .source-toggle input { position: absolute; opacity: 0; pointer-events: none; }
     .source-toggle span { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 999px; color: #a7adb6; background: rgba(255,255,255,.025); cursor: pointer; font-size: 12px; transition: .2s; }
     .source-toggle span::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--muted-2); transition: .2s; }
-    .source-toggle input:checked + span { border-color: rgba(215,255,67,.3); color: white; background: var(--accent-soft); }
+    .source-toggle input:checked + span { border-color: color-mix(in srgb,var(--accent) 30%,transparent); color: white; background: var(--accent-soft); }
     .source-toggle input:checked + span::before { background: var(--source-color, var(--accent)); box-shadow: 0 0 12px var(--source-color, var(--accent)); }
     .source-toggle--disabled span { opacity: .45; cursor: not-allowed; }
     .beta { padding: 2px 5px; border: 1px solid currentColor; border-radius: 4px; opacity: .7; font-size: 8px; letter-spacing: .06em; }
@@ -222,7 +227,7 @@
     input.control { padding-right: 14px; }
     .control::placeholder { color: #58606c; }
     .control:hover { border-color: rgba(255,255,255,.16); }
-    .control:focus { border-color: rgba(215,255,67,.55); box-shadow: 0 0 0 4px rgba(215,255,67,.07); background: #0f1217; }
+    .control:focus { border-color: color-mix(in srgb,var(--accent) 55%,transparent); box-shadow: 0 0 0 4px color-mix(in srgb,var(--accent) 7%,transparent); background: #0f1217; }
     .control:disabled { opacity: .5; cursor: not-allowed; }
     .select-arrow { position: absolute; right: 14px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); pointer-events: none; color: #6d7580; }
     .body-picker { position: relative; }
@@ -241,16 +246,16 @@
     html[data-theme="light"] .body-picker__menu button { color: #385675; }
     html[data-theme="light"] .body-picker__menu button:hover, html[data-theme="light"] .body-picker__menu button[aria-selected="true"] { color: #0869df; background: rgba(22,119,255,.1); }
     .range-control { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 12px; background: #0c0f14; overflow: hidden; transition: border-color .2s; }
-    .range-control:focus-within { border-color: rgba(215,255,67,.55); box-shadow: 0 0 0 4px rgba(215,255,67,.07); }
+    .range-control:focus-within { border-color: color-mix(in srgb,var(--accent) 55%,transparent); box-shadow: 0 0 0 4px color-mix(in srgb,var(--accent) 7%,transparent); }
     .range-control input { min-width: 0; height: 48px; padding: 0 13px; border: 0; color: white; background: transparent; outline: 0; font-size: 13px; }
     .range-control input + input { border-left: 1px solid var(--line); }
     .search-actions { display: flex; align-items: flex-end; gap: 11px; grid-column: span 4; }
     .search-button {
       height: 50px; flex: 1; display: flex; justify-content: center; align-items: center; gap: 10px;
       border: 0; border-radius: 12px; background: var(--accent); color: var(--accent-ink); cursor: pointer;
-      font-size: 13px; font-weight: 800; box-shadow: 0 10px 28px rgba(215,255,67,.12); transition: transform .18s, background .18s, box-shadow .18s;
+      font-size: 13px; font-weight: 800; box-shadow: 0 10px 28px color-mix(in srgb,var(--accent) 12%,transparent); transition: transform .18s, background .18s, box-shadow .18s;
     }
-    .search-button:hover { transform: translateY(-2px); background: #e0ff65; box-shadow: 0 15px 34px rgba(215,255,67,.18); }
+    .search-button:hover { transform: translateY(-2px); background: #e0ff65; box-shadow: 0 15px 34px color-mix(in srgb,var(--accent) 18%,transparent); }
     .search-button:disabled { opacity: .6; cursor: wait; transform: none; }
     .reset-button { width: 50px; height: 50px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 12px; background: #0c0f14; cursor: pointer; color: #8e96a0; transition: .2s; }
     .reset-button:hover { color: white; border-color: var(--line-strong); }
@@ -267,7 +272,7 @@
     .generation-track { display: grid; grid-auto-flow: column; grid-auto-columns: 174px; gap: 10px; overflow-x: auto; padding: 2px 2px 10px; scrollbar-width: thin; scrollbar-color: #343a43 transparent; scroll-snap-type: x proximity; }
     .generation-card { position: relative; height: 153px; padding: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: #0b0e12; cursor: pointer; scroll-snap-align: start; text-align: left; transition: border-color .2s, transform .2s, background .2s; }
     .generation-card:hover { transform: translateY(-2px); border-color: var(--line-strong); }
-    .generation-card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(215,255,67,.1); }
+    .generation-card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb,var(--accent) 10%,transparent); }
     .generation-card__image { height: 93px; display: grid; place-items: center; background: radial-gradient(circle at 50% 70%, #292e34, #13171c 64%); overflow: hidden; }
     .generation-card__image img { width: 100%; height: 100%; object-fit: contain; }
     .generation-card__image--any { font-size: 28px; color: var(--accent); }
@@ -297,12 +302,12 @@
       border: 1px solid rgba(255,255,255,.26); border-radius: 12px; background: rgba(255,255,255,.045);
       color: #d2d6dc; cursor: pointer; white-space: nowrap; font-size: 10px; font-weight: 720; transition: .2s;
     }
-    .density-toggle:hover, .density-toggle[aria-pressed="true"] { border-color: rgba(215,255,67,.48); color: var(--accent); background: var(--accent-soft); }
+    .density-toggle:hover, .density-toggle[aria-pressed="true"] { border-color: color-mix(in srgb,var(--accent) 48%,transparent); color: var(--accent); background: var(--accent-soft); }
     .density-toggle .icon { width: 17px; height: 17px; }
     .source-statuses { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
     .source-status { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.025); color: #abb1ba; font-size: 10px; }
     .source-status__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted-2); }
-    .source-status--ok .source-status__dot { background: var(--green); box-shadow: 0 0 10px rgba(94,229,154,.5); }
+    .source-status--ok .source-status__dot { background: var(--green); box-shadow: 0 0 10px color-mix(in srgb,var(--green) 50%,transparent); }
     .source-status--partial .source-status__dot, .source-status--empty .source-status__dot { background: var(--amber); }
     .source-status--error .source-status__dot, .source-status--blocked .source-status__dot { background: var(--red); }
     .source-status strong { color: #e7e9ec; }
@@ -326,7 +331,7 @@
     .source-badge--dealer { --source-color: var(--dealer); }
     .source-badge--autohouse { --source-color: var(--autohouse); }
     .favorite-button { position: absolute; top: 15px; right: 15px; z-index: 3; width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.16); border-radius: 50%; background: rgba(7,9,12,.68); backdrop-filter: blur(10px); cursor: pointer; color: white; transition: .2s; }
-    .favorite-button:hover, .favorite-button.active { color: var(--accent); border-color: rgba(215,255,67,.45); }
+    .favorite-button:hover, .favorite-button.active { color: var(--accent); border-color: color-mix(in srgb,var(--accent) 45%,transparent); }
     .favorite-button.active .icon { fill: currentColor; }
     .photo-counter { position: absolute; left: 15px; bottom: 13px; z-index: 3; display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 7px; color: #e8eaed; background: rgba(7,9,12,.68); backdrop-filter: blur(9px); font-size: 9px; }
     .photo-counter .icon { width: 13px; height: 13px; }
@@ -370,7 +375,7 @@
     .generation-mini__info span { display: block; margin-bottom: 4px; color: var(--accent); font-size: 8px; text-transform: uppercase; letter-spacing: .13em; }
     .generation-mini__info strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
     .generation-mini__info small { display: block; margin-top: 3px; color: var(--muted-2); font-size: 9px; }
-    .seller-comment { position: relative; margin: 0 0 16px; padding: 14px 15px 13px 39px; border-left: 2px solid rgba(215,255,67,.55); border-radius: 0 10px 10px 0; background: rgba(215,255,67,.035); }
+    .seller-comment { position: relative; margin: 0 0 16px; padding: 14px 15px 13px 39px; border-left: 2px solid color-mix(in srgb,var(--accent) 55%,transparent); border-radius: 0 10px 10px 0; background: color-mix(in srgb,var(--accent) 3.5%,transparent); }
     .seller-comment::before { content: "“"; position: absolute; left: 13px; top: 9px; color: var(--accent); font-family: Georgia, serif; font-size: 27px; line-height: 1; }
     .seller-comment__label { margin-bottom: 5px; color: #87909c; font-size: 8px; text-transform: uppercase; letter-spacing: .11em; }
     .seller-comment__text { margin: 0; color: #b8bdc5; font-size: 10px; line-height: 1.55; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
@@ -418,11 +423,19 @@
     .empty-state h3 { margin: 0; font-size: 21px; }
     .empty-state p { max-width: 490px; margin: 10px auto 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
     .empty-state button { margin-top: 20px; padding: 11px 17px; border: 0; border-radius: 9px; background: var(--accent); color: var(--accent-ink); cursor: pointer; font-weight: 750; font-size: 11px; }
-    .load-more-wrap { display: none; justify-content: center; margin-top: 29px; }
-    .load-more-wrap.visible { display: flex; }
-    .load-more { min-width: 225px; height: 48px; display: flex; justify-content: center; align-items: center; gap: 9px; border: 1px solid var(--line-strong); border-radius: 12px; background: #11151a; cursor: pointer; color: #d3d6db; font-size: 11px; font-weight: 670; transition: .2s; }
-    .load-more:hover { border-color: rgba(215,255,67,.45); color: var(--accent); transform: translateY(-2px); }
-    .load-more:disabled { opacity: .5; cursor: wait; transform: none; }
+    .pagination-shell { display: none; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 18px; margin-top: 30px; padding: 14px 15px 14px 18px; border: 1px solid rgba(255,255,255,.2); border-radius: 17px; background: linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025)); box-shadow: inset 1px 1px 0 rgba(255,255,255,.09),0 18px 46px rgba(0,0,0,.2); backdrop-filter: blur(22px) saturate(160%); -webkit-backdrop-filter: blur(22px) saturate(160%); }
+    .pagination-shell.visible { display: grid; }
+    .pagination-meta { min-width: 0; color: var(--muted-2); font-size: 10px; line-height: 1.45; }
+    .pagination-meta strong { display: block; color: #eef0f3; font-size: 11px; }
+    .pagination { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+    .pagination-pages { display: flex; align-items: center; gap: 5px; }
+    .pagination-button, .pagination-page { min-width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 11px; border: 1px solid var(--line); border-radius: 10px; background: rgba(13,17,22,.72); color: #cfd3d9; cursor: pointer; font: inherit; font-size: 10px; font-weight: 720; transition: transform .2s,border-color .2s,color .2s,background .2s,box-shadow .2s; }
+    .pagination-page { padding: 0; }
+    .pagination-button:hover:not(:disabled), .pagination-page:hover:not([aria-current="page"]) { transform: translateY(-2px); border-color: color-mix(in srgb,var(--accent) 52%,transparent); color: var(--accent); }
+    .pagination-page[aria-current="page"] { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); box-shadow: 0 0 22px color-mix(in srgb,var(--accent) 22%,transparent); cursor: default; }
+    .pagination-button:disabled { opacity: .34; cursor: not-allowed; }
+    .pagination-button .icon { width: 14px; height: 14px; }
+    .pagination-ellipsis { width: 22px; color: var(--muted-2); text-align: center; font-size: 12px; user-select: none; }
 
     /* Footer */
     footer { padding: 42px 0 32px; border-top: 1px solid var(--line); background: #07090b; }
@@ -619,7 +632,15 @@
       .equipment-tag { padding: 7px 8px; font-size: 10px; line-height: 1.35; overflow-wrap: anywhere; }
       .empty-state { min-height: 330px; padding: 32px 18px; }
       .empty-state p { font-size: 12px; }
-      .load-more { width: 100%; min-height: 50px; font-size: 12px; }
+      .pagination-shell { grid-template-columns: 1fr; gap: 12px; margin-top: 21px; padding: 14px 12px; }
+      .pagination-meta { text-align: center; font-size: 11px; }
+      .pagination { width: 100%; justify-content: center; gap: 5px; }
+      .pagination-button { min-width: 44px; height: 44px; padding: 0 12px; font-size: 0; }
+      .pagination-button .icon { width: 17px; height: 17px; }
+      .pagination-page { min-width: 40px; height: 44px; font-size: 12px; }
+      .pagination-pages { min-width: 0; gap: 4px; }
+      .pagination-ellipsis { width: 13px; }
+      .pagination-page[data-outer="true"] { display: none; }
 
       footer { padding-bottom: calc(28px + var(--safe-bottom)); }
       .footer-copy { font-size: 11px; }
@@ -702,7 +723,7 @@
       .mobile-filter-button {
         width: 100%; min-height: 44px; display: grid; grid-template-columns: auto minmax(0,1fr) auto;
         align-items: center; gap: 9px; padding: 0 11px; border: 1px solid var(--line);
-        border-radius: 11px; background: linear-gradient(135deg, rgba(215,255,67,.12), rgba(255,255,255,.025));
+        border-radius: 11px; background: linear-gradient(135deg, color-mix(in srgb,var(--accent) 12%,transparent), rgba(255,255,255,.025));
         color: white; cursor: pointer; text-align: left;
       }
       .mobile-filter-button__label { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 780; }
@@ -803,7 +824,7 @@
       body:not(.swipe-used) .listing-card:first-child .swipe-hint, body:not(.swipe-used) .lightbox.open .swipe-hint { display: inline-flex; }
     }
     .price-change { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; padding: 4px 7px; border-radius: 7px; font-size: 8px; font-weight: 760; }
-    .price-change--down { color: var(--green); background: rgba(94,229,154,.1); }
+    .price-change--down { color: var(--green); background: color-mix(in srgb,var(--green) 10%,transparent); }
     .price-change--up { color: var(--amber); background: rgba(255,191,105,.1); }
     .availability-returned { display: inline-flex; margin-left: 6px; color: var(--green); font-size: 8px; font-weight: 750; }
     .personal-listing { margin-top: 17px; padding-top: 17px; border-top: 1px solid var(--line); }
@@ -818,12 +839,12 @@
     .history-empty { margin: 0 0 12px; color: var(--muted-2); font-size: 9px; }
     .note-label { display: block; color: #9299a4; font-size: 8px; text-transform: uppercase; letter-spacing: .1em; }
     .personal-note { width: 100%; min-height: 72px; margin-top: 7px; padding: 10px 11px; resize: vertical; border: 1px solid var(--line); border-radius: 10px; outline: none; background: #0b0e12; color: #e3e5e8; font-size: 10px; line-height: 1.5; }
-    .personal-note:focus { border-color: rgba(215,255,67,.5); box-shadow: 0 0 0 3px rgba(215,255,67,.06); }
+    .personal-note:focus { border-color: color-mix(in srgb,var(--accent) 50%,transparent); box-shadow: 0 0 0 3px color-mix(in srgb,var(--accent) 6%,transparent); }
     .personal-note-status { display: block; min-height: 14px; margin-top: 4px; color: var(--muted-2); font-size: 8px; text-align: right; }
 
     .vin-layer { position: fixed; inset: 0; z-index: 245; display: none; place-items: center; padding: max(18px,var(--safe-top)) max(14px,var(--safe-right)) max(18px,var(--safe-bottom)) max(14px,var(--safe-left)); background: rgba(3,4,7,.76); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
     .vin-layer.open { display: grid; }
-    .vin-dialog { width: min(760px,100%); max-height: min(820px,calc(100dvh - 30px)); overflow-y: auto; overscroll-behavior: contain; padding: 24px; border: 1px solid var(--line-strong); border-radius: 24px; background: linear-gradient(150deg,#151a22,#0b0f14); box-shadow: 0 35px 100px rgba(0,0,0,.58); }
+    .vin-dialog { width: min(760px,100%); max-height: min(820px,calc(100dvh - 30px)); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding: 24px; border: 1px solid var(--line-strong); border-radius: 24px; background: linear-gradient(150deg,#151a22,#0b0f14); box-shadow: 0 35px 100px rgba(0,0,0,.58); }
     .vin-dialog__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
     .vin-dialog__eyebrow { color: var(--accent); font-size: 9px; font-weight: 780; letter-spacing: .15em; text-transform: uppercase; }
     .vin-dialog h2 { margin: 7px 0 0; font-size: 28px; letter-spacing: -.045em; }
@@ -843,19 +864,39 @@
     .vin-check .icon { width: 17px; height: 17px; color: var(--accent); }
     .vin-check strong { display: block; font-size: 10px; }
     .vin-check span { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; line-height: 1.4; }
-    .vin-provider { margin-top: 15px; padding: 15px; border: 1px solid rgba(215,255,67,.2); border-radius: 14px; background: var(--accent-soft); }
+    .vin-check em { display: inline-flex; align-items: center; min-height: 19px; margin-top: 7px; padding: 0 7px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.025); font-size: 7px; font-style: normal; font-weight: 720; letter-spacing: .04em; text-transform: uppercase; }
+    .vin-history-state { display: flex; align-items: flex-start; gap: 11px; margin-top: 15px; padding: 13px 14px; border: 1px solid rgba(255,191,105,.2); border-radius: 13px; background: rgba(255,191,105,.06); }
+    .vin-history-state .icon { width: 19px; height: 19px; color: var(--amber); }
+    .vin-history-state strong { display: block; color: #e4d2b8; font-size: 10px; }
+    .vin-history-state span { display: block; margin-top: 4px; color: var(--muted); font-size: 9px; line-height: 1.5; }
+    .vin-provider { margin-top: 15px; padding: 15px; border: 1px solid color-mix(in srgb,var(--accent) 20%,transparent); border-radius: 14px; background: var(--accent-soft); }
     .vin-provider p { margin: 0; color: #bfc5cd; font-size: 10px; line-height: 1.55; }
     .vin-provider__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
     .vin-provider__primary, .vin-provider__secondary { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 13px; border-radius: 10px; font-size: 10px; font-weight: 750; }
     .vin-provider__primary { border: 0; color: var(--accent-ink); background: var(--accent); }
     .vin-provider__secondary { border: 1px solid var(--line-strong); color: #c8cdd4; background: #10141a; }
     .vin-disclaimer { margin: 13px 1px 0; color: var(--muted-2); font-size: 9px; line-height: 1.55; }
-    .vin-button { height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 10px; border: 1px solid rgba(215,255,67,.24); border-radius: 9px; color: var(--accent); background: var(--accent-soft); cursor: pointer; font-size: 9px; font-weight: 720; }
+    .vin-manual { margin-top: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,255,255,.022); }
+    .vin-manual label { display: block; margin-bottom: 8px; color: #cfd4db; font-size: 10px; font-weight: 720; }
+    .vin-manual__row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; }
+    .vin-manual input { width: 100%; min-width: 0; height: 43px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 10px; outline: 0; color: white; background: #0b0f14; font: 680 13px ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing: .06em; text-transform: uppercase; }
+    .vin-manual input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+    .vin-manual button { min-height: 43px; padding: 0 13px; border: 0; border-radius: 10px; color: var(--accent-ink); background: var(--accent); cursor: pointer; font-size: 9px; font-weight: 780; }
+    .vin-manual small { display: block; margin-top: 7px; color: var(--muted-2); font-size: 8px; line-height: 1.45; }
+    .vin-another { margin-top: 13px; }
+    .vin-another summary { color: var(--accent); cursor: pointer; font-size: 9px; font-weight: 720; }
+    .vin-another .vin-manual { margin-top: 9px; }
+    .vin-button { min-height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 11px; border: 1px solid color-mix(in srgb,var(--accent) 60%,white 10%); border-radius: 9px; color: var(--accent-ink); background: linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 82%,white)); box-shadow: 0 8px 22px color-mix(in srgb,var(--accent) 18%,transparent); cursor: pointer; font-size: 9px; font-weight: 780; transition: transform .18s,filter .18s,box-shadow .18s; }
+    .vin-button:hover { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 11px 26px color-mix(in srgb,var(--accent) 25%,transparent); }
     .vin-button .icon { width: 14px; height: 14px; }
-    .vin-button:disabled { color: var(--muted-2); border-color: var(--line); background: rgba(255,255,255,.025); cursor: not-allowed; }
     html[data-theme="light"] .vin-layer { background: rgba(71,112,159,.25); }
     html[data-theme="light"] .vin-dialog { color: #17324f; border-color: rgba(255,255,255,.92); background: linear-gradient(145deg,rgba(250,253,255,.94),rgba(224,239,255,.84)); box-shadow: inset 1px 1px 0 #fff,0 35px 100px rgba(46,91,143,.25); backdrop-filter: blur(32px) saturate(180%); }
-    html[data-theme="light"] .vin-close, html[data-theme="light"] .vin-summary, html[data-theme="light"] .vin-check, html[data-theme="light"] .vin-provider__secondary { color: #284966; border-color: rgba(46,103,165,.14); background: rgba(255,255,255,.5); }
+    html[data-theme="light"] .vin-close, html[data-theme="light"] .vin-summary, html[data-theme="light"] .vin-check, html[data-theme="light"] .vin-provider__secondary, html[data-theme="light"] .vin-manual { color: #284966; border-color: rgba(46,103,165,.14); background: rgba(255,255,255,.5); }
+    html[data-theme="light"] .vin-manual label { color: #244666; }
+    html[data-theme="light"] .vin-manual input { color: #173854; border-color: rgba(46,103,165,.2); background: rgba(255,255,255,.72); }
+    html[data-theme="light"] .vin-history-state { border-color: rgba(203,132,27,.2); background: rgba(255,185,79,.13); }
+    html[data-theme="light"] .vin-history-state strong { color: #744b12; }
+    html[data-theme="light"] .vin-check em { color: #607791; border-color: rgba(46,103,165,.14); background: rgba(255,255,255,.45); }
     html[data-theme="light"] .vin-facts { border-color: rgba(53,108,168,.13); background: rgba(53,108,168,.13); }
     html[data-theme="light"] .vin-fact { background: rgba(248,252,255,.66); }
     html[data-theme="light"] .vin-fact strong { color: #173854; }
@@ -872,7 +913,7 @@
     .personal-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 18px; }
     .personal-stat { padding: 13px 11px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.025); text-align: left; }
     .personal-stat--button { color: inherit; cursor: pointer; transition: .2s; }
-    .personal-stat--button:hover { border-color: rgba(215,255,67,.38); background: var(--accent-soft); }
+    .personal-stat--button:hover { border-color: color-mix(in srgb,var(--accent) 38%,transparent); background: var(--accent-soft); }
     .personal-stat strong { display: block; color: var(--accent); font-size: 23px; letter-spacing: -.04em; }
     .personal-stat span { display: block; margin-top: 3px; color: var(--muted-2); font-size: 8px; }
     .personal-section { margin-top: 14px; padding: 16px; border: 1px solid var(--line); border-radius: 15px; background: rgba(255,255,255,.02); }
@@ -885,7 +926,7 @@
     .personal-secondary { border: 1px solid var(--line-strong); background: #10141a; color: #c7cbd1; }
     .personal-primary .icon, .personal-secondary .icon { width: 14px; height: 14px; }
     .saved-searches, .personal-activity, .personal-favorites { display: grid; gap: 7px; }
-    .personal-section--favorites { border-color: rgba(215,255,67,.19); background: linear-gradient(145deg,rgba(215,255,67,.055),rgba(255,255,255,.018)); }
+    .personal-section--favorites { border-color: color-mix(in srgb,var(--accent) 19%,transparent); background: linear-gradient(145deg,color-mix(in srgb,var(--accent) 5.5%,transparent),rgba(255,255,255,.018)); }
     .personal-favorite { overflow: hidden; border: 1px solid var(--line); border-radius: 11px; background: #0d1116; }
     .personal-favorite__main { width: 100%; display: grid; grid-template-columns: 78px minmax(0,1fr); gap: 10px; align-items: center; padding: 8px; border: 0; background: transparent; color: inherit; cursor: pointer; text-align: left; }
     .personal-favorite__main:hover { background: rgba(255,255,255,.025); }
@@ -913,7 +954,7 @@
     .activity-row em { color: var(--accent); font-style: normal; font-size: 8px; }
     .personal-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
     .personal-footnote { margin-top: 15px; color: var(--muted-2); font-size: 8px; line-height: 1.55; }
-    .favorites-feed-banner { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 14px 16px; border: 1px solid rgba(215,255,67,.26); border-radius: 14px; background: linear-gradient(135deg,rgba(215,255,67,.09),rgba(255,255,255,.02)); }
+    .favorites-feed-banner { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 14px 16px; border: 1px solid color-mix(in srgb,var(--accent) 26%,transparent); border-radius: 14px; background: linear-gradient(135deg,color-mix(in srgb,var(--accent) 9%,transparent),rgba(255,255,255,.02)); }
     .favorites-feed-banner__copy { display: flex; align-items: center; gap: 11px; min-width: 0; }
     .favorites-feed-banner__copy > .icon { width: 20px; height: 20px; color: var(--accent); fill: currentColor; }
     .favorites-feed-banner strong { display: block; font-size: 11px; }
@@ -921,7 +962,7 @@
     .favorites-feed-banner button { min-height: 38px; flex: 0 0 auto; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 9px; background: #10141a; color: #d2d6dc; cursor: pointer; font-size: 9px; font-weight: 700; }
     body.favorite-feed-mode .search-panel { display: none; }
     .listing-card.favorite-focus { animation: favoriteFocus 1.1s ease both; }
-    @keyframes favoriteFocus { 0%,100% { box-shadow: 0 0 0 1px rgba(255,255,255,.035),0 12px 34px rgba(0,0,0,.24); } 35% { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(215,255,67,.16),0 0 44px rgba(215,255,67,.16); } }
+    @keyframes favoriteFocus { 0%,100% { box-shadow: 0 0 0 1px rgba(255,255,255,.035),0 12px 34px rgba(0,0,0,.24); } 35% { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb,var(--accent) 16%,transparent),0 0 44px color-mix(in srgb,var(--accent) 16%,transparent); } }
 
     .lightbox-dots { position: absolute; z-index: 4; left: 50%; bottom: 60px; transform: translateX(-50%); display: flex; gap: 5px; pointer-events: none; }
     .lightbox-dots .photo-dot { width: 6px; height: 6px; }
@@ -978,6 +1019,9 @@
     @media (max-width: 430px) {
       .header-actions { gap: 5px; }
       .header-action { width: 38px; min-height: 38px; border-radius: 10px; }
+      .theme-picker { min-height: 38px; gap: 2px; padding: 2px; border-radius: 11px; }
+      .theme-choice { min-width: 43px; min-height: 32px; gap: 0; padding: 0 4px; font-size: 7.5px; }
+      .theme-choice .icon { display: none; }
       .results-tools { flex-direction: row; }
       .lightbox-dots { bottom: calc(110px + var(--safe-bottom)); }
       .personal-dialog { padding: calc(17px + var(--safe-top)) calc(12px + var(--safe-right)) calc(22px + var(--safe-bottom)) calc(12px + var(--safe-left)); border-left: 0; }
@@ -1004,12 +1048,41 @@
       .vin-facts { grid-template-columns: repeat(2,minmax(0,1fr)); }
       .vin-checks { grid-template-columns: 1fr; }
       .vin-provider__actions > a { width: 100%; }
+      .vin-manual__row { grid-template-columns: 1fr; }
+      .vin-manual button { min-height: 46px; }
       .card-buttons { width: 100%; flex-wrap: wrap; }
       .detail-button { grid-column: 1; grid-row: 1; }
       .original-button { grid-column: 2; grid-row: 1; }
       .vin-button { min-height: 44px; grid-column: 1 / -1; grid-row: 2; }
       body.density-compact .listing-card__media { height: 168px; }
     }
+
+    /* Liquid-glass surfaces in both themes. The masked side lenses blur, magnify
+       and optically displace only the edges, while content stays crisp. */
+    :where(.search-panel,.listing-card,.personal-dialog,.personal-section,.generation-card,.vin-dialog) {
+      position: relative; isolation: isolate;
+      backdrop-filter: blur(25px) saturate(165%); -webkit-backdrop-filter: blur(25px) saturate(165%);
+    }
+    :where(.search-panel,.listing-card,.personal-dialog,.personal-section,.generation-card,.vin-dialog)::after {
+      content: ""; position: absolute; inset: 6px -5px; z-index: 8; border-radius: inherit; pointer-events: none;
+      background:
+        radial-gradient(ellipse 24px 48% at 1px 50%,rgba(255,255,255,.78) 0,color-mix(in srgb,var(--accent) 18%,transparent) 34%,transparent 76%),
+        radial-gradient(ellipse 24px 48% at calc(100% - 1px) 50%,rgba(255,255,255,.72) 0,rgba(116,153,255,.18) 34%,transparent 76%),
+        linear-gradient(90deg,rgba(255,255,255,.26),transparent 9%,transparent 91%,rgba(255,255,255,.23));
+      -webkit-mask-image: linear-gradient(90deg,#000 0,#000 5%,rgba(0,0,0,.7) 8%,transparent 14%,transparent 86%,rgba(0,0,0,.7) 92%,#000 95%,#000 100%);
+      mask-image: linear-gradient(90deg,#000 0,#000 5%,rgba(0,0,0,.7) 8%,transparent 14%,transparent 86%,rgba(0,0,0,.7) 92%,#000 95%,#000 100%);
+      backdrop-filter: blur(5px) saturate(210%) contrast(1.11); -webkit-backdrop-filter: blur(5px) saturate(210%) contrast(1.11);
+      filter: url(#liquid-edge-distortion); mix-blend-mode: screen; opacity: .72;
+      box-shadow: inset 7px 0 10px -8px rgba(255,255,255,.9),inset -7px 0 10px -8px rgba(255,255,255,.82);
+    }
+    :where(.search-panel,.listing-card,.personal-dialog,.personal-section,.generation-card,.vin-dialog) > * {
+      position: relative; z-index: 10;
+    }
+    html[data-theme="dark"] .search-panel { background: linear-gradient(145deg,rgba(21,25,32,.84),rgba(13,16,21,.79)); }
+    html[data-theme="dark"] .listing-card { background: linear-gradient(155deg,rgba(18,22,28,.83),rgba(11,14,19,.79)); }
+    html[data-theme="dark"] .generation-card { background: rgba(11,14,18,.78); }
+    html[data-theme="dark"] .personal-dialog, html[data-theme="dark"] .vin-dialog { background: linear-gradient(155deg,rgba(20,24,32,.89),rgba(8,12,17,.84) 70%); }
+    html[data-theme="dark"] .personal-section { background: rgba(255,255,255,.026); }
 
     /* Bright liquid-glass theme: translucent lenses, refractive side highlights and blue accents. */
     html[data-theme="light"] body {
@@ -1026,6 +1099,10 @@
     html[data-theme="light"] .nav-links, html[data-theme="light"] .header-action { color: #334e70; }
     html[data-theme="light"] .header-action { border-color: rgba(255,255,255,.9); background: rgba(255,255,255,.42); box-shadow: inset 1px 1px 0 rgba(255,255,255,.96),inset -1px -1px 0 rgba(59,123,193,.1),0 10px 30px rgba(54,106,163,.12); backdrop-filter: blur(22px) saturate(180%); -webkit-backdrop-filter: blur(22px) saturate(180%); }
     html[data-theme="light"] .header-action:hover { color: #0f5fc4; border-color: rgba(22,119,255,.3); background: rgba(255,255,255,.7); }
+    html[data-theme="light"] .theme-picker { border-color: rgba(255,255,255,.92); background: rgba(255,255,255,.44); box-shadow: inset 1px 1px 0 #fff,inset -1px -1px 0 rgba(44,108,179,.1),0 12px 30px rgba(52,101,157,.13); }
+    html[data-theme="light"] .theme-choice { color: #60748c; }
+    html[data-theme="light"] .theme-choice:hover { color: #0d5fc8; background: rgba(255,255,255,.48); }
+    html[data-theme="light"] .theme-choice[aria-pressed="true"] { color: white; background: #0864d8; box-shadow: 0 7px 20px rgba(8,100,216,.25),inset 1px 1px 0 rgba(255,255,255,.45); }
     html[data-theme="light"] .header-action--favorites.has-favorites { color: #0b5fc8; border-color: rgba(22,119,255,.28); background: rgba(22,119,255,.1); }
     html[data-theme="light"] .header-action__badge { border-color: #edf6ff; }
     html[data-theme="light"] .hero::before { background-image: url('/assets/hero-car-light.jpg'); background-position: center 48%; filter: saturate(.98) contrast(1.01); }
@@ -1041,11 +1118,13 @@
       box-shadow: inset 1px 1px 0 rgba(255,255,255,.98),inset -1px -1px 0 rgba(40,106,179,.11),0 18px 48px rgba(55,105,160,.13);
       backdrop-filter: blur(26px) saturate(185%); -webkit-backdrop-filter: blur(26px) saturate(185%);
     }
-    html[data-theme="light"] :where(.search-panel,.listing-card,.personal-section,.generation-card) { position: relative; isolation: isolate; }
-    html[data-theme="light"] :where(.search-panel,.listing-card,.personal-section,.generation-card)::after {
-      content: ""; position: absolute; inset: 0; z-index: 8; border-radius: inherit; pointer-events: none;
-      background: radial-gradient(ellipse at -3% 50%,rgba(255,255,255,.96),rgba(97,170,245,.2) 3%,transparent 11%),radial-gradient(ellipse at 103% 50%,rgba(255,255,255,.96),rgba(73,149,232,.18) 3%,transparent 11%);
-      mix-blend-mode: screen; opacity: .78;
+    html[data-theme="light"] :where(.search-panel,.listing-card,.personal-dialog,.personal-section,.generation-card,.vin-dialog)::after {
+      background:
+        radial-gradient(ellipse 27px 52% at 1px 50%,rgba(255,255,255,.98) 0,rgba(45,137,241,.32) 36%,transparent 78%),
+        radial-gradient(ellipse 27px 52% at calc(100% - 1px) 50%,rgba(255,255,255,.98) 0,rgba(71,151,241,.29) 36%,transparent 78%),
+        linear-gradient(90deg,rgba(255,255,255,.82),transparent 10%,transparent 90%,rgba(255,255,255,.78));
+      backdrop-filter: blur(6px) saturate(230%) contrast(1.08); -webkit-backdrop-filter: blur(6px) saturate(230%) contrast(1.08);
+      opacity: .92; box-shadow: inset 8px 0 12px -8px #fff,inset -8px 0 12px -8px #fff;
     }
     html[data-theme="light"] .search-panel::before { inset: 1px; height: auto; z-index: 7; border-radius: inherit; background: linear-gradient(90deg,rgba(43,133,230,.32),transparent 9%,transparent 91%,rgba(43,133,230,.28)); pointer-events: none; }
     html[data-theme="light"] .listing-card { color: #142943; }
@@ -1056,7 +1135,7 @@
     html[data-theme="light"] .spec strong, html[data-theme="light"] .seller-meta strong, html[data-theme="light"] .generation-mini__info strong, html[data-theme="light"] .detail-fact strong { color: #173453; }
     html[data-theme="light"] .seller-comment { color: #355471; border-left-color: rgba(22,119,255,.6); background: rgba(22,119,255,.055); }
     html[data-theme="light"] .seller-comment__text { color: #45617d; }
-    html[data-theme="light"] .control, html[data-theme="light"] .range-control, html[data-theme="light"] .mode-tabs, html[data-theme="light"] .reset-button, html[data-theme="light"] .detail-button, html[data-theme="light"] .load-more, html[data-theme="light"] .personal-secondary, html[data-theme="light"] .personal-close, html[data-theme="light"] .personal-note {
+    html[data-theme="light"] .control, html[data-theme="light"] .range-control, html[data-theme="light"] .mode-tabs, html[data-theme="light"] .reset-button, html[data-theme="light"] .detail-button, html[data-theme="light"] .pagination-button, html[data-theme="light"] .pagination-page, html[data-theme="light"] .personal-secondary, html[data-theme="light"] .personal-close, html[data-theme="light"] .personal-note {
       color: #233f60; border-color: rgba(47,104,167,.16); background: rgba(255,255,255,.5); box-shadow: inset 1px 1px 0 rgba(255,255,255,.88);
     }
     html[data-theme="light"] .control:focus { border-color: rgba(22,119,255,.46); background: rgba(255,255,255,.76); box-shadow: 0 0 0 4px rgba(22,119,255,.09); }
@@ -1104,13 +1183,290 @@
       .header-actions:has(#installAppButton:not([hidden])) .header-action--favorites .header-action__text { display: none; }
     }
 
+    /* Complete light-theme contrast pass. Every application surface is switched
+       to a light material; only pixels drawn over vehicle photos keep a dark
+       scrim when it is needed for image legibility. */
+    html[data-theme="light"] {
+      --text: #0b2545;
+      --muted: #405d7b;
+      --muted-2: #526b87;
+      --panel-solid: #f8fbff;
+      --surface-white: rgba(255,255,255,.78);
+      --surface-blue: rgba(229,241,255,.72);
+      --surface-border: rgba(39,101,169,.18);
+    }
+    html[data-theme="light"] :where(.search-panel,.search-head,.search-body,.generation-card,.listing-card,.listing-card__body,.card-extra,.results-header,.personal-dialog,.personal-section,.vin-dialog,.vin-content,.empty-state,footer) {
+      color: var(--text);
+    }
+    html[data-theme="light"] :where(.field label,.source-row__label,.generation-head span,.listing-kicker,.spec span,.detail-fact span,.equipment-title span,.seller-meta span,.filter-meta,.results-title h2 span,.personal-section p,.personal-stat span,.personal-listing__head span,.personal-note-status,.vin-summary span,.vin-check span,.vin-disclaimer) {
+      color: var(--muted-2);
+    }
+    html[data-theme="light"] :where(.search-head p,.hero-scroll,.empty-state p,.footer-copy,.personal-footnote,.vin-loading) { color: var(--muted); }
+    html[data-theme="light"] .listing-kicker,
+    html[data-theme="light"] .spec span,
+    html[data-theme="light"] .seller-meta span,
+    html[data-theme="light"] .generation-mini__info small { color: #526b87; }
+    html[data-theme="light"] .personal-empty,
+    html[data-theme="light"] .personal-footnote { color: #5a7089; }
+
+    html[data-theme="light"] .nav-links a:hover,
+    html[data-theme="light"] .reset-button:hover,
+    html[data-theme="light"] .detail-button:hover { color: #075fc7; }
+    html[data-theme="light"] :where(.sort-icon,.sort-caption,.density-toggle) { color: #173b63; }
+    html[data-theme="light"] .results-sort:focus-within { border-color: rgba(22,119,255,.48); box-shadow: 0 0 0 3px rgba(22,119,255,.1),0 16px 38px rgba(44,103,167,.16); }
+    html[data-theme="light"] :where(.control,.range-control,.mode-tabs,.reset-button,.results-sort,.density-toggle,.detail-button,.pagination-button,.pagination-page,.mobile-filter-button) {
+      border-color: var(--surface-border);
+      background: linear-gradient(145deg,rgba(255,255,255,.82),rgba(229,241,255,.62));
+      color: #163a61;
+      box-shadow: inset 1px 1px 0 rgba(255,255,255,.96),0 8px 24px rgba(50,103,160,.08);
+    }
+    html[data-theme="light"] .pagination-shell { border-color: rgba(255,255,255,.92); background: linear-gradient(145deg,rgba(255,255,255,.72),rgba(221,237,255,.58)); box-shadow: inset 1px 1px 0 #fff,0 18px 46px rgba(40,93,154,.14); }
+    html[data-theme="light"] .pagination-meta { color: #52708f; }
+    html[data-theme="light"] .pagination-meta strong { color: #183c63; }
+    html[data-theme="light"] .pagination-page[aria-current="page"] { border-color: #1677ff; background: #1677ff; color: white; box-shadow: 0 0 22px rgba(22,119,255,.24); }
+    html[data-theme="light"] .control::placeholder,
+    html[data-theme="light"] .vin-manual input::placeholder,
+    html[data-theme="light"] .personal-note::placeholder { color: #526b87; opacity: 1; }
+    html[data-theme="light"] :where(.select-arrow,.body-picker__chevron) { color: #4c6887; }
+    html[data-theme="light"] .mode-tab span { color: #405d7b; }
+    html[data-theme="light"] .mode-tab input:checked + span,
+    html[data-theme="light"] :where(.search-button,.original-button,.vin-button,.vin-provider__primary,.vin-manual button,.personal-primary,.empty-state button) {
+      color: #fff;
+      background: linear-gradient(135deg,#0864d8,#064fae);
+      text-shadow: 0 1px 1px rgba(0,48,110,.18);
+    }
+    html[data-theme="light"] .source-toggle input:checked + span { color: #104f91; }
+
+    html[data-theme="light"] .generation-card__image,
+    html[data-theme="light"] .generation-mini__image {
+      background: radial-gradient(circle at 50% 72%,rgba(107,169,235,.28),rgba(242,248,255,.86) 66%);
+    }
+    html[data-theme="light"] .generation-skeleton,
+    html[data-theme="light"] :where(.skeleton-media,.skeleton-line) {
+      background: linear-gradient(100deg,#e4eef9 12%,#f8fbff 28%,#e4eef9 44%);
+      background-size: 220% 100%;
+    }
+    html[data-theme="light"] .skeleton-card {
+      border-color: var(--surface-border);
+      background: rgba(245,250,255,.75);
+    }
+
+    html[data-theme="light"] :where(.spec,.detail-fact,.generation-mini,.equipment-tag,.history-row,.personal-favorite,.saved-search__load,.saved-search__delete,.activity-row,.favorites-feed-banner button,.vin-summary,.vin-check,.vin-fact,.vin-provider__secondary,.vin-manual,.personal-favorite__open) {
+      border-color: var(--surface-border);
+      background: rgba(249,252,255,.68);
+      color: #173b61;
+      box-shadow: inset 1px 1px 0 rgba(255,255,255,.84);
+    }
+    html[data-theme="light"] :where(.spec strong,.detail-fact strong,.generation-mini__info strong,.seller-meta strong,.history-row strong,.vin-fact strong,.vin-check strong,.vin-manual label,.equipment-title,.personal-listing__head strong) { color: #102f52; }
+    html[data-theme="light"] :where(.seller-comment__label,.note-label,.history-row time) { color: #4c6682; }
+    html[data-theme="light"] .history-row span { color: #294d70; }
+    html[data-theme="light"] .equipment-tag { color: #345674; }
+    html[data-theme="light"] .detail-fact { border-bottom-color: rgba(41,101,166,.15); }
+    html[data-theme="light"] .market-price--estimate .market-price__track { background: linear-gradient(90deg,#b9cce0,#428bd8 50%,#b9cce0); }
+    html[data-theme="light"] .market-price--estimate .market-price__head strong,
+    html[data-theme="light"] .market-price--estimate .market-price__range { color: #486682; }
+    html[data-theme="light"] .mini-spinner { border-color: rgba(35,84,139,.22); border-top-color: var(--accent); }
+
+    html[data-theme="light"] .listing-card__media { background: #e1edf9; }
+    html[data-theme="light"] .listing-card__media::after { background: linear-gradient(transparent,rgba(12,37,66,.45)); }
+    html[data-theme="light"] :where(.source-badge,.favorite-button,.photo-counter,.gallery-arrow,.swipe-hint) {
+      border-color: rgba(255,255,255,.88);
+      background: rgba(244,249,255,.82);
+      color: #102f52;
+      box-shadow: inset 1px 1px 0 #fff,0 8px 22px rgba(15,56,102,.2);
+      backdrop-filter: blur(14px) saturate(170%); -webkit-backdrop-filter: blur(14px) saturate(170%);
+    }
+    html[data-theme="light"] .gallery-arrow:hover { background: rgba(255,255,255,.96); color: #0867d7; }
+    html[data-theme="light"] .favorite-button.active { color: #0867d7; }
+    html[data-theme="light"] .photo-dot { background: rgba(16,47,82,.36); box-shadow: 0 1px 4px rgba(255,255,255,.65); }
+    html[data-theme="light"] .photo-dot.active { background: var(--accent); }
+
+    html[data-theme="light"] body.mobile-results-mode .search-section {
+      background: linear-gradient(180deg,rgba(239,247,255,.97),rgba(229,241,255,.91));
+      border-bottom-color: rgba(37,96,160,.14);
+      box-shadow: 0 14px 35px rgba(42,91,145,.15);
+    }
+    html[data-theme="light"] body.mobile-results-mode .search-panel:not(.filters-collapsed) { box-shadow: 0 24px 70px rgba(48,98,154,.19); }
+    html[data-theme="light"] .mobile-filter-button { color: #14385e; }
+
+    html[data-theme="light"] .personal-layer,
+    html[data-theme="light"] .vin-layer { background: rgba(89,126,168,.2); }
+    html[data-theme="light"] :where(.personal-close,.vin-close) {
+      border-color: var(--surface-border);
+      background: rgba(255,255,255,.72);
+      color: #173b61;
+      box-shadow: inset 1px 1px 0 #fff,0 8px 24px rgba(49,101,159,.12);
+    }
+    html[data-theme="light"] .personal-dialog :where(.personal-stat span,.personal-section p,.personal-empty,.personal-footnote,.personal-listing__head span,.saved-search__load span,.activity-row span,.personal-note-status) { color: #405d7b; }
+    html[data-theme="light"] .personal-favorite__main:hover { background: rgba(22,119,255,.06); }
+    html[data-theme="light"] .personal-favorite__main img { background: #e4eef9; }
+    html[data-theme="light"] .personal-favorite__open { color: #20496f; }
+    html[data-theme="light"] .saved-search__delete { color: #526c87; }
+    html[data-theme="light"] .vin-dialog h2 { color: #0d2d50; }
+    html[data-theme="light"] .vin-summary code { color: #075dbf; }
+    html[data-theme="light"] .vin-check em { color: #4c6682; }
+    html[data-theme="light"] .vin-disclaimer { color: #405d7b; }
+    html[data-theme="light"] .vin-manual input {
+      color: #102f52;
+      border-color: rgba(37,99,167,.22);
+      background: rgba(255,255,255,.84);
+      caret-color: #0867d7;
+    }
+    html[data-theme="light"] .vin-provider p { color: #294f73; }
+
+    html[data-theme="light"] footer { color: #3e5874; }
+    html[data-theme="light"] .footer-links { color: #405b77; }
+    html[data-theme="light"] .footer-bottom { color: #526b87; }
+    html[data-theme="light"] .lightbox {
+      background: rgba(224,237,251,.94);
+      backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);
+    }
+    html[data-theme="light"] .lightbox-image { box-shadow: 0 30px 90px rgba(28,67,110,.3); }
+    html[data-theme="light"] :where(.lightbox-close,.lightbox-nav,.lightbox-count) {
+      border-color: rgba(255,255,255,.9);
+      background: rgba(247,251,255,.84);
+      color: #102f52;
+      box-shadow: inset 1px 1px 0 #fff,0 10px 30px rgba(28,69,113,.2);
+    }
+
+    /* Premium Showroom 2.0: a staged hero, clearer card hierarchy and three
+       deliberate depths of glass. Motion is decorative and disabled below for
+       visitors who prefer reduced motion. */
+    .hero {
+      --hero-x: 0px; --hero-y: 0px;
+      background: #080a0d;
+    }
+    .hero::before {
+      transform: translate3d(var(--hero-x),var(--hero-y),0) scale(1.045);
+      transition: transform .85s cubic-bezier(.2,.8,.2,1),filter .35s ease;
+      will-change: transform;
+    }
+    .hero > .container { position: relative; z-index: 3; }
+    .hero-showroom { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+    .hero-showroom__spotlight { position: absolute; border-radius: 50%; filter: blur(18px); mix-blend-mode: screen; opacity: .58; animation: showroomDrift 9s ease-in-out infinite alternate; }
+    .hero-showroom__spotlight--one { width: 46vw; height: 34vw; right: 2%; top: -20%; background: radial-gradient(circle,rgba(161,201,255,.31),rgba(69,114,255,.1) 38%,transparent 70%); }
+    .hero-showroom__spotlight--two { width: 31vw; height: 31vw; right: 27%; top: 10%; background: radial-gradient(circle,rgba(215,255,67,.13),transparent 66%); animation-delay: -4s; }
+    .hero-showroom__horizon { position: absolute; left: 36%; right: 2%; bottom: 24%; height: 1px; background: linear-gradient(90deg,transparent,rgba(255,255,255,.24),color-mix(in srgb,var(--accent) 52%,transparent),transparent); box-shadow: 0 0 28px rgba(190,215,255,.22); opacity: .7; }
+    .hero-showroom__floor { position: absolute; left: 31%; right: -10%; bottom: -30%; height: 57%; transform: perspective(560px) rotateX(64deg); transform-origin: 50% 0; background: repeating-linear-gradient(90deg,rgba(160,188,225,.12) 0 1px,transparent 1px 8.5%),repeating-linear-gradient(0deg,rgba(160,188,225,.11) 0 1px,transparent 1px 17%); -webkit-mask-image: linear-gradient(180deg,rgba(0,0,0,.84),transparent 78%); mask-image: linear-gradient(180deg,rgba(0,0,0,.84),transparent 78%); opacity: .36; }
+    .hero-showroom__reflection { position: absolute; left: 40%; right: -3%; bottom: -23%; height: 46%; background: url('/assets/hero-car.jpg') center 48% / cover no-repeat; transform: scaleY(-1); filter: blur(4px) saturate(.62); -webkit-mask-image: linear-gradient(180deg,rgba(0,0,0,.3),transparent 67%); mask-image: linear-gradient(180deg,rgba(0,0,0,.3),transparent 67%); opacity: .13; }
+    .hero-showroom__hud { position: absolute; right: clamp(26px,4vw,70px); display: flex; align-items: center; gap: 9px; padding: 8px 11px; border: 1px solid rgba(255,255,255,.16); border-radius: 9px; color: rgba(231,237,246,.7); background: rgba(9,13,18,.28); box-shadow: inset 1px 1px 0 rgba(255,255,255,.08); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); font-size: 8px; font-weight: 650; letter-spacing: .13em; text-transform: uppercase; }
+    .hero-showroom__hud::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 11px var(--accent); }
+    .hero-showroom__hud b { color: var(--accent); font-size: 8px; }
+    .hero-showroom__hud--top { top: 24%; }
+    .hero-showroom__hud--bottom { bottom: 17%; opacity: .7; }
+    .hero-proof { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+    .hero-proof span { min-height: 34px; display: inline-flex; align-items: center; gap: 7px; padding: 0 11px; border: 1px solid rgba(255,255,255,.14); border-radius: 9px; color: #aeb6c1; background: rgba(10,13,17,.32); box-shadow: inset 1px 1px 0 rgba(255,255,255,.07); backdrop-filter: blur(13px) saturate(145%); -webkit-backdrop-filter: blur(13px) saturate(145%); font-size: 9px; }
+    .hero-proof b { color: var(--accent); font-size: 9px; letter-spacing: .08em; }
+    @keyframes showroomDrift { from { transform: translate3d(-1.5%,0,0) scale(.98); opacity: .42; } to { transform: translate3d(2%,2.5%,0) scale(1.06); opacity: .68; } }
+
+    /* Three optical depths: primary architecture, supporting glass and crisp controls. */
+    :where(.search-panel,.listing-card,.personal-dialog) { backdrop-filter: blur(34px) saturate(185%); -webkit-backdrop-filter: blur(34px) saturate(185%); }
+    :where(.generation-card,.pagination-shell,.personal-section,.source-status,.generation-mini,.seller-comment) { backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); }
+    :where(.control,.range-control,.mode-tabs,.results-sort,.density-toggle,.pagination-button,.pagination-page,.source-toggle span,.spec,.detail-button,.original-button) { backdrop-filter: blur(10px) saturate(135%); -webkit-backdrop-filter: blur(10px) saturate(135%); }
+    .search-panel::after,.listing-card::after,.personal-dialog::after { opacity: .78; }
+    .generation-card::after,.personal-section::after { opacity: .48; filter: url(#liquid-edge-distortion) saturate(.82); }
+    .pagination-shell { position: relative; isolation: isolate; overflow: hidden; }
+    .pagination-shell::before { content: ""; position: absolute; inset: 4px -8px; z-index: -1; border-radius: inherit; pointer-events: none; background: radial-gradient(ellipse 24px 60% at 3px 50%,rgba(255,255,255,.31),transparent 75%),radial-gradient(ellipse 24px 60% at calc(100% - 3px) 50%,rgba(255,255,255,.25),transparent 75%); filter: url(#liquid-edge-distortion); opacity: .68; }
+
+    /* Each marketplace owns one calm identity colour without replacing the white card glow. */
+    .source-toggle input:checked + span { border-color: color-mix(in srgb,var(--source-color,var(--accent)) 40%,transparent); background: color-mix(in srgb,var(--source-color,var(--accent)) 9%,transparent); box-shadow: inset 0 0 18px color-mix(in srgb,var(--source-color,var(--accent)) 4%,transparent); }
+    .listing-card[data-source="onliner"] { --source-color: var(--onliner); }
+    .listing-card[data-source="kufar"] { --source-color: var(--kufar); }
+    .listing-card[data-source="av"] { --source-color: var(--av); }
+    .listing-card[data-source="dealer"] { --source-color: var(--dealer); }
+    .listing-card[data-source="autohouse"] { --source-color: var(--autohouse); }
+    .listing-card::before { content: ""; position: absolute; inset: 0; z-index: 9; border-radius: inherit; pointer-events: none; background: linear-gradient(180deg,color-mix(in srgb,var(--source-color) 74%,transparent),transparent 19%) top / 100% 2px no-repeat,linear-gradient(90deg,color-mix(in srgb,var(--source-color) 42%,transparent),transparent 4%,transparent 96%,color-mix(in srgb,var(--source-color) 25%,transparent)); opacity: .88; }
+    .listing-card { background: linear-gradient(155deg,rgba(19,23,30,.86),rgba(10,13,18,.82)); box-shadow: 0 0 0 1px rgba(255,255,255,.045),0 0 28px rgba(255,255,255,.055),0 18px 44px rgba(0,0,0,.28),0 0 30px color-mix(in srgb,var(--source-color) 4%,transparent); transform-origin: 50% 30%; animation: cardShowroomIn .46s cubic-bezier(.18,.76,.24,1) backwards; animation-delay: calc(var(--card-index,0) * 28ms); }
+    .listing-card:hover { transform: translateY(-5px) scale(1.002); border-color: rgba(255,255,255,.82); box-shadow: 0 0 0 1px rgba(255,255,255,.15),0 0 42px rgba(255,255,255,.12),0 25px 58px rgba(0,0,0,.38),0 0 34px color-mix(in srgb,var(--source-color) 12%,transparent); }
+    .listing-card__media { height: 326px; border-bottom: 1px solid color-mix(in srgb,var(--source-color) 34%,transparent); background: #12171e; }
+    .listing-card__media::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(circle at 18% 112%,color-mix(in srgb,var(--source-color) 34%,transparent),transparent 42%),linear-gradient(90deg,color-mix(in srgb,var(--source-color) 14%,transparent),transparent 15%,transparent 86%,color-mix(in srgb,var(--source-color) 10%,transparent)); mix-blend-mode: screen; opacity: .72; }
+    .listing-card__media::after { z-index: 2; height: 52%; background: linear-gradient(transparent,rgba(5,8,12,.83)); }
+    .listing-card__media > img { position: relative; z-index: 0; transition: transform .65s cubic-bezier(.2,.72,.2,1),filter .3s ease,opacity .2s; }
+    .listing-card:hover .listing-card__media > img { transform: scale(1.035); filter: saturate(1.05) contrast(1.02); }
+    .source-badge { border: 1px solid color-mix(in srgb,var(--source-color) 45%,rgba(255,255,255,.12)); box-shadow: 0 9px 24px rgba(0,0,0,.24),inset 0 0 13px color-mix(in srgb,var(--source-color) 8%,transparent); }
+    .source-badge::before { width: 8px; height: 8px; }
+    .listing-card__body { padding: 23px 24px 21px; }
+    .listing-head { display: block; }
+    .listing-kicker { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; }
+    .listing-kicker::before { content: ""; width: 14px; height: 1px; flex: 0 0 auto; background: var(--source-color); box-shadow: 0 0 8px var(--source-color); }
+    .listing-title { max-width: 100%; font-size: clamp(21px,2vw,27px); }
+    .listing-offer { width: 100%; display: grid; grid-template-columns: minmax(0,1fr) 158px; align-items: center; gap: 17px; margin-top: 15px; padding: 13px 14px; border: 1px solid rgba(255,255,255,.09); border-radius: 14px; background: linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018)); box-shadow: inset 1px 1px 0 rgba(255,255,255,.07),0 10px 25px rgba(0,0,0,.12); backdrop-filter: blur(16px) saturate(155%); -webkit-backdrop-filter: blur(16px) saturate(155%); }
+    .listing-price { text-align: left; }
+    .listing-price strong { font-size: 28px; line-height: 1; text-shadow: 0 0 22px color-mix(in srgb,var(--accent) 15%,transparent); }
+    .listing-price small { margin-top: 6px; }
+    .market-price { width: 100%; }
+    .spec-grid { gap: 7px; margin: 17px 0 16px; overflow: visible; border: 0; background: transparent; }
+    .spec { position: relative; min-height: 58px; padding: 12px 11px 10px; overflow: hidden; border: 1px solid rgba(255,255,255,.075); border-radius: 11px; background: linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.014)); box-shadow: inset 1px 1px 0 rgba(255,255,255,.045); }
+    .spec::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 2px; background: linear-gradient(transparent,color-mix(in srgb,var(--source-color) 54%,transparent),transparent); }
+    .generation-mini { border-color: rgba(255,255,255,.085); background: linear-gradient(145deg,rgba(255,255,255,.042),rgba(255,255,255,.014)); box-shadow: inset 1px 1px 0 rgba(255,255,255,.045); }
+    .seller-comment { overflow: hidden; padding: 15px 16px 14px 40px; border: 1px solid rgba(255,255,255,.08); border-left: 3px solid var(--source-color); border-radius: 12px; background: linear-gradient(135deg,color-mix(in srgb,var(--source-color) 7%,transparent),rgba(255,255,255,.018)); box-shadow: inset 1px 1px 0 rgba(255,255,255,.045); }
+    .seller-comment::after { content: ""; position: absolute; inset: 0 12% auto; height: 1px; background: linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent); }
+    .seller-comment::before { color: var(--source-color); }
+    .skeleton-card { animation: cardShowroomIn .4s cubic-bezier(.18,.76,.24,1) both; }
+    .skeleton-card:nth-child(2) { animation-delay: 45ms; }
+    .skeleton-card:nth-child(3) { animation-delay: 90ms; }
+    .skeleton-card:nth-child(4) { animation-delay: 135ms; }
+    .skeleton-offer { display: grid; grid-template-columns: minmax(0,1fr) 40%; gap: 13px; margin: 15px 0; padding: 13px; border: 1px solid var(--line); border-radius: 13px; }
+    .skeleton-specs { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; margin-top: 13px; }
+    .skeleton-spec { height: 54px; border: 1px solid var(--line); border-radius: 10px; background: linear-gradient(100deg,#13171d 12%,#20252c 28%,#13171d 44%); background-size: 220% 100%; animation: shimmer 1.35s ease-in-out infinite; }
+    .pagination-page[aria-current="page"] { animation: pageLightPulse .46s cubic-bezier(.2,.75,.2,1); }
+    @keyframes cardShowroomIn { from { opacity: 0; transform: translateY(17px) scale(.986); filter: blur(3px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
+    @keyframes pageLightPulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb,var(--accent) 42%,transparent); } 70% { box-shadow: 0 0 0 9px transparent,0 0 26px color-mix(in srgb,var(--accent) 26%,transparent); } }
+
+    html[data-theme="light"] .hero { background: #eaf3ff; }
+    html[data-theme="light"] .hero-showroom__spotlight--one { background: radial-gradient(circle,rgba(35,128,255,.24),rgba(109,181,255,.1) 40%,transparent 70%); }
+    html[data-theme="light"] .hero-showroom__spotlight--two { background: radial-gradient(circle,rgba(98,211,232,.18),transparent 66%); }
+    html[data-theme="light"] .hero-showroom__floor { background: repeating-linear-gradient(90deg,rgba(28,102,180,.15) 0 1px,transparent 1px 8.5%),repeating-linear-gradient(0deg,rgba(28,102,180,.13) 0 1px,transparent 1px 17%); }
+    html[data-theme="light"] .hero-showroom__reflection { background-image: url('/assets/hero-car-light.jpg'); filter: blur(4px) saturate(.8); opacity: .15; }
+    html[data-theme="light"] .hero-showroom__horizon { background: linear-gradient(90deg,transparent,rgba(31,102,179,.24),rgba(22,119,255,.46),transparent); }
+    html[data-theme="light"] .hero-showroom__hud { color: #3c5f83; border-color: rgba(255,255,255,.8); background: rgba(247,251,255,.4); box-shadow: inset 1px 1px 0 #fff,0 10px 28px rgba(36,88,146,.1); }
+    html[data-theme="light"] .hero-proof span { color: #365575; border-color: rgba(255,255,255,.85); background: rgba(249,252,255,.48); box-shadow: inset 1px 1px 0 #fff,0 10px 26px rgba(39,89,143,.09); }
+    html[data-theme="light"] .listing-card { background: linear-gradient(150deg,rgba(255,255,255,.68),rgba(225,239,255,.48)); box-shadow: inset 1px 1px 0 #fff,0 18px 48px rgba(55,105,160,.14),0 0 30px color-mix(in srgb,var(--source-color) 7%,transparent); }
+    html[data-theme="light"] .listing-card::before { background: linear-gradient(180deg,color-mix(in srgb,var(--source-color) 72%,transparent),transparent 19%) top / 100% 2px no-repeat,linear-gradient(90deg,color-mix(in srgb,var(--source-color) 32%,transparent),transparent 4%,transparent 96%,color-mix(in srgb,var(--source-color) 20%,transparent)); }
+    html[data-theme="light"] .listing-offer { border-color: rgba(41,101,166,.13); background: linear-gradient(145deg,rgba(255,255,255,.74),rgba(229,241,255,.48)); box-shadow: inset 1px 1px 0 #fff,0 10px 25px rgba(41,91,147,.08); }
+    html[data-theme="light"] .spec { border-color: rgba(44,102,166,.13); background: linear-gradient(145deg,rgba(255,255,255,.7),rgba(231,242,255,.5)); box-shadow: inset 1px 1px 0 #fff; }
+    html[data-theme="light"] .generation-mini { border-color: rgba(44,102,166,.13); background: linear-gradient(145deg,rgba(255,255,255,.68),rgba(230,241,255,.48)); }
+    html[data-theme="light"] .seller-comment { color: #355471; border-color: rgba(44,102,166,.13); border-left-color: var(--source-color); background: linear-gradient(135deg,color-mix(in srgb,var(--source-color) 8%,white),rgba(236,246,255,.58)); box-shadow: inset 1px 1px 0 #fff; }
+    html[data-theme="light"] .source-toggle input:checked + span { color: #173b61; border-color: color-mix(in srgb,var(--source-color,var(--accent)) 42%,transparent); background: color-mix(in srgb,var(--source-color,var(--accent)) 9%,white); }
+    html[data-theme="light"] .skeleton-spec { border-color: var(--surface-border); background: linear-gradient(100deg,#e4eef9 12%,#f8fbff 28%,#e4eef9 44%); background-size: 220% 100%; }
+    html[data-theme="light"] .search-panel::after,html[data-theme="light"] .listing-card::after,html[data-theme="light"] .personal-dialog::after { opacity: .82; }
+    html[data-theme="light"] .generation-card::after,html[data-theme="light"] .personal-section::after { opacity: .52; }
+
+    @media (max-width: 900px) {
+      .hero-showroom__hud { display: none; }
+      .hero-showroom__floor { left: 18%; right: -25%; }
+      .listing-card__media { height: 300px; }
+    }
+    @media (max-width: 620px) {
+      .hero-proof { gap: 6px; margin-top: 21px; }
+      .hero-proof span { min-height: 31px; padding-inline: 9px; font-size: 8px; }
+      .hero-showroom__reflection { left: 25%; opacity: .1; }
+      .hero-showroom__floor { left: 6%; }
+      .listing-card__media,.skeleton-media { height: 242px; }
+      .listing-card__body { padding: 18px 16px 17px; }
+      .listing-offer { grid-template-columns: minmax(0,1fr) 145px; gap: 12px; margin-top: 13px; padding: 11px 12px; }
+      .listing-price { display: block; }
+      .listing-price strong { font-size: 24px; }
+      .spec-grid { gap: 6px; }
+    }
+    @media (max-width: 430px) {
+      .listing-card__media,.skeleton-media { height: 228px; }
+      .listing-offer { grid-template-columns: minmax(0,1fr) 132px; gap: 10px; padding: 10px; }
+      .listing-price strong { font-size: 22px; }
+      .market-price__head strong { font-size: 7px; }
+      .spec { min-height: 57px; padding: 11px 9px 9px; }
+      .skeleton-specs { grid-template-columns: repeat(2,1fr); }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+      .hero { --hero-x: 0px !important; --hero-y: 0px !important; }
     }
   </style>
 </head>
 <body>
   <svg class="sr-only" aria-hidden="true" width="0" height="0">
+    <defs><filter id="liquid-edge-distortion" x="-20%" y="-12%" width="140%" height="124%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.008 0.035" numOctaves="2" seed="26" result="liquidNoise"/><feGaussianBlur in="liquidNoise" stdDeviation="0.55" result="softNoise"/><feDisplacementMap in="SourceGraphic" in2="softNoise" scale="9" xChannelSelector="R" yChannelSelector="B"/></filter></defs>
     <symbol id="i-car" viewBox="0 0 24 24"><path d="M3 14.5V12l2-5.5h14L21 12v5.5h-2V20h-3v-2.5H8V20H5v-2.5H3z"/><path d="M5 12h14M7 14.5h1m8 0h1"/></symbol>
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
@@ -1164,7 +1520,10 @@
         </nav>
         <div class="header-actions">
           <button class="header-action" id="installAppButton" type="button" hidden title="Установить приложение"><svg class="icon" aria-hidden="true"><use href="#i-download"></use></svg><span class="header-action__text">Установить</span></button>
-          <button class="header-action header-action--theme" id="themeToggleButton" type="button" title="Включить светлую тему" aria-label="Включить светлую тему" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-sun"></use></svg><span class="header-action__text">Светлая</span></button>
+          <div class="theme-picker" id="themePicker" role="group" aria-label="Тема интерфейса">
+            <button class="theme-choice" type="button" data-theme-choice="dark" aria-pressed="true" title="Тёмная тема"><svg class="icon" aria-hidden="true"><use href="#i-moon"></use></svg><span>Тёмная</span></button>
+            <button class="theme-choice" type="button" data-theme-choice="light" aria-pressed="false" title="Светлая тема"><svg class="icon" aria-hidden="true"><use href="#i-sun"></use></svg><span>Светлая</span></button>
+          </div>
           <button class="header-action header-action--favorites" id="personalPanelButton" type="button" title="Избранные автомобили" aria-label="Открыть избранные автомобили" aria-haspopup="dialog" aria-controls="personalPanel"><svg class="icon" aria-hidden="true"><use href="#i-heart"></use></svg><span class="header-action__text">Избранное</span><span class="header-action__badge" id="personalBadge" hidden>0</span></button>
         </div>
       </div>
@@ -1173,11 +1532,25 @@
 
   <main id="top">
     <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-showroom" aria-hidden="true">
+        <span class="hero-showroom__spotlight hero-showroom__spotlight--one"></span>
+        <span class="hero-showroom__spotlight hero-showroom__spotlight--two"></span>
+        <span class="hero-showroom__horizon"></span>
+        <span class="hero-showroom__floor"></span>
+        <span class="hero-showroom__reflection"></span>
+        <span class="hero-showroom__hud hero-showroom__hud--top"><b>LIVE</b> Единая автомобильная лента</span>
+        <span class="hero-showroom__hud hero-showroom__hud--bottom">Беларусь · 5 источников · 01</span>
+      </div>
       <div class="container">
         <div class="hero-content">
           <div class="eyebrow">Автомобили по всей Беларуси</div>
           <h1 id="hero-title">Один поиск.<br><span class="outline">Вся лента.</span></h1>
           <p class="hero-lead">Собираем реальные объявления прямо на сайте, приводим характеристики к единому виду и всегда оставляем ссылку на оригинал.</p>
+          <div class="hero-proof" aria-label="Преимущества поиска">
+            <span><b>LIVE</b> реальные объявления</span>
+            <span><b>5</b> каталогов</span>
+            <span><b>BY</b> вся Беларусь</span>
+          </div>
         </div>
       </div>
       <div class="hero-scroll">Листайте к поиску</div>
@@ -1367,7 +1740,14 @@
         </div>
         <div class="source-statuses" id="sourceStatuses" aria-live="polite"></div>
         <div class="results-grid" id="resultsGrid" aria-live="polite"></div>
-        <div class="load-more-wrap" id="loadMoreWrap"><button class="load-more" id="loadMoreButton" type="button"><svg class="icon"><use href="#i-layers"></use></svg> Показать следующую страницу</button></div>
+        <div class="pagination-shell" id="paginationShell">
+          <div class="pagination-meta" id="paginationMeta" aria-live="polite"></div>
+          <nav class="pagination" id="resultsPagination" aria-label="Страницы результатов">
+            <button class="pagination-button" id="paginationPrev" type="button" aria-label="Предыдущая страница"><svg class="icon"><use href="#i-left"></use></svg><span>Назад</span></button>
+            <div class="pagination-pages" id="paginationPages"></div>
+            <button class="pagination-button" id="paginationNext" type="button" aria-label="Следующая страница"><span>Вперёд</span><svg class="icon"><use href="#i-right"></use></svg></button>
+          </nav>
+        </div>
       </div>
     </section>
   </main>
@@ -1423,7 +1803,7 @@
 
   <div class="vin-layer" id="vinReportPanel" role="presentation">
     <section class="vin-dialog" role="dialog" aria-modal="true" aria-labelledby="vinReportTitle">
-      <div class="vin-dialog__head"><div><div class="vin-dialog__eyebrow">Проверка истории автомобиля</div><h2 id="vinReportTitle">Отчёт по VIN</h2></div><button class="vin-close" id="vinReportClose" type="button" aria-label="Закрыть VIN-отчёт"><svg class="icon"><use href="#i-close"></use></svg></button></div>
+      <div class="vin-dialog__head"><div><div class="vin-dialog__eyebrow">Проверка истории автомобиля</div><h2 id="vinReportTitle">Полный отчёт по VIN</h2></div><button class="vin-close" id="vinReportClose" type="button" aria-label="Закрыть VIN-отчёт"><svg class="icon"><use href="#i-close"></use></svg></button></div>
       <div id="vinReportContent"></div>
     </section>
   </div>
@@ -1461,11 +1841,11 @@
 
     const state = {
       brands: [], models: [], generations: [], generationIds: [],
-      items: new Map(), marketItems: new Map(), marketSamples: new Map(), marketQueue: [], marketQueued: new Set(), marketActive: 0, marketRunId: 0, marketScheduled: 0, marketController: null, marketObserver: null, order: [], sourceStatus: [], page: 1, loading: false,
+      items: new Map(), marketItems: new Map(), marketSamples: new Map(), marketQueue: [], marketQueued: new Set(), marketActive: 0, marketRunId: 0, marketScheduled: 0, marketController: null, marketObserver: null, order: [], sourceStatus: [], page: 1, requestedPage: 1, totalPages: 1, sourcePages: 1, loading: false,
       lastParams: null, favorites: new Set(), detailQueue: [], detailActive: 0,
       detailQueued: new Set(), observer: null, imageObserver: null, viewObserver: null, viewTimers: new Map(),
       personalRecords: new Map(), preferences: new Map(), savedSearches: [], density: 'comfortable', theme: document.documentElement.dataset.theme === 'light' ? 'light' : 'dark', favoriteFeed: false,
-      vinListingId: null, lightbox: { id: null, index: 0 },
+      vinListingId: null, vinRequestId: 0, lightbox: { id: null, index: 0 },
     };
     const lightboxZoom = {
       scale: 1, x: 0, y: 0, startScale: 1, startX: 0, startY: 0,
@@ -1478,15 +1858,18 @@
       startX: 0, startY: 0, lastX: 0, lastY: 0, axis: null,
     };
     const cardSwipeSuppress = new WeakMap();
+    const RESULT_PAGE_SIZE = 12;
+    const SOURCE_BATCH_SIZE = 8;
+    const MAX_SOURCE_PAGES = 5;
 
     const els = {
       header: $('#siteHeader'), form: $('#searchForm'), searchButton: $('#searchButton'), resetButton: $('#resetButton'),
       brand: $('#brandSelect'), model: $('#modelSelect'), catalogStatus: $('#catalogStatus'),
       generationPicker: $('#generationPicker'), generationTrack: $('#generationTrack'), generationHint: $('#generationHint'),
       grid: $('#resultsGrid'), statuses: $('#sourceStatuses'), shown: $('#shownCount'), overline: $('#resultsOverline'), headingText: $('#resultsHeadingText'),
-      sort: $('#sortSelect'), density: $('#densityToggle'), loadWrap: $('#loadMoreWrap'), loadButton: $('#loadMoreButton'),
+      sort: $('#sortSelect'), density: $('#densityToggle'), paginationShell: $('#paginationShell'), pagination: $('#resultsPagination'), paginationPages: $('#paginationPages'), paginationMeta: $('#paginationMeta'), paginationPrev: $('#paginationPrev'), paginationNext: $('#paginationNext'),
       mobileSettings: $('#mobileSettingsButton'), mobileSummary: $('#mobileFilterSummary'),
-      installButton: $('#installAppButton'), themeToggle: $('#themeToggleButton'), themeMeta: $('meta[name="theme-color"]'), personalButton: $('#personalPanelButton'), personalBadge: $('#personalBadge'),
+      installButton: $('#installAppButton'), themeToggle: $('#themePicker'), themeMeta: $('meta[name="theme-color"]'), personalButton: $('#personalPanelButton'), personalBadge: $('#personalBadge'),
       personalPanel: $('#personalPanel'), personalImport: $('#personalImportInput'), savedSearches: $('#savedSearches'), personalActivity: $('#personalActivity'),
       personalFavorites: $('#personalFavorites'), favoritesSection: $('#personalFavoritesSection'), showFavorites: $('#showFavoritesButton'),
       personalFavoriteCount: $('#personalFavoriteCount'), personalViewedCount: $('#personalViewedCount'), personalChangeCount: $('#personalChangeCount'),
@@ -1752,6 +2135,9 @@
       if (from !== null) params.set(`${name}[min]`, String(from));
       if (to !== null) params.set(`${name}[max]`, String(to));
     }
+    const AV_BROWSER_SORT_IDS = Object.freeze({
+      fresh: 4, priceAsc: 2, priceDesc: 3, yearDesc: 6, yearAsc: 7, mileageAsc: 8, mileageDesc: 4,
+    });
     async function buildAvBrowserRequest(filters, { condition = null, sellerType = null } = {}) {
       const taxonomy = {};
       const brandName = filters.get('brandName');
@@ -1791,7 +2177,7 @@
 
       const query = new URLSearchParams();
       query.set('page', filters.get('page') || '1');
-      query.set('sort', '4');
+      query.set('sort', String(AV_BROWSER_SORT_IDS[filters.get('sort')] || AV_BROWSER_SORT_IDS.fresh));
       if (taxonomy.generations?.length) {
         taxonomy.generations.forEach((generation, index) => {
           query.set(`brands[${index}][brand]`, String(taxonomy.brand));
@@ -2166,12 +2552,12 @@
       document.documentElement.dataset.theme = state.theme;
       if (els.themeMeta) els.themeMeta.content = state.theme === 'light' ? '#eaf3ff' : '#080a0d';
       if (els.themeToggle) {
-        const light = state.theme === 'light';
-        els.themeToggle.setAttribute('aria-pressed', String(light));
-        els.themeToggle.setAttribute('aria-label', light ? 'Включить тёмную тему' : 'Включить светлую тему');
-        els.themeToggle.title = light ? 'Включить тёмную тему' : 'Включить светлую тему';
-        const use = $('use', els.themeToggle); if (use) use.setAttribute('href', light ? '#i-moon' : '#i-sun');
-        const label = $('.header-action__text', els.themeToggle); if (label) label.textContent = light ? 'Тёмная' : 'Светлая';
+        els.themeToggle.dataset.theme = state.theme;
+        $$('[data-theme-choice]', els.themeToggle).forEach(button => {
+          const active = button.dataset.themeChoice === state.theme;
+          button.setAttribute('aria-pressed', String(active));
+          button.classList.toggle('active', active);
+        });
       }
       if (persist) setPersonalPreference('theme', state.theme);
     }
@@ -2466,7 +2852,7 @@
     function renderFavoritesFeed({ focusId = '', scroll = true, closePanel = true } = {}) {
       const records = sortedFavoriteRecords();
       const currentItems = new Map(state.items);
-      state.items.clear(); state.order = []; state.sourceStatus = []; state.favoriteFeed = true; state.offlineMode = false;
+      state.items.clear(); state.order = []; state.sourceStatus = []; state.favoriteFeed = true; state.offlineMode = false; state.page = 1; state.totalPages = 1;
       document.body.classList.add('favorite-feed-mode');
       for (const record of records) {
         const item = currentItems.get(record.id) || offlineItemFromRecord(record);
@@ -2474,7 +2860,7 @@
       }
       els.headingText.textContent = 'Избранные автомобили';
       els.overline.textContent = 'Личная база · избранное';
-      els.statuses.innerHTML = ''; els.loadWrap.classList.remove('visible');
+      els.statuses.innerHTML = ''; els.paginationShell.classList.remove('visible');
       if (records.length) {
         sortAndRender();
         els.grid.insertAdjacentHTML('afterbegin', favoritesFeedBannerHTML(records.length));
@@ -2521,7 +2907,7 @@
       }
       sortAndRender(); els.overline.textContent = 'Локальное сохранённое состояние';
       els.statuses.innerHTML = `<div class="source-warning">${icon('database')}<span><strong>Офлайн-режим:</strong> показаны последние реальные объявления из IndexedDB. Их текущая цена и наличие будут проверены после восстановления связи.${message ? ` ${escapeHTML(message)}` : ''}</span></div>`;
-      els.loadWrap.classList.remove('visible');
+      els.paginationShell.classList.remove('visible');
       if (mobileFilterMedia.matches) enterMobileResultsMode({ scroll: false });
       return true;
     }
@@ -2561,21 +2947,38 @@
     function syncBodyModal() {
       document.body.classList.toggle('modal-open', els.lightbox.classList.contains('open') || els.personalPanel.classList.contains('open') || els.vinPanel.classList.contains('open'));
     }
-    function vinChecksHTML() {
-      const checks = [
-        ['ДТП и страховые расчёты','События и расчёт повреждений у поставщика отчёта'],
-        ['Ремонты и повреждения','Зафиксированные работы и оценка ущерба'],
-        ['Пробег','Хронология доступных показаний одометра'],
-        ['Залоги и ограничения','Доступные реестры обременений и запретов'],
-        ['Розыск','Переход к официальной проверке МВД Беларуси'],
-        ['Регистрации и владельцы','Доступная история регистрационных действий'],
-        ['Техосмотры и страхование','Даты и записи, доступные поставщику'],
-        ['Продажи, такси, отзывы','Архив объявлений и иные найденные события'],
-      ];
-      return checks.map(([title, text]) => `<div class="vin-check">${icon('shield')}<div><strong>${escapeHTML(title)}</strong><span>${escapeHTML(text)}</span></div></div>`).join('');
+    const VIN_CHECK_FALLBACK = [
+      { title: 'ДТП в Беларуси и России', coverage: 'Зарегистрированные аварии и страховые события' },
+      { title: 'Повреждения и расчёты ремонта', coverage: 'Зафиксированные повреждения, работы и расчётная стоимость' },
+      { title: 'Пробег за 10 лет', coverage: 'Доступная хронология показаний одометра' },
+      { title: 'Обслуживание и техосмотры', coverage: 'Записи ТО, диагностических и технических осмотров' },
+      { title: 'Регистрации и владельцы', coverage: 'Регистрационные действия и периоды владения' },
+      { title: 'Залоги, ограничения и розыск', coverage: 'Юридические риски в доступных реестрах' },
+      { title: 'Таможенное оформление', coverage: 'Доступные сведения о ввозе и оформлении' },
+      { title: 'История продаж', coverage: 'Архивные объявления, цены, фото и описания' },
+      { title: 'Такси и каршеринг', coverage: 'Зафиксированное коммерческое использование' },
+      { title: 'Страхование и выплаты', coverage: 'Доступные полисы и страховые расчёты' },
+      { title: 'Аварийные аукционы', coverage: 'Следы продажи повреждённого автомобиля' },
+      { title: 'Отзывные кампании', coverage: 'Кампании производителя и выполненные работы' },
+    ];
+    function vinChecksHTML(checks = VIN_CHECK_FALLBACK) {
+      const list = Array.isArray(checks) && checks.length ? checks : VIN_CHECK_FALLBACK;
+      return list.map(check => `<div class="vin-check">${icon('shield')}<div><strong>${escapeHTML(check.title || '')}</strong><span>${escapeHTML(check.coverage || '')}</span><em>Результат в полном отчёте</em></div></div>`).join('');
     }
-    function renderVinMissing(item) {
-      els.vinContent.innerHTML = `<div class="vin-summary"><div><code>VIN НЕ ОПУБЛИКОВАН</code><span>${escapeHTML(item?.title || 'Это объявление')}</span></div></div><div class="vin-provider"><p><strong>Продавец или площадка не передали полный 17-символьный VIN.</strong> Без него нельзя достоверно проверить ДТП, пробег, ремонты, залоги, розыск, регистрации и техосмотры. MOTOR.BY не подставляет и не угадывает VIN.</p><div class="vin-provider__actions"><a class="vin-provider__secondary" href="${validUrl(item?.sourceUrl)}" target="_blank" rel="noopener">Открыть объявление ${icon('external')}</a></div></div><p class="vin-disclaimer">Попросите продавца сообщить полный VIN и сверяйте его с кузовом и документами до оплаты отчёта.</p>`;
+    function vinManualFormHTML() {
+      return `<form class="vin-manual" data-vin-manual><label for="vinManualInput">Введите полный VIN вручную</label><div class="vin-manual__row"><input id="vinManualInput" name="vin" type="text" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="17 символов" aria-describedby="vinManualHint"><button type="submit">Проверить VIN</button></div><small id="vinManualHint">Подойдёт VIN из техпаспорта, с кузова или полученный у продавца. Буквы I, O и Q в VIN не используются.</small></form>`;
+    }
+    function renderVinMissing(item, { checking = false, lookupMessage = '' } = {}) {
+      const heading = checking ? 'ИЩЕМ ПОЛНЫЙ VIN…' : 'VIN НЕ ОПУБЛИКОВАН';
+      const message = checking
+        ? '<strong>Проверяем карточку и официальный мобильный API AV.BY.</strong> Ждать необязательно: полный VIN уже можно ввести вручную ниже.'
+        : '<strong>Площадка не передала полный 17-символьный VIN.</strong> Без него невозможно достоверно посчитать ДТП, зафиксированные ремонты, владельцев и другие события. MOTOR.BY не угадывает номер и не создаёт фиктивную «чистую» историю.';
+      const lookupState = checking
+        ? `<div class="vin-loading" data-vin-lookup-state><span class="mini-spinner"></span><span>Ищем опубликованный VIN, ручной ввод уже доступен…</span></div>`
+        : lookupMessage
+          ? `<div class="source-warning" data-vin-lookup-state>${icon('info')}<span>${escapeHTML(lookupMessage)}</span></div>`
+          : '';
+      els.vinContent.innerHTML = `<div class="vin-summary"><div><code>${heading}</code><span>${escapeHTML(item?.title || 'Это объявление')}</span></div></div>${lookupState}<div class="vin-provider"><p>${message}</p><div class="vin-provider__actions"><a class="vin-provider__secondary" href="${validUrl(item?.sourceUrl)}" target="_blank" rel="noopener">Открыть объявление ${icon('external')}</a></div></div>${vinManualFormHTML()}<h3 class="vin-checks-title">Все доступные категории проверки</h3><div class="vin-checks">${vinChecksHTML()}</div><p class="vin-disclaimer">Попросите продавца сообщить полный VIN и обязательно сверьте его с кузовом и документами до покупки отчёта.</p>`;
     }
     function renderVinReport(item, vin, data = null, error = '') {
       const decoder = data?.decoder || {};
@@ -2589,33 +2992,81 @@
       const reportUrl = data?.reportUrl || `https://av.by/vin/prereport/${encodeURIComponent(vin)}`;
       const kufarUrl = data?.kufarUrl || 'https://vin.kufar.by/';
       const officialUrl = data?.officialSearchUrl || 'https://e-pasluga.by/services/gai-transport/35901proverka-nahozdenia-transportnogo-sredstva-v-rozyske-po-polnomu-sovpadeniu';
-      const decoderHTML = error
-        ? `<div class="source-warning">${icon('alert')}<span><strong>Расшифровка сейчас недоступна:</strong> ${escapeHTML(error)}. Прямые проверки по VIN остаются доступны ниже.</span></div>`
+      const decoderError = error || (data?.decoderStatus === 'temporarily_unavailable' ? data?.decoderMessage : '');
+      const decoderHTML = decoderError
+        ? `<div class="source-warning">${icon('alert')}<span><strong>Расшифровка сейчас недоступна:</strong> ${escapeHTML(decoderError)}. Прямые проверки по VIN остаются доступны ниже.</span></div>`
         : facts.length
           ? `<div class="vin-facts">${facts.map(([label,value]) => `<div class="vin-fact"><span>${escapeHTML(label)}</span><strong>${escapeHTML(value)}</strong></div>`).join('')}</div>`
           : `<div class="source-warning">${icon('info')}<span>Публичный технический декодер не нашёл характеристик для этого VIN. Это не означает, что история автомобиля чистая.</span></div>`;
-      els.vinContent.innerHTML = `<div class="vin-summary"><div><code>${escapeHTML(vin)}</code><span>${escapeHTML(item.title)} · VIN опубликован продавцом</span></div></div><div class="vin-decoder">${decoderHTML}</div><h3 class="vin-checks-title">Что проверяет полный отчёт</h3><div class="vin-checks">${vinChecksHTML()}</div><div class="vin-provider"><p><strong>Полная история не является открытым бесплатным API.</strong> MOTOR.BY показывает бесплатную техническую расшифровку, а ДТП, ремонты, пробег, ограничения и регистрационные события предлагает проверить у профильного поставщика без выдуманных результатов.</p><div class="vin-provider__actions"><a class="vin-provider__primary" href="${validUrl(reportUrl)}" target="_blank" rel="noopener">Полный отчёт AV.BY ${icon('external')}</a><a class="vin-provider__secondary" href="${validUrl(kufarUrl)}" target="_blank" rel="noopener">Залоги и история Kufar</a><a class="vin-provider__secondary" href="${validUrl(officialUrl)}" target="_blank" rel="noopener">Розыск МВД РБ</a></div></div><p class="vin-disclaimer">Техническая расшифровка: публичный NHTSA vPIC. Она не содержит историю эксплуатации. Отчёт AV.BY коммерческий; полнота истории зависит от доступных реестров, и отсутствие события в отчёте не гарантирует его отсутствия.</p>`;
+      const origin = item?._manualVin ? 'VIN введён вручную' : 'VIN опубликован продавцом';
+      const historyMessage = data?.history?.message || 'Количество ДТП, ремонтов, владельцев и другие события показывает поставщик после формирования полного отчёта.';
+      els.vinContent.innerHTML = `<div class="vin-summary"><div><code>${escapeHTML(vin)}</code><span>${escapeHTML(item?.title || 'Проверка автомобиля')} · ${origin}</span></div></div><div class="vin-decoder">${decoderHTML}</div><div class="vin-history-state">${icon('alert')}<div><strong>Техническая расшифровка готова. История эксплуатации запрашивается отдельно.</strong><span>${escapeHTML(historyMessage)}</span></div></div><h3 class="vin-checks-title">Все доступные категории полного отчёта</h3><div class="vin-checks">${vinChecksHTML(data?.history?.checks)}</div><div class="vin-provider"><p><strong>Получить фактические результаты — количество ДТП, зафиксированных ремонтов, владельцев и записи пробега — можно в полном отчёте AV.BY.</strong> Эти сведения находятся в закрытых государственных, страховых и коммерческих базах и не предоставляются MOTOR.BY через бесплатный API.</p><div class="vin-provider__actions"><a class="vin-provider__primary" href="${validUrl(reportUrl)}" target="_blank" rel="noopener">Открыть полный отчёт и результаты ${icon('external')}</a><a class="vin-provider__secondary" href="${validUrl(kufarUrl)}" target="_blank" rel="noopener">Залоги и история Kufar</a><a class="vin-provider__secondary" href="${validUrl(officialUrl)}" target="_blank" rel="noopener">Розыск МВД РБ</a></div></div><details class="vin-another"><summary>Проверить другой VIN</summary>${vinManualFormHTML()}</details><p class="vin-disclaimer">Техническая расшифровка: публичный NHTSA vPIC. Она не содержит историю эксплуатации. Отчёт AV.BY коммерческий; полнота зависит от доступных реестров. Отсутствие события в отчёте не гарантирует, что его не было.</p>`;
     }
-    async function openVinReport(id) {
-      state.vinListingId = id; els.vinPanel.classList.add('open'); syncBodyModal(); els.vinClose.focus();
-      els.vinContent.innerHTML = `<div class="vin-loading"><span class="mini-spinner"></span><span>Проверяем, опубликован ли VIN…</span></div>`;
-      let item = state.items.get(id);
-      if (item && !publishedVin(item) && item.detailLoaded !== true && navigator.onLine) {
-        await loadDetail(id); item = state.items.get(id) || item;
-      }
-      if (state.vinListingId !== id) return;
-      const vin = publishedVin(item);
-      if (!vin) { renderVinMissing(item); return; }
-      els.vinContent.innerHTML = `<div class="vin-summary"><div><code>${escapeHTML(vin)}</code><span>${escapeHTML(item.title)} · VIN опубликован продавцом</span></div></div><div class="vin-loading"><span class="mini-spinner"></span><span>Получаем бесплатную техническую расшифровку…</span></div>`;
+    async function requestVinReport(item, vin) {
+      const requestId = ++state.vinRequestId;
+      els.vinContent.innerHTML = `<div class="vin-summary"><div><code>${escapeHTML(vin)}</code><span>${escapeHTML(item?.title || 'Проверка автомобиля')}</span></div></div><div class="vin-loading"><span class="mini-spinner"></span><span>Получаем техническую расшифровку и список доступных проверок…</span></div>`;
       try {
         const data = await api(`/api/vin/${encodeURIComponent(vin)}`);
-        if (state.vinListingId === id) renderVinReport(item, vin, data);
+        if (state.vinListingId && requestId === state.vinRequestId) renderVinReport(item, vin, data);
       } catch (error) {
-        if (state.vinListingId === id) renderVinReport(item, vin, null, error.message);
+        if (state.vinListingId && requestId === state.vinRequestId) renderVinReport(item, vin, null, error.message);
       }
     }
+    async function openVinReport(id) {
+      state.vinListingId = id;
+      const lookupRequestId = ++state.vinRequestId;
+      els.vinPanel.classList.add('open'); syncBodyModal(); els.vinClose.focus();
+      let item = state.items.get(id);
+      const initialVin = publishedVin(item);
+      if (initialVin) { await requestVinReport(item, initialVin); return; }
+
+      // Manual entry is rendered before any network request, so a hidden VIN or
+      // a slow source can never leave the user waiting behind a spinner.
+      renderVinMissing(item, { checking: navigator.onLine });
+      $('#vinManualInput', els.vinPanel)?.focus();
+      if (!navigator.onLine) {
+        renderVinMissing(item, { lookupMessage: 'Сеть недоступна. Введите полный VIN вручную — проверка запустится после восстановления соединения.' });
+        $('#vinManualInput', els.vinPanel)?.focus();
+        return;
+      }
+
+      let avLookup = null;
+      const [, idFromKey = ''] = String(id).split(':');
+      const sourceId = String(item?.sourceId || idFromKey);
+      const tasks = [];
+      if (item && item.detailLoaded !== true) tasks.push(loadDetail(id));
+      if (item?.source === 'av' && /^\d{1,16}$/.test(sourceId)) {
+        tasks.push(api(`/api/av/vin/${encodeURIComponent(sourceId)}`).then(result => { avLookup = result; }).catch(error => {
+          avLookup = { vin: '', message: error.message || 'AV.BY не вернул полный VIN.' };
+        }));
+      }
+      if (tasks.length) await Promise.allSettled(tasks);
+      if (state.vinListingId !== id || state.vinRequestId !== lookupRequestId) return;
+
+      item = state.items.get(id) || item;
+      const revealedVin = publishedVin({ vin: avLookup?.vin });
+      const vin = publishedVin(item) || revealedVin;
+      const input = $('#vinManualInput', els.vinPanel);
+      const typedVin = input?.value || '';
+      if (vin && !typedVin.trim()) {
+        if (revealedVin && item) {
+          item = { ...item, vin: revealedVin };
+          state.items.set(id, item); state.marketItems.set(id, item);
+        }
+        await requestVinReport(item, vin);
+        return;
+      }
+
+      const lookupMessage = avLookup?.message || (item?.source === 'av'
+        ? 'Полный VIN не опубликован. Введите 17 символов вручную.'
+        : 'В карточке объявления полный VIN не найден. Введите его вручную.');
+      renderVinMissing(item, { lookupMessage });
+      const restoredInput = $('#vinManualInput', els.vinPanel);
+      if (restoredInput) restoredInput.value = typedVin;
+      restoredInput?.focus();
+    }
     function closeVinReport() {
-      const id = state.vinListingId; state.vinListingId = null; els.vinPanel.classList.remove('open'); syncBodyModal();
+      const id = state.vinListingId; state.vinListingId = null; state.vinRequestId += 1; els.vinPanel.classList.remove('open'); syncBodyModal();
       const button = id && cardById(id) && $('[data-action="vin-report"]', cardById(id)); button?.focus();
     }
     function openPersonalPanel() {
@@ -2785,7 +3236,8 @@
       $$('input[name="source"]:checked', els.form).forEach(input => params.append('source', input.value));
       const mode = $('input[name="mode"]:checked', els.form)?.value || 'all';
       params.set('mode', mode);
-      params.set('page', String(page)); params.set('limit', '8');
+      params.set('sort', els.sort.value || 'fresh');
+      params.set('page', String(page)); params.set('limit', String(SOURCE_BATCH_SIZE));
       const brandOption = selectedOption(els.brand), modelOption = selectedOption(els.model);
       if (els.brand.value) {
         params.set('brand', els.brand.value);
@@ -2952,8 +3404,73 @@
       return { live: true, mock: false, items, sourceStatus: statuses, fetchedAt: serverData.fetchedAt || new Date().toISOString() };
     }
 
+    function sourcePageTarget(firstPage) {
+      let target = 1;
+      for (const status of firstPage?.sourceStatus || []) {
+        if (!['ok', 'partial'].includes(status.state)) continue;
+        if (status.total !== null && status.total !== undefined && Number.isFinite(Number(status.total)) && Number(status.total) >= 0) {
+          target = Math.max(target, Math.ceil(Number(status.total) / SOURCE_BATCH_SIZE));
+        } else if (Number(status.count || 0) >= SOURCE_BATCH_SIZE) {
+          target = MAX_SOURCE_PAGES;
+        }
+      }
+      return Math.max(1, Math.min(MAX_SOURCE_PAGES, target));
+    }
+
+    function mergePagedSearchData(pageResults) {
+      const pages = [...pageResults].sort((a, b) => a.page - b.page);
+      const seen = new Set(), items = [];
+      for (const { data } of pages) {
+        for (const item of data?.items || []) {
+          if (!item?.id || seen.has(item.id)) continue;
+          seen.add(item.id); items.push(item);
+        }
+      }
+      const itemCounts = new Map();
+      for (const item of items) itemCounts.set(item.source, (itemCounts.get(item.source) || 0) + 1);
+      const grouped = new Map();
+      for (const { page, data } of pages) {
+        for (const status of data?.sourceStatus || []) {
+          const entry = grouped.get(status.source) || { statuses: [], pages: new Set() };
+          entry.statuses.push(status); entry.pages.add(page); grouped.set(status.source, entry);
+        }
+      }
+      const sources = collectParams(1).getAll('source');
+      const sourceStatus = [...grouped].map(([source, entry]) => {
+        const statuses = entry.statuses;
+        const successful = statuses.some(status => ['ok', 'partial'].includes(status.state));
+        const partial = statuses.some(status => status.state === 'partial');
+        const failed = statuses.some(status => ['error', 'blocked'].includes(status.state));
+        const emptyOnly = statuses.every(status => status.state === 'empty');
+        const count = itemCounts.get(source) || 0;
+        const latest = statuses.at(-1) || {};
+        const representative = statuses.find(status => ['ok', 'partial'].includes(status.state)) || statuses[0] || {};
+        const totals = statuses.filter(status => status.total !== null && status.total !== undefined).map(status => Number(status.total)).filter(Number.isFinite);
+        const warning = statuses.find(status => status.notice || ['error', 'blocked'].includes(status.state));
+        const state = count ? (failed || partial ? 'partial' : 'ok') : emptyOnly ? 'empty' : successful ? 'partial' : (representative.state || 'error');
+        const pageCount = entry.pages.size;
+        return {
+          ...representative,
+          source,
+          state,
+          count,
+          total: totals.length ? Math.max(...totals) : null,
+          latencyMs: Math.max(0, ...statuses.map(status => Number(status.latencyMs || 0))),
+          sourceUrl: latest.sourceUrl || representative.sourceUrl,
+          notice: Boolean(warning),
+          message: warning?.message || `${pageCount === 1 ? 'Проверена 1 страница' : `Объединено страниц: ${pageCount}`}; сортировка применена до разбиения общей выдачи`,
+        };
+      }).sort((a, b) => sources.indexOf(a.source) - sources.indexOf(b.source));
+      const fetchedAt = pages.map(({ data }) => Date.parse(data?.fetchedAt || 0)).filter(Number.isFinite).sort((a, b) => b - a)[0];
+      return {
+        live: true, mock: false, items, sourceStatus,
+        fetchedAt: fetchedAt ? new Date(fetchedAt).toISOString() : new Date().toISOString(),
+      };
+    }
+
     function showSkeletons(count = 6) {
-      els.grid.innerHTML = Array.from({ length: count }, () => `<article class="skeleton-card" aria-hidden="true"><div class="skeleton-media"></div><div class="skeleton-body"><div class="skeleton-line skeleton-line--title"></div><div class="skeleton-line skeleton-line--price"></div><div class="skeleton-line"></div><div class="skeleton-line" style="width:82%"></div></div></article>`).join('');
+      els.paginationShell.classList.remove('visible');
+      els.grid.innerHTML = Array.from({ length: count }, () => `<article class="skeleton-card" aria-hidden="true"><div class="skeleton-media"></div><div class="skeleton-body"><div class="skeleton-line" style="width:24%;height:8px"></div><div class="skeleton-line skeleton-line--title"></div><div class="skeleton-offer"><div><div class="skeleton-line skeleton-line--price"></div><div class="skeleton-line" style="width:52%;height:8px"></div></div><div><div class="skeleton-line" style="width:72%;height:8px"></div><div class="skeleton-line" style="width:100%;height:6px"></div></div></div><div class="skeleton-specs">${Array.from({ length: 6 }, () => '<span class="skeleton-spec"></span>').join('')}</div><div class="skeleton-line" style="width:82%;margin-top:17px"></div></div></article>`).join('');
     }
 
     function validateForm() {
@@ -2966,31 +3483,44 @@
       return true;
     }
 
-    async function runSearch({ append = false, scroll = true, collapseMobile = false } = {}) {
+    async function runSearch({ scroll = true, collapseMobile = false } = {}) {
       if (state.loading || !validateForm()) return;
-      const mobileTransition = !append && collapseMobile && enterMobileResultsMode({ scroll });
+      const mobileTransition = collapseMobile && enterMobileResultsMode({ scroll });
       state.loading = true;
-      if (!append) {
-        state.favoriteFeed = false; document.body.classList.remove('favorite-feed-mode');
-        els.headingText.textContent = 'Свежие объявления';
-        state.page = 1; state.items.clear(); state.marketItems.clear(); state.order = []; state.detailQueue = []; state.detailQueued.clear();
-        state.marketController?.abort(); state.marketController = new AbortController(); state.marketRunId += 1; state.marketScheduled = 0; state.marketQueue = []; state.marketQueued.clear(); state.marketActive = 0;
-        state.observer?.disconnect(); state.marketObserver?.disconnect(); state.imageObserver?.disconnect(); state.viewObserver?.disconnect();
-        for (const timer of state.viewTimers.values()) clearTimeout(timer); state.viewTimers.clear();
-        showSkeletons(); els.statuses.innerHTML = ''; els.loadWrap.classList.remove('visible');
-      }
-      els.searchButton.disabled = true; els.loadButton.disabled = true;
-      const params = collectParams(state.page);
+      state.favoriteFeed = false; document.body.classList.remove('favorite-feed-mode');
+      els.headingText.textContent = 'Свежие объявления';
+      state.page = 1; state.totalPages = 1; state.sourcePages = 1;
+      state.items.clear(); state.marketItems.clear(); state.order = []; state.detailQueue = []; state.detailQueued.clear();
+      state.marketController?.abort(); state.marketController = new AbortController(); state.marketRunId += 1; state.marketScheduled = 0; state.marketQueue = []; state.marketQueued.clear(); state.marketActive = 0;
+      state.observer?.disconnect(); state.marketObserver?.disconnect(); state.imageObserver?.disconnect(); state.viewObserver?.disconnect();
+      for (const timer of state.viewTimers.values()) clearTimeout(timer); state.viewTimers.clear();
+      showSkeletons(); els.statuses.innerHTML = '';
+      els.searchButton.disabled = true; els.sort.disabled = true;
+      els.paginationPrev.disabled = true; els.paginationNext.disabled = true;
+      const params = collectParams(1);
       state.lastParams = params;
-      if (!append) {
-        updateBrowserUrl(params);
-        const savedParams = new URLSearchParams(params); savedParams.delete('page'); savedParams.delete('limit');
-        setPersonalPreference('lastSearch', savedParams.toString());
-      }
-      if (scroll && !append && !mobileTransition) $('#results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      updateBrowserUrl(params);
+      const savedParams = new URLSearchParams(params); savedParams.delete('page'); savedParams.delete('limit');
+      setPersonalPreference('lastSearch', savedParams.toString());
+      if (scroll && !mobileTransition) $('#results').scrollIntoView({ behavior: 'smooth', block: 'start' });
       try {
-        const data = await searchWithBrowserAv(params);
-        if (data.mock !== false || data.live !== true) throw new Error('Сервер не подтвердил, что данные живые');
+        const firstPage = await searchWithBrowserAv(params);
+        if (firstPage.mock !== false || firstPage.live !== true) throw new Error('Сервер не подтвердил, что данные живые');
+        const pageResults = [{ page: 1, data: firstPage }];
+        state.sourcePages = sourcePageTarget(firstPage);
+        if (state.sourcePages > 1) {
+          els.overline.textContent = `Собираем общую выдачу · страниц источников: ${state.sourcePages}`;
+          const requests = [];
+          for (let page = 2; page <= state.sourcePages; page += 1) {
+            const pageParams = new URLSearchParams(params); pageParams.set('page', String(page));
+            requests.push(searchWithBrowserAv(pageParams).then(data => ({ page, data })));
+          }
+          const outcomes = await Promise.allSettled(requests);
+          for (const outcome of outcomes) {
+            if (outcome.status === 'fulfilled' && outcome.value.data?.live === true && outcome.value.data?.mock === false) pageResults.push(outcome.value);
+          }
+        }
+        const data = mergePagedSearchData(pageResults);
         state.sourceStatus = data.sourceStatus || []; state.offlineMode = false;
         for (const item of data.items || []) {
           const canonicalItem = withCatalogGenerationImage(item);
@@ -2998,19 +3528,19 @@
           state.items.set(canonicalItem.id, canonicalItem); state.marketItems.set(canonicalItem.id, canonicalItem);
           recordListingSnapshot(canonicalItem);
         }
-        setPersonalPreference('lastResultIds', state.order.slice(0, 80));
-        renderStatuses(); sortAndRender(); renderPersonalPanel();
-        const canLoad = state.page < 5 && state.sourceStatus.some(status => ['ok', 'partial'].includes(status.state) && (status.total === null || status.total > status.count));
-        els.loadWrap.classList.toggle('visible', canLoad && state.order.length > 0);
+        state.page = Math.max(1, Number(state.requestedPage) || 1); state.requestedPage = 1;
+        setPersonalPreference('lastResultIds', sortedIds().slice(0, 80));
+        renderStatuses(); sortAndRender(); if (state.page > 1) syncResultPageUrl(); renderPersonalPanel();
         const fetched = new Date(data.fetchedAt);
-        els.overline.textContent = Number.isNaN(fetched.getTime()) ? 'Живая выдача' : `Получено ${fetched.toLocaleTimeString('ru-BY', { hour: '2-digit', minute: '2-digit' })}`;
+        const time = Number.isNaN(fetched.getTime()) ? '' : ` · ${fetched.toLocaleTimeString('ru-BY', { hour: '2-digit', minute: '2-digit' })}`;
+        els.overline.textContent = `Единая отсортированная выдача · ${pageResults.length} стр.${time}`;
       } catch (error) {
-        if (append) state.page = Math.max(1, state.page - 1);
-        const restored = !append && !state.order.length && restoreOfflinePersonalState();
-        if (!append && !state.order.length && !restored) renderFatalError(error.message);
+        const restored = !state.order.length && restoreOfflinePersonalState();
+        if (!state.order.length && !restored) renderFatalError(error.message);
         toast(restored ? 'Живые источники не ответили — показана локальная копия' : error.message, restored ? 'info' : 'error');
       } finally {
-        state.loading = false; els.searchButton.disabled = false; els.loadButton.disabled = false;
+        state.loading = false; els.searchButton.disabled = false; els.sort.disabled = false;
+        els.paginationPrev.disabled = state.page <= 1; els.paginationNext.disabled = state.page >= state.totalPages;
       }
     }
 
@@ -3024,25 +3554,87 @@
     function sortedIds() {
       const ids = [...state.order];
       const value = els.sort.value;
-      const number = (item, key, fallback) => Number.isFinite(Number(item?.[key])) ? Number(item[key]) : fallback;
+      const numeric = (a, b, key, direction) => {
+        const left = Number(a?.[key]), right = Number(b?.[key]);
+        const hasLeft = Number.isFinite(left), hasRight = Number.isFinite(right);
+        if (!hasLeft && !hasRight) return 0;
+        if (!hasLeft) return 1;
+        if (!hasRight) return -1;
+        return (left - right) * direction;
+      };
       ids.sort((aId, bId) => {
         const a = state.items.get(aId), b = state.items.get(bId);
-        if (value === 'priceAsc') return number(a, 'priceByn', Infinity) - number(b, 'priceByn', Infinity);
-        if (value === 'priceDesc') return number(b, 'priceByn', -Infinity) - number(a, 'priceByn', -Infinity);
-        if (value === 'yearDesc') return number(b, 'year', -Infinity) - number(a, 'year', -Infinity);
-        if (value === 'yearAsc') return number(a, 'year', Infinity) - number(b, 'year', Infinity);
-        if (value === 'mileageAsc') return number(a, 'mileage', Infinity) - number(b, 'mileage', Infinity);
-        if (value === 'mileageDesc') return number(b, 'mileage', -Infinity) - number(a, 'mileage', -Infinity);
-        return (Date.parse(b?.updatedAt || b?.createdAt || 0) || 0) - (Date.parse(a?.updatedAt || a?.createdAt || 0) || 0);
+        let result = 0;
+        if (value === 'priceAsc') result = numeric(a, b, 'priceByn', 1);
+        else if (value === 'priceDesc') result = numeric(a, b, 'priceByn', -1);
+        else if (value === 'yearDesc') result = numeric(a, b, 'year', -1);
+        else if (value === 'yearAsc') result = numeric(a, b, 'year', 1);
+        else if (value === 'mileageAsc') result = numeric(a, b, 'mileage', 1);
+        else if (value === 'mileageDesc') result = numeric(a, b, 'mileage', -1);
+        if (result) return result;
+        const byDate = (Date.parse(b?.updatedAt || b?.createdAt || 0) || 0) - (Date.parse(a?.updatedAt || a?.createdAt || 0) || 0);
+        return byDate || String(aId).localeCompare(String(bId), 'ru');
       });
       return ids;
+    }
+
+    function paginationTokens(total, current) {
+      const compact = mobileFilterMedia.matches;
+      const radius = compact ? 0 : 1;
+      const edge = compact ? 1 : 2;
+      if (total <= (compact ? 5 : 7)) return Array.from({ length: total }, (_, index) => index + 1);
+      const pages = new Set([1, total]);
+      for (let page = 2; page <= Math.min(total - 1, edge + 1); page += 1) if (current <= edge + 2) pages.add(page);
+      for (let page = Math.max(2, total - edge); page < total; page += 1) if (current >= total - edge - 1) pages.add(page);
+      for (let page = Math.max(2, current - radius); page <= Math.min(total - 1, current + radius); page += 1) pages.add(page);
+      const sorted = [...pages].sort((a, b) => a - b), tokens = [];
+      sorted.forEach((page, index) => {
+        if (index && page - sorted[index - 1] > 1) tokens.push('ellipsis');
+        tokens.push(page);
+      });
+      return tokens;
+    }
+
+    function renderPagination(totalItems, visibleItems) {
+      const paginated = !state.favoriteFeed && !state.offlineMode;
+      const visible = paginated && state.totalPages > 1;
+      els.paginationShell.classList.toggle('visible', visible);
+      if (!visible) { els.paginationPages.innerHTML = ''; return; }
+      const start = (state.page - 1) * RESULT_PAGE_SIZE + 1;
+      const end = start + visibleItems - 1;
+      els.paginationMeta.innerHTML = `<strong>Страница ${state.page} из ${state.totalPages}</strong><span>Показаны ${start}–${end} из ${totalItems} собранных автомобилей</span>`;
+      els.paginationPages.innerHTML = paginationTokens(state.totalPages, state.page).map(token => token === 'ellipsis'
+        ? '<span class="pagination-ellipsis" aria-hidden="true">…</span>'
+        : `<button class="pagination-page" type="button" data-result-page="${token}"${token === state.page ? ' aria-current="page"' : ''} aria-label="Страница ${token}">${token}</button>`).join('');
+      els.paginationPrev.disabled = state.page <= 1;
+      els.paginationNext.disabled = state.page >= state.totalPages;
+    }
+
+    function syncResultPageUrl() {
+      const url = new URL(location.href);
+      if (state.page > 1) url.searchParams.set('resultPage', String(state.page));
+      else url.searchParams.delete('resultPage');
+      url.hash = 'results';
+      history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+    }
+
+    function goToResultPage(page, { scroll = true } = {}) {
+      const next = Math.max(1, Math.min(state.totalPages, Number(page) || 1));
+      if (next === state.page || state.loading) return;
+      state.page = next; sortAndRender(); syncResultPageUrl();
+      if (scroll) requestAnimationFrame(() => $('#results').scrollIntoView({ behavior: 'smooth', block: 'start' }));
     }
 
     function sortAndRender() {
       if (!state.order.length) { renderEmpty(); return; }
       const ids = sortedIds();
-      els.grid.innerHTML = ids.map(id => cardHTML(state.items.get(id))).join('');
-      els.shown.textContent = `· ${state.order.length}`;
+      const paginated = !state.favoriteFeed && !state.offlineMode;
+      state.totalPages = paginated ? Math.max(1, Math.ceil(ids.length / RESULT_PAGE_SIZE)) : 1;
+      state.page = Math.max(1, Math.min(state.page, state.totalPages));
+      const pageIds = paginated ? ids.slice((state.page - 1) * RESULT_PAGE_SIZE, state.page * RESULT_PAGE_SIZE) : ids;
+      els.grid.innerHTML = pageIds.map((id, index) => cardHTML(state.items.get(id), index)).join('');
+      els.shown.textContent = `· ${ids.length}`;
+      renderPagination(ids.length, pageIds.length);
       setupDetailObserver(); setupSmartImageObserver();
       queueMicrotask(queueMarketEnrichment);
     }
@@ -3190,12 +3782,11 @@
     function publishedVin(item) { const vin = normalizeVin(item?.vin); return /^[A-HJ-NPR-Z0-9]{17}$/.test(vin) ? vin : ''; }
     function vinButtonHTML(item) {
       const vin = publishedVin(item), confirmedMissing = item.detailLoaded === true && !vin;
-      const label = confirmedMissing ? 'VIN не опубликован' : 'Полный VIN-отчёт';
-      const title = confirmedMissing ? 'Продавец не опубликовал полный 17-символьный VIN' : 'Расшифровка VIN и переход к полной проверке истории';
-      return `<button class="vin-button" type="button" data-action="vin-report" title="${escapeHTML(title)}"${confirmedMissing ? ' disabled' : ''}>${icon('vin')} ${label}</button>`;
+      const title = vin ? 'Расшифровка VIN и полный отчёт об истории' : confirmedMissing ? 'VIN не опубликован — его можно ввести вручную' : 'Найти VIN в карточке и открыть полную проверку истории';
+      return `<button class="vin-button" type="button" data-action="vin-report" title="${escapeHTML(title)}">${icon('vin')} Полный отчёт по VIN</button>`;
     }
 
-    function cardHTML(item) {
+    function cardHTML(item, cardIndex = 0) {
       const images = item.images?.length ? item.images : [fallbackImage];
       const generationTitle = [item.brand, item.model, item.generation].filter(Boolean).join(' ');
       const years = formatYears(item.generationYears);
@@ -3215,7 +3806,7 @@
       const comment = item.descriptionLoaded
         ? `<p class="seller-comment__text">${escapeHTML(item.description || 'Описание не добавлено продавцом.')}</p><button class="comment-more" type="button" data-action="comment-toggle">Показать полностью</button>`
         : `<div class="detail-loading"><span class="mini-spinner"></span><span>Загружаем данные источника…</span></div>`;
-      return `<article class="listing-card" data-id="${escapeHTML(item.id)}" data-source="${escapeHTML(item.source)}" data-detail-loaded="${item.detailLoaded === true ? '1' : '0'}" data-auto-detail="${item.source === 'av' || item.marketplace === 'AV.BY' ? '0' : '1'}">
+      return `<article class="listing-card" style="--card-index:${Math.max(0, Math.min(12, Number(cardIndex) || 0))}" data-id="${escapeHTML(item.id)}" data-source="${escapeHTML(item.source)}" data-detail-loaded="${item.detailLoaded === true ? '1' : '0'}" data-auto-detail="${item.source === 'av' || item.marketplace === 'AV.BY' ? '0' : '1'}">
         <div class="listing-card__media" data-action="open-gallery" data-index="0">
           <img src="${mediaUrl(images[0])}" alt="${escapeHTML(item.title)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'">
           <span class="source-badge source-badge--${sourceClass(item)}">${escapeHTML(item.sourceLabel)}</span>
@@ -3264,11 +3855,12 @@
       els.shown.textContent = '· 0';
       const hasErrors = state.sourceStatus.length && state.sourceStatus.every(status => ['error', 'blocked'].includes(status.state));
       els.grid.innerHTML = `<div class="empty-state"><div><div class="empty-state__icon">${icon(hasErrors ? 'alert' : 'search')}</div><h3>${hasErrors ? 'Источники не ответили' : 'Объявлений не найдено'}</h3><p>${hasErrors ? 'Это не заменено демонстрационными карточками. Попробуйте ещё раз позже или отключите источник со статусом ошибки.' : 'Попробуйте расширить диапазон цены и года, убрать поколение или выбрать всю Беларусь.'}</p><button type="button" data-action="reset-search">Сбросить фильтры</button></div></div>`;
-      els.loadWrap.classList.remove('visible');
+      state.totalPages = 1; state.page = 1; els.paginationShell.classList.remove('visible');
     }
     function renderFatalError(message) {
       state.sourceStatus = [];
       els.shown.textContent = '';
+      els.paginationShell.classList.remove('visible');
       els.grid.innerHTML = `<div class="empty-state"><div><div class="empty-state__icon">${icon('alert')}</div><h3>Поиск временно недоступен</h3><p>${escapeHTML(message)}. Фиктивные объявления не показываются.</p><button type="button" data-action="retry-search">Повторить</button></div></div>`;
     }
 
@@ -3520,6 +4112,29 @@
       preloadAround(item, state.lightbox.index);
     }
 
+    function initHeroShowroom() {
+      const hero = $('.hero');
+      const finePointer = matchMedia('(pointer:fine)');
+      const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+      if (!hero || !finePointer.matches || reducedMotion.matches) return;
+      let frame = 0, targetX = 0, targetY = 0;
+      const paint = () => {
+        frame = 0;
+        hero.style.setProperty('--hero-x', `${targetX.toFixed(2)}px`);
+        hero.style.setProperty('--hero-y', `${targetY.toFixed(2)}px`);
+      };
+      hero.addEventListener('pointermove', event => {
+        const rect = hero.getBoundingClientRect();
+        targetX = Math.max(-9, Math.min(9, ((event.clientX - rect.left) / rect.width - .5) * -14));
+        targetY = Math.max(-6, Math.min(6, ((event.clientY - rect.top) / rect.height - .5) * -9));
+        if (!frame) frame = requestAnimationFrame(paint);
+      }, { passive: true });
+      hero.addEventListener('pointerleave', () => {
+        targetX = 0; targetY = 0;
+        if (!frame) frame = requestAnimationFrame(paint);
+      }, { passive: true });
+    }
+
     function updateBrowserUrl(params) {
       const visible = new URLSearchParams(params);
       visible.delete('limit'); visible.delete('page');
@@ -3532,6 +4147,8 @@
       for (const input of $$('input[name="source"]', els.form)) input.checked = params.getAll('source').includes(input.value);
       if (!params.getAll('source').length) $$('input[name="source"]', els.form).filter(i => ['onliner', 'kufar', 'av', 'dealer', 'autohouse'].includes(i.value)).forEach(i => i.checked = true);
       const mode = params.get('mode'); const modeInput = mode && $(`input[name="mode"][value="${CSS.escape(mode)}"]`, els.form); if (modeInput) modeInput.checked = true;
+      const sort = params.get('sort'); if (sort && [...els.sort.options].some(option => option.value === sort)) els.sort.value = sort;
+      const requestedPage = Number(params.get('resultPage')); state.requestedPage = Number.isInteger(requestedPage) ? Math.max(1, Math.min(100, requestedPage)) : 1;
       const controls = ['priceFrom','priceTo','yearFrom','yearTo','city','body','fuel','transmission','drivetrain','mileageTo'];
       controls.forEach(name => { if (params.has(name) && els.form.elements[name]) els.form.elements[name].value = params.get(name); });
       if (params.get('brand') && state.brands.some(item => String(item.id) === params.get('brand'))) {
@@ -3621,9 +4238,16 @@
     els.brand.addEventListener('change', () => onBrandChange());
     els.model.addEventListener('change', () => onModelChange());
     els.resetButton.addEventListener('click', () => resetForm());
-    els.sort.addEventListener('change', () => { setPersonalPreference('sort', els.sort.value); sortAndRender(); });
+    els.sort.addEventListener('change', () => {
+      setPersonalPreference('sort', els.sort.value); state.page = 1;
+      if (state.favoriteFeed || state.offlineMode) sortAndRender();
+      else runSearch({ scroll: false });
+    });
     els.density.addEventListener('click', () => applyDensity(state.density === 'compact' ? 'comfortable' : 'compact'));
-    els.themeToggle.addEventListener('click', () => applyTheme(state.theme === 'light' ? 'dark' : 'light'));
+    els.themeToggle.addEventListener('click', event => {
+      const choice = event.target.closest('[data-theme-choice]');
+      if (choice) applyTheme(choice.dataset.themeChoice);
+    });
     els.bodyPickerButton.addEventListener('click', () => els.bodyPicker.classList.contains('open') ? closeBodyPicker() : openBodyPicker());
     els.bodyPickerMenu.addEventListener('click', event => { const option = event.target.closest('[data-body-value]'); if (option) selectBody(option.dataset.bodyValue); });
     els.bodySelect.addEventListener('change', syncBodyPicker);
@@ -3635,9 +4259,12 @@
     els.generationTrack.addEventListener('click', event => {
       const card = event.target.closest('[data-generation]'); if (card) toggleGeneration(card.dataset.generation);
     });
-    els.loadButton.addEventListener('click', async () => {
-      state.page += 1; await runSearch({ append: true, scroll: false });
+    els.paginationPages.addEventListener('click', event => {
+      const button = event.target.closest('[data-result-page]');
+      if (button) goToResultPage(button.dataset.resultPage);
     });
+    els.paginationPrev.addEventListener('click', () => goToResultPage(state.page - 1));
+    els.paginationNext.addEventListener('click', () => goToResultPage(state.page + 1));
 
     els.grid.addEventListener('pointerdown', beginCardSwipe);
     els.grid.addEventListener('pointermove', moveCardSwipe, { passive: false });
@@ -3713,6 +4340,20 @@
     });
     els.vinClose.addEventListener('click', closeVinReport);
     els.vinPanel.addEventListener('click', event => { if (event.target === els.vinPanel) closeVinReport(); });
+    els.vinPanel.addEventListener('submit', event => {
+      const form = event.target.closest('[data-vin-manual]'); if (!form) return;
+      event.preventDefault();
+      const input = $('[name="vin"]', form);
+      const vin = String(input?.value || '').toUpperCase().replace(/[\s-]+/g, '');
+      if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) {
+        input?.setAttribute('aria-invalid', 'true'); input?.focus();
+        toast('Введите полный VIN: ровно 17 символов без I, O и Q', 'error'); return;
+      }
+      input?.removeAttribute('aria-invalid');
+      $$('.toast--error', els.toastStack).forEach(node => node.remove());
+      const current = state.items.get(state.vinListingId) || { title: 'Ручная проверка VIN' };
+      requestVinReport({ ...current, _manualVin: true }, vin);
+    });
 
     els.lightbox.addEventListener('click', event => {
       const action = event.target.closest('[data-lightbox]')?.dataset.lightbox;
@@ -3833,7 +4474,7 @@
     // Phones open directly on the expanded filters and wait for an explicit
     // search. Desktop keeps the immediate live feed; shared filter URLs work on both.
     applyTheme(state.theme, false); syncBodyPicker();
-    initPwa();
+    initHeroShowroom(); initPwa();
     (async function bootstrap() {
       await initPersonalDatabase();
       const catalogLoaded = await loadBrands();
@@ -3858,5 +4499,5 @@
       setTimeout(revalidateFavorites, 2500);
     })();
   </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3b61bb7adb1bf56',t:'MTc4OTQ1OTMzNg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
