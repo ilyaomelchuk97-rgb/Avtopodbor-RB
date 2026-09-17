@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#080a0d">
-  <meta name="application-version" content="1.5.9">
+  <meta name="application-version" content="1.6.2">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="MOTOR.BY">
@@ -1432,6 +1432,154 @@
       .skeleton-specs { grid-template-columns: repeat(2,1fr); }
     }
 
+    /* Release 1.6: static currency, sharing and comparison controls. */
+    .price-field-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 7px; }
+    .price-field-head label { margin: 0; }
+    .price-currency { display: inline-grid; grid-template-columns: 1fr 1fr; padding: 2px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.025); }
+    .price-currency button { min-width: 43px; height: 25px; padding: 0 8px; border: 0; border-radius: 6px; background: transparent; color: var(--muted-2); cursor: pointer; font-size: 8px; font-weight: 780; }
+    .price-currency button[aria-pressed="true"] { color: var(--accent-ink); background: var(--accent); }
+    .price-rate { min-height: 14px; margin-top: 6px; color: var(--muted-2); font-size: 8px; line-height: 1.35; }
+
+    .results-tool-button { position: relative; height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 12px; border: 1px solid rgba(255,255,255,.22); border-radius: 12px; background: rgba(255,255,255,.04); color: #d2d6dc; cursor: pointer; white-space: nowrap; font-size: 10px; font-weight: 720; }
+    .results-tool-button:hover,.results-tool-button[aria-pressed="true"] { color: var(--accent); border-color: color-mix(in srgb,var(--accent) 42%,transparent); background: var(--accent-soft); }
+    .results-tool-button:disabled { opacity: .48; cursor: not-allowed; }
+    .results-tool-button .icon { width: 17px; height: 17px; }
+    .results-tool-button b { min-width: 18px; height: 18px; display: inline-grid; place-items: center; border-radius: 99px; background: var(--accent); color: var(--accent-ink); font-size: 8px; }
+
+    .listing-title-line { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .listing-title-line > div { min-width: 0; flex: 1; }
+    .listing-title-line .listing-title { min-width: 0; flex: 1; }
+    .compare-card-button { min-height: 34px; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 9px; border: 1px solid var(--line); border-radius: 9px; background: rgba(255,255,255,.025); color: #aeb5be; cursor: pointer; font-size: 9px; font-weight: 720; }
+    .compare-card-button .icon { width: 14px; height: 14px; }
+    .compare-card-button[aria-pressed="true"] { color: var(--accent); border-color: color-mix(in srgb,var(--accent) 45%,transparent); background: var(--accent-soft); }
+    .listing-card.is-compared { border-color: color-mix(in srgb,var(--accent) 50%,rgba(255,255,255,.34)); }
+
+    .compare-dock { position: fixed; z-index: 190; left: 0; right: 0; bottom: max(14px,var(--safe-bottom)); width: min(850px,calc(100% - 28px)); margin: 0 auto; min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 10px 12px 10px 14px; border: 1px solid var(--line-strong); border-radius: 16px; background: #10141a; box-shadow: 0 16px 45px rgba(0,0,0,.42); }
+    .compare-dock[hidden] { display: none !important; }
+    .compare-dock__summary { min-width: 0; display: flex; align-items: center; gap: 11px; }
+    .compare-dock__summary > span { color: #b8bec7; font-size: 10px; }
+    .compare-dock__cars { display: flex; align-items: center; }
+    .compare-dock__car { width: 40px; height: 40px; margin-left: -7px; overflow: hidden; border: 2px solid #10141a; border-radius: 50%; background: #1b2129; }
+    .compare-dock__car:first-child { margin-left: 0; }
+    .compare-dock__car img { width: 100%; height: 100%; object-fit: cover; }
+    .compare-dock__actions { display: flex; align-items: center; gap: 7px; }
+    .compare-dock__actions button,.compare-dialog__head-actions button { min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 12px; border: 1px solid var(--line); border-radius: 9px; background: #151a21; color: #c8cdd4; cursor: pointer; font-size: 9px; font-weight: 720; }
+    .compare-dock__actions button:disabled { opacity: .45; cursor: not-allowed; }
+    .compare-dock__actions .compare-dock__open { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+    .compare-dock__actions .icon,.compare-dialog__head-actions .icon { width: 15px; height: 15px; }
+    body.has-compare-selection .results-section { padding-bottom: 160px; }
+
+    .compare-layer { position: fixed; inset: 0; z-index: 235; display: none; place-items: center; padding: 24px; background: rgba(3,5,8,.9); }
+    .compare-layer.open { display: grid; }
+    .compare-dialog { width: min(1180px,100%); max-height: calc(100dvh - 48px); overflow: hidden; border: 1px solid var(--line-strong); border-radius: 20px; background: #0d1117; box-shadow: 0 28px 90px rgba(0,0,0,.5); }
+    .compare-dialog__head { min-height: 82px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 16px 18px; border-bottom: 1px solid var(--line); background: #11161d; }
+    .compare-dialog__eyebrow { color: var(--accent); font-size: 8px; font-weight: 760; letter-spacing: .15em; text-transform: uppercase; }
+    .compare-dialog h2 { margin: 5px 0 0; font-size: 25px; letter-spacing: -.04em; }
+    .compare-dialog__head-actions { display: flex; align-items: center; gap: 7px; }
+    .compare-dialog__head-actions .compare-close { width: 40px; padding: 0; }
+    .compare-content { max-height: calc(100dvh - 130px); overflow: auto; overscroll-behavior: contain; }
+    .compare-empty { min-height: 330px; display: grid; place-items: center; padding: 35px; text-align: center; color: var(--muted); }
+    .compare-empty strong { display: block; margin-bottom: 8px; color: white; font-size: 18px; }
+    .compare-table { width: 100%; min-width: 760px; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+    .compare-table th,.compare-table td { padding: 12px 14px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    .compare-table th:first-child,.compare-table td:first-child { width: 155px; }
+    .compare-table thead th { position: sticky; top: 0; z-index: 3; background: #11161d; }
+    .compare-table thead th:first-child { left: 0; z-index: 5; }
+    .compare-table tbody th { position: sticky; left: 0; z-index: 2; color: var(--muted-2); background: #0f141a; font-size: 9px; font-weight: 650; text-transform: uppercase; letter-spacing: .08em; }
+    .compare-table tbody td { color: #d5d9df; background: #0d1117; font-size: 11px; line-height: 1.4; }
+    .compare-table td.compare-best { color: var(--accent); background: color-mix(in srgb,var(--accent) 5%,#0d1117); font-weight: 760; }
+    .compare-car { position: relative; min-height: 208px; }
+    .compare-car img { width: 100%; height: 112px; display: block; margin-bottom: 10px; border-radius: 10px; object-fit: cover; background: #171d25; }
+    .compare-car strong { display: block; padding-right: 30px; font-size: 13px; line-height: 1.25; }
+    .compare-car span { display: block; margin-top: 5px; color: var(--accent); font-size: 12px; }
+    .compare-car small { display: block; margin-top: 3px; color: var(--muted-2); font-size: 9px; }
+    .compare-car a { display: inline-flex; align-items: center; gap: 5px; margin-top: 9px; color: #c8ced7; font-size: 9px; }
+    .compare-car a .icon { width: 13px; height: 13px; }
+    .compare-car__remove { position: absolute; top: 0; right: 0; width: 30px; height: 30px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: 8px; background: #171c23; color: #c5cbd3; cursor: pointer; }
+    .compare-car__remove .icon { width: 13px; height: 13px; }
+
+    html[data-theme="light"] .price-currency { border-color: rgba(42,102,168,.16); background: rgba(255,255,255,.56); }
+    html[data-theme="light"] .price-rate { color: #607993; }
+    html[data-theme="light"] :where(.results-tool-button,.compare-card-button) { border-color: rgba(41,100,165,.17); background: rgba(255,255,255,.58); color: #365675; }
+    html[data-theme="light"] .compare-dock { border-color: rgba(255,255,255,.92); background: #f5faff; box-shadow: 0 16px 45px rgba(43,91,145,.18); }
+    html[data-theme="light"] .compare-dock__car { border-color: #f5faff; background: #e4eef9; }
+    html[data-theme="light"] .compare-dock__summary > span { color: #45627f; }
+    html[data-theme="light"] :where(.compare-dock__actions button,.compare-dialog__head-actions button) { border-color: rgba(42,102,168,.16); background: #edf5fd; color: #284c70; }
+    html[data-theme="light"] .compare-layer { background: rgba(213,228,243,.94); }
+    html[data-theme="light"] .compare-dialog { color: #143454; border-color: rgba(255,255,255,.95); background: #f5faff; box-shadow: 0 28px 90px rgba(45,91,143,.22); }
+    html[data-theme="light"] .compare-dialog__head,html[data-theme="light"] .compare-table thead th { background: #edf6ff; }
+    html[data-theme="light"] .compare-table tbody th { color: #5a728b; background: #eef6fe; }
+    html[data-theme="light"] .compare-table tbody td { color: #234462; background: #f8fbff; }
+    html[data-theme="light"] .compare-table td.compare-best { color: #0865d8; background: #eaf4ff; }
+    html[data-theme="light"] .compare-car__remove { border-color: rgba(42,102,168,.16); background: #e8f2fc; color: #315777; }
+    html[data-theme="light"] .compare-car img { background: #deebf7; }
+    html[data-theme="light"] .compare-empty strong { color: #143454; }
+
+    @media (max-width: 620px) {
+      .price-currency button { min-width: 46px; height: 30px; font-size: 9px; }
+      .price-rate { font-size: 9px; }
+      .results-tools { display: grid; grid-template-columns: minmax(0,1fr) 46px 46px 46px; gap: 7px; }
+      .results-sort { min-width: 0; }
+      .results-tool-button { width: 46px; padding: 0; }
+      .results-tool-button > span { display: none; }
+      .results-tool-button b { position: absolute; top: -6px; right: -5px; border: 2px solid var(--bg); }
+      .listing-card__media,.skeleton-media { height: 202px; }
+      .listing-card__body { padding: 14px 13px 13px; }
+      .listing-kicker { margin-bottom: 4px; font-size: 9px; }
+      .listing-title-line { gap: 8px; }
+      .listing-title { font-size: 20px; }
+      .compare-card-button { min-height: 38px; padding: 0 9px; font-size: 9px; }
+      .listing-offer { grid-template-columns: minmax(0,1fr) 132px; gap: 9px; margin-top: 10px; padding: 9px 10px; }
+      .listing-price strong { font-size: 22px; }
+      .spec-grid { gap: 5px; margin: 11px 0 10px; }
+      .spec { min-height: 50px; padding: 8px 9px 7px; }
+      .spec span { font-size: 8px; }
+      .spec strong { margin-top: 3px; font-size: 11px; line-height: 1.18; }
+      .generation-mini { min-height: 60px; gap: 9px; margin-bottom: 10px; padding: 7px; }
+      .generation-mini__image { width: 68px; height: 46px; }
+      .generation-mini__info span { margin-bottom: 2px; font-size: 8px; }
+      .generation-mini__info strong { font-size: 11px; }
+      .generation-mini__info small { margin-top: 2px; font-size: 9px; }
+      .seller-comment { margin-bottom: 10px; padding: 10px 10px 9px 33px; }
+      .seller-comment::before { left: 10px; top: 7px; font-size: 24px; }
+      .seller-comment__label { margin-bottom: 3px; font-size: 8px; }
+      .seller-comment__text { -webkit-line-clamp: 2; font-size: 11px; line-height: 1.4; }
+      .comment-more { min-height: 36px; font-size: 10px; }
+      .listing-footer { gap: 8px; padding-top: 10px; }
+      .seller-meta { display: flex; align-items: center; gap: 8px; }
+      .seller-meta strong { max-width: 44%; font-size: 11px; }
+      .seller-meta span { min-width: 0; margin-top: 0; font-size: 9px; }
+      .card-buttons { gap: 6px; }
+      .detail-button,.original-button { height: 40px; font-size: 10px; }
+      .compare-dock { bottom: max(7px,var(--safe-bottom)); width: calc(100% - 14px); min-height: 64px; gap: 8px; padding: 8px; border-radius: 14px; }
+      .compare-dock__summary > span { display: none; }
+      .compare-dock__car { width: 36px; height: 36px; }
+      .compare-dock__actions button { min-height: 44px; padding-inline: 10px; font-size: 9px; }
+      .compare-dock__actions button:first-child { font-size: 0; width: 44px; padding: 0; }
+      .compare-dock__actions button:first-child::before { content: "×"; font-size: 20px; }
+      .compare-layer { padding: 0; }
+      .compare-dialog { width: 100%; height: 100dvh; max-height: none; border: 0; border-radius: 0; }
+      .compare-dialog__head { min-height: calc(72px + var(--safe-top)); align-items: flex-end; padding: calc(11px + var(--safe-top)) 10px 11px; }
+      .compare-dialog h2 { font-size: 20px; }
+      .compare-dialog__head-actions button:first-child { width: 44px; padding: 0; font-size: 0; }
+      .compare-dialog__head-actions button:first-child .icon { width: 17px; height: 17px; }
+      .compare-content { max-height: calc(100dvh - 72px - var(--safe-top)); }
+      .compare-table { min-width: 700px; }
+      .compare-table th,.compare-table td { padding: 10px; }
+      .compare-table th:first-child,.compare-table td:first-child { width: 120px; }
+      .compare-car { min-height: 190px; }
+      .compare-car img { height: 96px; }
+    }
+    @media (max-width: 430px) {
+      .listing-card,.listing-card:hover { contain-intrinsic-size: auto 1200px; }
+      .listing-card__media,.skeleton-media { height: 184px; }
+      .listing-card__body { padding: 13px 12px 12px; }
+      .listing-offer { grid-template-columns: minmax(0,1fr) 120px; }
+      .market-price__head strong { font-size: 7px; }
+      .compare-card-button span { display: inline; }
+      .compare-card-button { width: auto; padding: 0 8px; font-size: 8px; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; }
     }
@@ -1461,6 +1609,8 @@
     <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></symbol>
     <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 5-5m-5 5-5-5M4 20h16"/></symbol>
     <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.5M8.2 13.2l7.6 4.5"/></symbol>
+    <symbol id="i-compare" viewBox="0 0 24 24"><path d="M8 4v16M16 4v16M4 8l4-4 4 4M12 16l4 4 4-4"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m3 0-1 14H7L6 7m4 4v6m4-6v6"/></symbol>
     <symbol id="i-swipe" viewBox="0 0 24 24"><path d="M4 12h16m0 0-4-4m4 4-4 4M4 12l4-4m-4 4 4 4"/></symbol>
     <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
@@ -1574,12 +1724,19 @@
                   <svg class="icon select-arrow"><use href="#i-chevron"></use></svg>
                 </div>
               </div>
-              <div class="field">
-                <label>Цена, BYN</label>
-                <div class="range-control">
-                  <input id="priceFrom" name="priceFrom" type="number" min="0" step="500" placeholder="От">
-                  <input id="priceTo" name="priceTo" type="number" min="0" step="500" placeholder="До">
+              <div class="field field--price">
+                <div class="price-field-head">
+                  <label id="priceFieldLabel" for="priceFrom">Цена, BYN</label>
+                  <div class="price-currency" id="priceCurrency" role="group" aria-label="Валюта цены">
+                    <button type="button" data-price-currency="BYN" aria-pressed="true">BYN</button>
+                    <button type="button" data-price-currency="USD" aria-pressed="false">USD</button>
+                  </div>
                 </div>
+                <div class="range-control">
+                  <input id="priceFrom" name="priceFrom" type="number" min="0" step="500" inputmode="numeric" placeholder="От">
+                  <input id="priceTo" name="priceTo" type="number" min="0" step="500" inputmode="numeric" placeholder="До">
+                </div>
+                <div class="price-rate" id="priceRate" aria-live="polite">Загружаем курс НБРБ…</div>
               </div>
               <div class="field">
                 <label>Год выпуска</label>
@@ -1704,6 +1861,8 @@
               <svg class="icon select-arrow" aria-hidden="true"><use href="#i-chevron"></use></svg>
             </div>
             <button class="density-toggle" id="densityToggle" type="button" aria-pressed="false" title="Переключить плотность карточек"><svg class="icon" aria-hidden="true"><use href="#i-layers"></use></svg><span>Подробно</span></button>
+            <button class="results-tool-button" id="shareSearchButton" type="button" title="Поделиться этой подборкой"><svg class="icon" aria-hidden="true"><use href="#i-share"></use></svg><span>Поделиться</span></button>
+            <button class="results-tool-button results-tool-button--compare" id="compareOpenButton" type="button" title="Открыть сравнение" disabled><svg class="icon" aria-hidden="true"><use href="#i-compare"></use></svg><span>Сравнить</span><b id="compareToolbarCount">0</b></button>
           </div>
         </div>
         <div class="source-statuses" id="sourceStatuses" aria-live="polite"></div>
@@ -1769,6 +1928,21 @@
     </section>
   </div>
 
+  <aside class="compare-dock" id="compareDock" aria-label="Выбранные для сравнения автомобили" hidden>
+    <div class="compare-dock__summary"><div class="compare-dock__cars" id="compareDockCars"></div><span id="compareDockText">Выберите ещё один автомобиль</span></div>
+    <div class="compare-dock__actions"><button type="button" data-compare-action="clear">Очистить</button><button class="compare-dock__open" id="compareDockOpen" type="button" data-compare-action="open" disabled><svg class="icon" aria-hidden="true"><use href="#i-compare"></use></svg> Сравнить</button></div>
+  </aside>
+
+  <div class="compare-layer" id="comparePanel" role="presentation">
+    <section class="compare-dialog" role="dialog" aria-modal="true" aria-labelledby="compareTitle">
+      <div class="compare-dialog__head">
+        <div><div class="compare-dialog__eyebrow">До трёх автомобилей</div><h2 id="compareTitle">Сравнение автомобилей</h2></div>
+        <div class="compare-dialog__head-actions"><button type="button" data-compare-action="share"><svg class="icon" aria-hidden="true"><use href="#i-share"></use></svg> Поделиться подборкой</button><button class="compare-close" type="button" data-compare-action="close" aria-label="Закрыть сравнение"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button></div>
+      </div>
+      <div class="compare-content" id="compareContent"></div>
+    </section>
+  </div>
+
   <div class="vin-layer" id="vinReportPanel" role="presentation">
     <section class="vin-dialog" role="dialog" aria-modal="true" aria-labelledby="vinReportTitle">
       <div class="vin-dialog__head"><div><div class="vin-dialog__eyebrow">Проверка истории автомобиля</div><h2 id="vinReportTitle">Полный отчёт по VIN</h2></div><button class="vin-close" id="vinReportClose" type="button" aria-label="Закрыть VIN-отчёт"><svg class="icon"><use href="#i-close"></use></svg></button></div>
@@ -1799,6 +1973,10 @@
     const PERSONAL_DB_NAME = 'motorby-personal';
     const PERSONAL_DB_VERSION = 1;
     const PERSONAL_HISTORY_LIMIT = 40;
+    const COMPARE_STORAGE_KEY = 'motorby:compare-v1';
+    const MAX_COMPARE_ITEMS = 3;
+    const FALLBACK_USD_BYN_RATE = 3.03;
+    const EXCHANGE_REFRESH_MS = 60 * 60 * 1000;
     const avBrowserCache = new Map();
     const personalDb = { db: null, available: false };
     const noteTimers = new Map();
@@ -1813,8 +1991,18 @@
       lastParams: null, favorites: new Set(), detailQueue: [], detailActive: 0,
       detailQueued: new Set(), observer: null, viewObserver: null, viewTimers: new Map(),
       personalRecords: new Map(), preferences: new Map(), savedSearches: [], density: 'comfortable', theme: document.documentElement.dataset.theme === 'light' ? 'light' : 'dark', favoriteFeed: false,
+      compared: new Map(), priceCurrency: 'BYN', exchangeRate: FALLBACK_USD_BYN_RATE, exchangeLive: false, exchangeDate: null, exchangeCheckedAt: 0, exchangePromise: null,
       vinListingId: null, vinRequestId: 0, lightbox: { id: null, index: 0 },
     };
+    try {
+      const savedComparison = JSON.parse(localStorage.getItem(COMPARE_STORAGE_KEY) || '[]');
+      if (Array.isArray(savedComparison)) savedComparison.slice(0, MAX_COMPARE_ITEMS).forEach(item => {
+        if (item?.id && typeof item.id === 'string') state.compared.set(item.id, item);
+      });
+      const savedCurrency = JSON.parse(localStorage.getItem('motorby:pref:priceCurrency') || '"BYN"');
+      state.priceCurrency = savedCurrency === 'USD' ? 'USD' : 'BYN';
+    } catch (_) {}
+
     const lightboxZoom = {
       scale: 1, x: 0, y: 0, startScale: 1, startX: 0, startY: 0,
       startDistance: 0, startCenterX: 0, startCenterY: 0,
@@ -1836,6 +2024,8 @@
       generationPicker: $('#generationPicker'), generationTrack: $('#generationTrack'), generationHint: $('#generationHint'),
       grid: $('#resultsGrid'), statuses: $('#sourceStatuses'), shown: $('#shownCount'), overline: $('#resultsOverline'), headingText: $('#resultsHeadingText'),
       sort: $('#sortSelect'), density: $('#densityToggle'), paginationShell: $('#paginationShell'), pagination: $('#resultsPagination'), paginationPages: $('#paginationPages'), paginationMeta: $('#paginationMeta'), paginationPrev: $('#paginationPrev'), paginationNext: $('#paginationNext'),
+      shareSearch: $('#shareSearchButton'), compareOpen: $('#compareOpenButton'), compareToolbarCount: $('#compareToolbarCount'), compareDock: $('#compareDock'), compareDockCars: $('#compareDockCars'), compareDockText: $('#compareDockText'), compareDockOpen: $('#compareDockOpen'), comparePanel: $('#comparePanel'), compareContent: $('#compareContent'),
+      priceCurrency: $('#priceCurrency'), priceFieldLabel: $('#priceFieldLabel'), priceRate: $('#priceRate'), priceFrom: $('#priceFrom'), priceTo: $('#priceTo'),
       mobileSettings: $('#mobileSettingsButton'), mobileSummary: $('#mobileFilterSummary'),
       installButton: $('#installAppButton'), themeToggle: $('#themePicker'), themeMeta: $('meta[name="theme-color"]'), personalButton: $('#personalPanelButton'), personalBadge: $('#personalBadge'),
       personalPanel: $('#personalPanel'), personalImport: $('#personalImportInput'), savedSearches: $('#savedSearches'), personalActivity: $('#personalActivity'),
@@ -2270,7 +2460,73 @@
       return Number.isFinite(number) ? new Intl.NumberFormat('ru-BY', { maximumFractionDigits: 0 }).format(number) : '—';
     }
     function formatPrice(value) { return value === null || value === undefined ? 'Цена не указана' : `${formatNumber(Math.round(value))} р.`; }
-    function formatUsd(value) { return value === null || value === undefined ? '' : `≈ $${formatNumber(Math.round(value))}`; }
+    function officialUsdValue(priceByn, sourceUsd = null) {
+      const byn = Number(priceByn), rate = Number(state.exchangeRate), fallback = Number(sourceUsd);
+      if (Number.isFinite(byn) && byn > 0 && Number.isFinite(rate) && rate > 0) return Math.round(byn / rate);
+      return Number.isFinite(fallback) && fallback > 0 ? Math.round(fallback) : null;
+    }
+    function formatUsd(sourceUsd, priceByn = null) {
+      const value = officialUsdValue(priceByn, sourceUsd);
+      if (value === null) return '';
+      const official = Number(priceByn) > 0 ? (state.exchangeLive ? ' · НБРБ' : ' · по курсу сайта') : '';
+      return `≈ $${formatNumber(value)}${official}`;
+    }
+    function refreshUsdDisplays() {
+      $$('[data-price-usd]').forEach(node => {
+        node.textContent = formatUsd(node.dataset.sourceUsd || null, node.dataset.priceByn || null);
+      });
+      if (els.comparePanel?.classList.contains('open')) renderComparison();
+    }
+    function priceInputToByn(value) {
+      const number = Number(value);
+      if (!Number.isFinite(number) || number <= 0) return null;
+      return state.priceCurrency === 'USD' ? Math.round(number * state.exchangeRate) : Math.round(number);
+    }
+    function syncPriceCurrencyUI() {
+      const usd = state.priceCurrency === 'USD';
+      if (els.priceFieldLabel) els.priceFieldLabel.textContent = `Цена, ${state.priceCurrency}`;
+      if (els.priceCurrency) $$('[data-price-currency]', els.priceCurrency).forEach(button => button.setAttribute('aria-pressed', String(button.dataset.priceCurrency === state.priceCurrency)));
+      [els.priceFrom, els.priceTo].forEach(input => { if (input) input.step = usd ? '100' : '500'; });
+      if (els.priceRate) {
+        const date = state.exchangeDate ? new Intl.DateTimeFormat('ru-BY', { day: '2-digit', month: '2-digit' }).format(new Date(state.exchangeDate)) : '';
+        els.priceRate.textContent = `1 USD = ${state.exchangeRate.toLocaleString('ru-BY', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} BYN${state.exchangeLive ? ` · НБРБ${date ? ` на ${date}` : ''}` : ' · резервный курс'}`;
+      }
+    }
+    function setPriceCurrency(value, { convert = true, persist = true } = {}) {
+      const next = value === 'USD' ? 'USD' : 'BYN';
+      const previous = state.priceCurrency;
+      if (next !== previous && convert) {
+        [els.priceFrom, els.priceTo].forEach(input => {
+          const number = Number(input?.value);
+          if (!input || !Number.isFinite(number) || number <= 0) return;
+          input.value = next === 'USD'
+            ? String(Math.max(1, Math.round(number / state.exchangeRate)))
+            : String(Math.max(10, Math.round(number * state.exchangeRate / 10) * 10));
+        });
+      }
+      state.priceCurrency = next;
+      syncPriceCurrencyUI();
+      if (persist) setPersonalPreference('priceCurrency', next);
+    }
+    async function loadExchangeRate() {
+      if (state.exchangePromise) return state.exchangePromise;
+      state.exchangePromise = (async () => {
+        try {
+          const data = await api('/api/exchange');
+          const rate = Number(data?.rate);
+          if (!Number.isFinite(rate) || rate <= 0) throw new Error('Некорректный курс');
+          state.exchangeRate = rate; state.exchangeLive = data.live === true; state.exchangeDate = data.effectiveDate || null;
+        } catch (_) {
+          if (!state.exchangeCheckedAt) {
+            state.exchangeRate = FALLBACK_USD_BYN_RATE; state.exchangeLive = false; state.exchangeDate = null;
+          }
+        }
+        state.exchangeCheckedAt = Date.now();
+        syncPriceCurrencyUI(); refreshUsdDisplays();
+        return state.exchangeRate;
+      })().finally(() => { state.exchangePromise = null; });
+      return state.exchangePromise;
+    }
     function formatMileage(value) { return value === null || value === undefined ? 'Не указан' : `${formatNumber(value)} км`; }
     function formatYears(years) {
       if (!years || !years.from) return '';
@@ -2532,7 +2788,7 @@
       } catch (error) {
         console.warn('[personal db disabled]', error);
       }
-      for (const key of ['density', 'theme', 'sort', 'lastSearch', 'lastResultIds']) {
+      for (const key of ['density', 'theme', 'sort', 'priceCurrency', 'lastSearch', 'lastResultIds']) {
         if (state.preferences.has(key)) continue;
         try {
           const value = JSON.parse(localStorage.getItem(`motorby:pref:${key}`) || 'null');
@@ -2551,6 +2807,7 @@
       for (const record of state.personalRecords.values()) if (record.favorite) state.favorites.add(record.id);
       applyDensity(personalPreference('density', 'comfortable'), false);
       applyTheme(personalPreference('theme', state.theme), false);
+      setPriceCurrency(personalPreference('priceCurrency', state.priceCurrency), { convert: false, persist: false });
       const sort = personalPreference('sort', 'fresh');
       if ([...els.sort.options].some(option => option.value === sort)) els.sort.value = sort;
       renderPersonalPanel();
@@ -2572,6 +2829,98 @@
         description: String(item.description || '').slice(0, 3000),
       };
     }
+    function comparisonSnapshot(item) {
+      const snapshot = listingSnapshot(item);
+      delete snapshot.vin;
+      return {
+        id: item.id, ...snapshot,
+        sourceCatalog: item.sourceCatalog || '', modification: item.modification || '', color: item.color || '',
+      };
+    }
+    function persistComparison() {
+      try { localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify([...state.compared.values()])); } catch (_) {}
+    }
+    function comparisonItems() { return [...state.compared.values()].slice(0, MAX_COMPARE_ITEMS); }
+    function compareBestIndexes(values, mode) {
+      const numeric = values.map(value => value === null || value === undefined || value === '' ? NaN : Number(value));
+      const finite = numeric.filter(Number.isFinite);
+      if (finite.length < 2 || new Set(finite).size < 2) return new Set();
+      const best = mode === 'max' ? Math.max(...finite) : Math.min(...finite);
+      return new Set(numeric.map((value, index) => value === best ? index : -1).filter(index => index >= 0));
+    }
+    function compareCarHTML(item) {
+      const original = validUrl(item.sourceUrl);
+      return `<div class="compare-car"><button class="compare-car__remove" type="button" data-compare-action="remove" data-compare-id="${escapeHTML(item.id)}" aria-label="Убрать ${escapeHTML(item.title)} из сравнения">${icon('close')}</button><img src="${mediaUrl(item.image || item.images?.[0] || fallbackImage)}" alt="${escapeHTML(item.title)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'"><strong>${escapeHTML(item.title)}</strong><span>${escapeHTML(formatPrice(item.priceByn))}</span><small data-price-usd data-price-byn="${escapeHTML(item.priceByn ?? '')}" data-source-usd="${escapeHTML(item.priceUsd ?? '')}">${escapeHTML(formatUsd(item.priceUsd, item.priceByn))}</small>${original !== '#' ? `<a href="${original}" target="_blank" rel="noopener">Оригинал ${icon('external')}</a>` : ''}</div>`;
+    }
+    function renderComparison() {
+      if (!els.compareContent) return;
+      const items = comparisonItems();
+      if (items.length < 2) {
+        els.compareContent.innerHTML = '<div class="compare-empty"><div><strong>Выберите минимум два автомобиля</strong><span>Кнопка «Сравнить» находится рядом с названием каждой карточки.</span></div></div>';
+        return;
+      }
+      const rows = [
+        { label: 'Цена, BYN', raw: item => item.priceByn, show: item => formatPrice(item.priceByn), best: 'min' },
+        { label: 'Цена, USD · НБРБ', raw: item => officialUsdValue(item.priceByn, item.priceUsd), show: item => { const usd = officialUsdValue(item.priceByn, item.priceUsd); return usd == null ? '—' : `$${formatNumber(usd)}`; }, best: 'min' },
+        { label: 'Год', raw: item => item.year, show: item => item.year || '—', best: 'max' },
+        { label: 'Пробег', raw: item => item.mileage, show: item => formatMileage(item.mileage), best: 'min' },
+        { label: 'Двигатель', show: item => engineLabel(item) },
+        { label: 'Мощность', raw: item => item.enginePower, show: item => item.enginePower ? `${formatNumber(item.enginePower)} л.с.` : '—', best: 'max' },
+        { label: 'Коробка', show: item => item.transmission || '—' },
+        { label: 'Кузов', show: item => item.body || '—' },
+        { label: 'Привод', show: item => item.drivetrain || '—' },
+        { label: 'Топливо', show: item => item.fuel || '—' },
+        { label: 'Поколение', show: item => item.generation || '—' },
+        { label: 'Модификация', show: item => item.modification || '—' },
+        { label: 'Местоположение', show: item => item.location || 'Беларусь' },
+        { label: 'Продавец', show: item => item.seller?.name || 'Продавец' },
+        { label: 'Источник', show: item => item.sourceLabel || item.source || '—' },
+      ];
+      const body = rows.map(row => {
+        const best = row.best ? compareBestIndexes(items.map(row.raw), row.best) : new Set();
+        return `<tr><th scope="row">${escapeHTML(row.label)}</th>${items.map((item, index) => `<td${best.has(index) ? ' class="compare-best"' : ''}>${escapeHTML(row.show(item))}</td>`).join('')}</tr>`;
+      }).join('');
+      els.compareContent.innerHTML = `<table class="compare-table" style="--compare-count:${items.length}"><thead><tr><th scope="col">Параметр</th>${items.map(item => `<th scope="col">${compareCarHTML(item)}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table>`;
+    }
+    function syncCompareUI() {
+      const items = comparisonItems(), count = items.length;
+      document.body.classList.toggle('has-compare-selection', count > 0);
+      if (els.compareDock) els.compareDock.hidden = count === 0;
+      if (els.compareToolbarCount) els.compareToolbarCount.textContent = String(count);
+      if (els.compareOpen) { els.compareOpen.disabled = count < 2; els.compareOpen.setAttribute('aria-pressed', String(count >= 2)); }
+      if (els.compareDockOpen) els.compareDockOpen.disabled = count < 2;
+      if (els.compareDockText) els.compareDockText.textContent = count < 2 ? 'Выберите ещё один автомобиль' : `Выбрано ${count} из ${MAX_COMPARE_ITEMS}`;
+      if (els.compareDockCars) els.compareDockCars.innerHTML = items.map(item => `<span class="compare-dock__car" title="${escapeHTML(item.title)}"><img src="${mediaUrl(item.image || item.images?.[0] || fallbackImage)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'"></span>`).join('');
+      $$('.listing-card').forEach(card => {
+        const selected = state.compared.has(card.dataset.id);
+        card.classList.toggle('is-compared', selected);
+        const button = $('[data-action="compare-toggle"]', card);
+        if (button) { button.setAttribute('aria-pressed', String(selected)); button.title = selected ? 'Убрать из сравнения' : 'Добавить к сравнению'; const label = $('span', button); if (label) label.textContent = selected ? 'В сравнении' : 'Сравнить'; }
+      });
+      if (els.comparePanel?.classList.contains('open')) renderComparison();
+    }
+    function toggleComparisonItem(id) {
+      if (state.compared.has(id)) state.compared.delete(id);
+      else {
+        const item = state.items.get(id);
+        if (!item) return;
+        if (state.compared.size >= MAX_COMPARE_ITEMS) { toast(`Можно сравнить не более ${MAX_COMPARE_ITEMS} автомобилей`, 'error'); return; }
+        state.compared.set(id, comparisonSnapshot(item));
+      }
+      persistComparison(); syncCompareUI();
+    }
+    function clearComparison() { state.compared.clear(); persistComparison(); syncCompareUI(); closeComparison(); }
+    function openComparison() {
+      if (state.compared.size < 2) { toast('Выберите минимум два автомобиля для сравнения'); return; }
+      renderComparison(); els.comparePanel.classList.add('open'); syncBodyModal();
+      $('.compare-close', els.comparePanel)?.focus();
+    }
+    function closeComparison() { els.comparePanel?.classList.remove('open'); syncBodyModal(); els.compareOpen?.focus(); }
+    function refreshComparedItem(item) {
+      if (!state.compared.has(item?.id)) return;
+      state.compared.set(item.id, comparisonSnapshot(item)); persistComparison(); syncCompareUI();
+    }
+
     function pushPersonalHistory(record, event) {
       const history = Array.isArray(record.history) ? [...record.history] : [];
       history.push(event); record.history = history.slice(-PERSONAL_HISTORY_LIMIT);
@@ -2895,7 +3244,7 @@
       await Promise.allSettled(workers); renderPersonalPanel();
     }
     function syncBodyModal() {
-      document.body.classList.toggle('modal-open', els.lightbox.classList.contains('open') || els.personalPanel.classList.contains('open') || els.vinPanel.classList.contains('open'));
+      document.body.classList.toggle('modal-open', els.lightbox.classList.contains('open') || els.personalPanel.classList.contains('open') || els.vinPanel.classList.contains('open') || els.comparePanel.classList.contains('open'));
     }
     const VIN_CHECK_FALLBACK = [
       { title: 'ДТП в Беларуси и России', coverage: 'Зарегистрированные аварии и страховые события' },
@@ -3204,7 +3553,17 @@
         params.append('generation', generationId);
         params.append('generationName', generation.name);
       }
-      const controls = ['priceFrom', 'priceTo', 'yearFrom', 'yearTo', 'city', 'body', 'fuel', 'transmission', 'drivetrain', 'mileageTo'];
+      params.set('priceCurrency', state.priceCurrency);
+      const displayedPriceFrom = Number(els.priceFrom?.value || 0), displayedPriceTo = Number(els.priceTo?.value || 0);
+      if (displayedPriceFrom > 0) {
+        params.set('priceFrom', String(priceInputToByn(displayedPriceFrom)));
+        if (state.priceCurrency === 'USD') params.set('priceDisplayFrom', String(Math.round(displayedPriceFrom)));
+      }
+      if (displayedPriceTo > 0) {
+        params.set('priceTo', String(priceInputToByn(displayedPriceTo)));
+        if (state.priceCurrency === 'USD') params.set('priceDisplayTo', String(Math.round(displayedPriceTo)));
+      }
+      const controls = ['yearFrom', 'yearTo', 'city', 'body', 'fuel', 'transmission', 'drivetrain', 'mileageTo'];
       for (const name of controls) {
         const control = els.form.elements[name];
         if (control?.value && control.value !== 'all') params.set(name, control.value);
@@ -3472,12 +3831,15 @@
         }
         const data = mergePagedSearchData(pageResults);
         state.sourceStatus = data.sourceStatus || []; state.offlineMode = false;
+        let comparisonChanged = false;
         for (const item of data.items || []) {
           const canonicalItem = withCatalogGenerationImage(item);
           if (!state.items.has(canonicalItem.id)) state.order.push(canonicalItem.id);
           state.items.set(canonicalItem.id, canonicalItem); state.marketItems.set(canonicalItem.id, canonicalItem);
           recordListingSnapshot(canonicalItem);
+          if (state.compared.has(canonicalItem.id)) { state.compared.set(canonicalItem.id, comparisonSnapshot(canonicalItem)); comparisonChanged = true; }
         }
+        if (comparisonChanged) persistComparison();
         state.page = Math.max(1, Number(state.requestedPage) || 1); state.requestedPage = 1;
         setPersonalPreference('lastResultIds', sortedIds().slice(0, 80));
         renderStatuses(); sortAndRender(); if (state.page > 1) syncResultPageUrl(); renderPersonalPanel();
@@ -3584,7 +3946,7 @@
       const pageIds = paginated ? ids.slice((state.page - 1) * RESULT_PAGE_SIZE, state.page * RESULT_PAGE_SIZE) : ids;
       els.grid.innerHTML = pageIds.map(id => cardHTML(state.items.get(id))).join('');
       els.shown.textContent = `· ${ids.length}`;
-      renderPagination(ids.length, pageIds.length);
+      renderPagination(ids.length, pageIds.length); syncCompareUI();
       setupDetailObserver(); setupCardViewObserver();
       queueMicrotask(queueMarketEnrichment);
     }
@@ -3767,8 +4129,8 @@
         </div>
         <div class="listing-card__body">
           <div class="listing-head">
-            <div><div class="listing-kicker">${escapeHTML(item.state || 'Автомобиль')}${sourceDate ? ` · ${escapeHTML(relativeDate(sourceDate))}` : ''}${returned ? '<span class="availability-returned">Вернулось в продажу</span>' : ''}</div><h3 class="listing-title"><a href="${validUrl(item.sourceUrl)}" target="_blank" rel="noopener">${escapeHTML(item.title)}</a></h3></div>
-            <div class="listing-offer"><div class="listing-price"><strong>${escapeHTML(formatPrice(item.priceByn))}</strong><small>${escapeHTML(formatUsd(item.priceUsd))}</small>${priceChangeBadgeHTML(personalRecord)}</div>${marketPriceHTML(item)}</div>
+            <div class="listing-title-line"><div><div class="listing-kicker">${escapeHTML(item.state || 'Автомобиль')}${sourceDate ? ` · ${escapeHTML(relativeDate(sourceDate))}` : ''}${returned ? '<span class="availability-returned">Вернулось в продажу</span>' : ''}</div><h3 class="listing-title"><a href="${validUrl(item.sourceUrl)}" target="_blank" rel="noopener">${escapeHTML(item.title)}</a></h3></div><button class="compare-card-button" type="button" data-action="compare-toggle" aria-pressed="${state.compared.has(item.id)}" title="${state.compared.has(item.id) ? 'Убрать из сравнения' : 'Добавить к сравнению'}">${icon('compare')}<span>${state.compared.has(item.id) ? 'В сравнении' : 'Сравнить'}</span></button></div>
+            <div class="listing-offer"><div class="listing-price"><strong>${escapeHTML(formatPrice(item.priceByn))}</strong><small data-price-usd data-price-byn="${escapeHTML(item.priceByn ?? '')}" data-source-usd="${escapeHTML(item.priceUsd ?? '')}">${escapeHTML(formatUsd(item.priceUsd, item.priceByn))}</small>${priceChangeBadgeHTML(personalRecord)}</div>${marketPriceHTML(item)}</div>
           </div>
           <div class="spec-grid">
             ${specHTML('Год', item.year || '—')}${specHTML('Пробег', formatMileage(item.mileage))}${specHTML('Двигатель', engineLabel(item))}
@@ -3878,7 +4240,7 @@
           generationYears: detailItem.generationYears || previous.generationYears || null,
         });
         state.items.set(id, merged); state.marketItems.set(id, merged);
-        recordListingSnapshot(merged); updateCardDetail(merged);
+        recordListingSnapshot(merged); updateCardDetail(merged); refreshComparedItem(merged);
       } catch (error) {
         if (error.status === 404 || ['not_found', 'not_available'].includes(error.code)) markListingUnavailable(id);
         const card = cardById(id);
@@ -3912,6 +4274,9 @@
       const total = $('[data-photo-total]', card); if (total) total.textContent = String(Math.max(1, item.images?.length || 0));
 
       const title = $('.listing-title a', card); if (title) title.textContent = item.title;
+      const priceNode = $('.listing-price > strong', card); if (priceNode) priceNode.textContent = formatPrice(item.priceByn);
+      const usdNode = $('[data-price-usd]', card);
+      if (usdNode) { usdNode.dataset.priceByn = item.priceByn ?? ''; usdNode.dataset.sourceUsd = item.priceUsd ?? ''; usdNode.textContent = formatUsd(item.priceUsd, item.priceByn); }
       const specValues = $$('.spec-grid .spec strong', card);
       const values = [item.year || '—', formatMileage(item.mileage), engineLabel(item), item.transmission || '—', item.body || '—', item.drivetrain || '—'];
       specValues.forEach((node, index) => { node.textContent = values[index]; node.title = values[index]; });
@@ -4060,11 +4425,48 @@
       preloadAround(item, state.lightbox.index);
     }
 
-    function updateBrowserUrl(params) {
+    function shareableSearchParams(params) {
       const visible = new URLSearchParams(params);
-      visible.delete('limit'); visible.delete('page');
+      visible.delete('limit'); visible.delete('page'); visible.delete('resultPage');
+      if (visible.get('priceCurrency') !== 'USD') {
+        visible.delete('priceDisplayFrom'); visible.delete('priceDisplayTo');
+      }
+      return visible;
+    }
+    function updateBrowserUrl(params) {
+      const visible = shareableSearchParams(params);
       const query = visible.toString();
       history.replaceState(null, '', query ? `?${query}#results` : location.pathname);
+    }
+
+    function currentShareUrl() {
+      const params = shareableSearchParams(collectParams(1));
+      if (state.page > 1) params.set('resultPage', String(state.page));
+      const url = new URL(location.pathname, location.origin);
+      url.search = params.toString(); url.hash = 'results';
+      return url.href;
+    }
+    async function copyShareUrl(url) {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url); return;
+      }
+      const textarea = document.createElement('textarea');
+      textarea.value = url; textarea.setAttribute('readonly', ''); textarea.style.position = 'fixed'; textarea.style.opacity = '0';
+      document.body.append(textarea); textarea.select();
+      const copied = document.execCommand?.('copy'); textarea.remove();
+      if (!copied) throw new Error('Не удалось скопировать ссылку');
+    }
+    async function shareCurrentSearch() {
+      const url = currentShareUrl();
+      const count = state.order.length;
+      const title = 'Подборка автомобилей MOTOR.BY';
+      const text = `${mobileSummaryText()}${count ? ` · найдено ${count}` : ''}`;
+      if (navigator.share) {
+        try { await navigator.share({ title, text, url }); return; }
+        catch (error) { if (error?.name === 'AbortError') return; }
+      }
+      try { await copyShareUrl(url); toast('Ссылка на подборку скопирована'); }
+      catch (_) { toast(`Ссылка: ${url}`); }
     }
 
     async function restoreUrlFilters(params = new URLSearchParams(location.search)) {
@@ -4074,8 +4476,22 @@
       const mode = params.get('mode'); const modeInput = mode && $(`input[name="mode"][value="${CSS.escape(mode)}"]`, els.form); if (modeInput) modeInput.checked = true;
       const sort = params.get('sort'); if (sort && [...els.sort.options].some(option => option.value === sort)) els.sort.value = sort;
       const requestedPage = Number(params.get('resultPage')); state.requestedPage = Number.isInteger(requestedPage) ? Math.max(1, Math.min(100, requestedPage)) : 1;
-      const controls = ['priceFrom','priceTo','yearFrom','yearTo','city','body','fuel','transmission','drivetrain','mileageTo'];
+      const requestedCurrency = ['BYN', 'USD'].includes(params.get('priceCurrency'))
+        ? params.get('priceCurrency') : (params.has('priceFrom') || params.has('priceTo') ? 'BYN' : state.priceCurrency);
+      setPriceCurrency(requestedCurrency, { convert: false, persist: false });
+      const controls = ['yearFrom','yearTo','city','body','fuel','transmission','drivetrain','mileageTo'];
       controls.forEach(name => { if (params.has(name) && els.form.elements[name]) els.form.elements[name].value = params.get(name); });
+      const restorePrice = (input, apiKey, displayKey) => {
+        if (!input) return;
+        if (state.priceCurrency === 'USD') {
+          const displayed = Number(params.get(displayKey));
+          const byn = Number(params.get(apiKey));
+          input.value = Number.isFinite(displayed) && displayed > 0 ? String(Math.round(displayed))
+            : Number.isFinite(byn) && byn > 0 ? String(Math.round(byn / state.exchangeRate)) : '';
+        } else input.value = params.has(apiKey) ? params.get(apiKey) : '';
+      };
+      restorePrice(els.priceFrom, 'priceFrom', 'priceDisplayFrom');
+      restorePrice(els.priceTo, 'priceTo', 'priceDisplayTo');
       if (params.get('brand') && state.brands.some(item => String(item.id) === params.get('brand'))) {
         els.brand.value = params.get('brand');
         await onBrandChange({
@@ -4138,7 +4554,7 @@
       window.addEventListener('offline', () => { document.body.classList.add('is-offline'); toast('Нет сети — личная база остаётся доступной'); });
       window.addEventListener('online', () => {
         document.body.classList.remove('is-offline'); toast('Связь восстановлена');
-        revalidateFavorites();
+        loadExchangeRate(); revalidateFavorites();
         if (state.offlineMode && !state.loading) runSearch({ scroll: false });
       });
     }
@@ -4169,6 +4585,22 @@
       else runSearch({ scroll: false });
     });
     els.density.addEventListener('click', () => applyDensity(state.density === 'compact' ? 'comfortable' : 'compact'));
+    els.priceCurrency.addEventListener('click', event => {
+      const button = event.target.closest('[data-price-currency]');
+      if (button) setPriceCurrency(button.dataset.priceCurrency);
+    });
+    els.shareSearch.addEventListener('click', shareCurrentSearch);
+    els.compareOpen.addEventListener('click', openComparison);
+    [els.compareDock, els.comparePanel].forEach(container => container.addEventListener('click', event => {
+      if (event.target === els.comparePanel) { closeComparison(); return; }
+      const button = event.target.closest('[data-compare-action]'); if (!button) return;
+      const action = button.dataset.compareAction;
+      if (action === 'open') openComparison();
+      else if (action === 'close') closeComparison();
+      else if (action === 'clear') clearComparison();
+      else if (action === 'share') shareCurrentSearch();
+      else if (action === 'remove') { state.compared.delete(button.dataset.compareId); persistComparison(); syncCompareUI(); if (state.compared.size < 2) closeComparison(); }
+    }));
     els.themeToggle.addEventListener('click', event => {
       const choice = event.target.closest('[data-theme-choice]');
       if (choice) applyTheme(choice.dataset.themeChoice);
@@ -4211,6 +4643,7 @@
       }
       const card = actionNode.closest('.listing-card'); if (!card) return;
       const id = card.dataset.id;
+      if (action === 'compare-toggle') { event.stopPropagation(); toggleComparisonItem(id); return; }
       if (action === 'vin-report') { event.stopPropagation(); openVinReport(id); return; }
       if (action === 'favorite') {
         event.stopPropagation();
@@ -4386,6 +4819,7 @@
         return;
       }
       if (event.key === 'Escape' && els.vinPanel.classList.contains('open')) { closeVinReport(); return; }
+      if (event.key === 'Escape' && els.comparePanel.classList.contains('open')) { closeComparison(); return; }
       if (event.key === 'Escape' && els.personalPanel.classList.contains('open')) { closePersonalPanel(); return; }
       if (!els.lightbox.classList.contains('open')) return;
       if (event.key === 'Escape') closeLightbox();
@@ -4394,14 +4828,20 @@
     });
     window.addEventListener('scroll', () => els.header.classList.toggle('scrolled', scrollY > 20), { passive: true });
     mobileFilterMedia.addEventListener?.('change', syncMobileLayout);
+    window.setInterval(() => { if (navigator.onLine) loadExchangeRate(); }, EXCHANGE_REFRESH_MS);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && navigator.onLine && Date.now() - state.exchangeCheckedAt >= EXCHANGE_REFRESH_MS) loadExchangeRate();
+    });
 
     // Phones open directly on the expanded filters and wait for an explicit
     // search. Desktop keeps the immediate live feed; shared filter URLs work on both.
     applyTheme(state.theme, false); syncBodyPicker();
+    setPriceCurrency(state.priceCurrency, { convert: false, persist: false });
+    syncCompareUI();
     initPwa();
     (async function bootstrap() {
       await initPersonalDatabase();
-      const catalogLoaded = await loadBrands();
+      const [, catalogLoaded] = await Promise.all([loadExchangeRate(), loadBrands()]);
       if (!navigator.onLine && restoreOfflinePersonalState()) {
         setTimeout(revalidateFavorites, 2500); return;
       }
@@ -4423,13 +4863,5 @@
       setTimeout(revalidateFavorites, 2500);
     })();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3c1e012dec0cc60',t:'MTc4OTU4MjcyMw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-</html>
-ateFavorites, 2500);
-    })();
-  </script>
 </body>
 </html>
-body>
-</html>
->
