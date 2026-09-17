@@ -15,7 +15,7 @@ const { performance } = require('node:perf_hooks');
 
 const PORT = Number(process.env.PORT || 8080);
 const ROOT = __dirname;
-const APP_VERSION = '1.5.9';
+const APP_VERSION = '1.6.2';
 const USER_AGENT = process.env.SOURCE_USER_AGENT ||
   `MotorBY-Aggregator/${APP_VERSION} (+https://render.com; low-rate cached public catalogue reader)`;
 const SEARCH_TTL = clampInt(process.env.SEARCH_CACHE_TTL, 30, 900, 180);
@@ -35,6 +35,8 @@ const JINA_READER = 'https://r.jina.ai/';
 const ATLANT_STOCK_API = 'https://stock-service.atlantm.by/api';
 const ATLANT_PUBLIC_ROOT = 'https://atlantm.by/cars';
 const NHTSA_VIN_API = 'https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended';
+const NBRB_USD_RATE_API = 'https://api.nbrb.by/exrates/rates/431';
+const FALLBACK_USD_BYN_RATE = 3.03;
 const VIN_HISTORY_CHECKS = Object.freeze([
   { key: 'accidents', title: 'ДТП в Беларуси и России', coverage: 'Зарегистрированные аварии и страховые события' },
   { key: 'damage', title: 'Повреждения и расчёты ремонта', coverage: 'Зафиксированные повреждения, работы и расчётная стоимость' },
@@ -331,6 +333,22 @@ async function sourceFetch(url, {
   } catch (error) {
     throw new SourceError(source, 'format_changed', 'Формат ответа источника изменился', error.message);
   }
+}
+
+async function getUsdBynRate() {
+  return cache.remember('nbrb:usd-byn', 3600, async () => {
+    const data = await sourceFetch(NBRB_USD_RATE_API, { source: 'nbrb', type: 'json', timeout: 6000 });
+    const rate = Number(data?.Cur_OfficialRate);
+    const scale = Number(data?.Cur_Scale || 1);
+    if (!Number.isFinite(rate) || rate <= 0 || !Number.isFinite(scale) || scale <= 0) {
+      throw new SourceError('nbrb', 'format_changed', 'НБРБ вернул некорректный курс валют');
+    }
+    return {
+      live: true, mock: false, base: 'USD', quote: 'BYN',
+      rate: rate / scale, scale, officialRate: rate,
+      effectiveDate: data?.Date || new Date().toISOString(), source: 'НБРБ',
+    };
+  }, { staleIfError: true, staleSeconds: 7 * 86400 });
 }
 
 async function getOnlinerSchema() {
@@ -2485,6 +2503,7 @@ const server = http.createServer(async (req, res) => {
             dealerCatalog: 'new', autohouseCatalog: 'amp',
             api: 'public-keyless-stock',
           },
+          exchange: { pair: 'USD/BYN', source: 'НБРБ', api: 'public-keyless', ttlSeconds: 3600 },
           businessCatalogs: {
             coverage: 'Belarus',
             dealerProviders: ['atlant-m-stock', 'av-by-companies-new'],
@@ -2504,6 +2523,23 @@ const server = http.createServer(async (req, res) => {
           },
           cache: cache.stats(),
         });
+        return;
+      }
+
+      if (pathname === '/api/exchange') {
+        try {
+          sendJson(res, 200, await getUsdBynRate(), {
+            'server-timing': `exchange;dur=${Math.round(performance.now() - started)}`,
+            'x-ratelimit-remaining': String(rate.remaining),
+          });
+        } catch (error) {
+          sendJson(res, 200, {
+            live: false, mock: false, base: 'USD', quote: 'BYN',
+            rate: FALLBACK_USD_BYN_RATE, scale: 1, officialRate: null,
+            effectiveDate: null, source: 'резервный курс',
+            notice: error?.publicMessage || 'Официальный курс временно недоступен',
+          });
+        }
         return;
       }
 
