@@ -1,12 +1,13 @@
 'use strict';
 
-const VERSION = '1.6.2';
+const VERSION = '1.8.1';
 const SHELL_CACHE = `motor-by-shell-${VERSION}`;
 const IMAGE_CACHE = `motor-by-images-${VERSION}`;
 const CACHE_PREFIX = 'motor-by-';
 const SHELL = [
   '/', '/index.html', '/manifest.webmanifest',
   '/assets/hero-car.jpg', '/assets/hero-car-light.jpg', '/assets/category-city.jpg',
+  '/assets/supabase-js-2.116.0.js',
   '/assets/favicon.svg', '/assets/favicon-32.png', '/assets/apple-touch-icon.png',
   '/assets/icon-192.png', '/assets/icon-512.png', '/assets/icon-maskable-512.png'
 ];

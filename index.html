@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#080a0d">
-  <meta name="application-version" content="1.6.2">
+  <meta name="application-version" content="1.8.1">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="MOTOR.BY">
@@ -1580,6 +1580,131 @@
       .compare-card-button { width: auto; padding: 0 8px; font-size: 8px; }
     }
 
+    /* Account and private Supabase cloud sync. */
+    .header-action--account .icon { color: var(--accent); }
+    .header-action--account.is-signed-in { border-color: color-mix(in srgb,var(--accent) 40%,transparent); color: white; background: var(--accent-soft); }
+    .header-action--account .header-action__text { max-width: 92px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .account-sync-dot { position: absolute; top: -3px; right: -3px; width: 10px; height: 10px; display: none; border: 2px solid var(--bg); border-radius: 50%; background: #7d8794; }
+    .header-action--account.is-signed-in .account-sync-dot { display: block; background: var(--accent); }
+    .header-action--account.is-syncing .account-sync-dot { background: #f0b53d; }
+    .header-action--account.has-sync-error .account-sync-dot { background: #f0444c; }
+
+    .account-layer { position: fixed; inset: 0; z-index: 242; display: none; place-items: center; padding: max(18px,var(--safe-top)) max(14px,var(--safe-right)) max(18px,var(--safe-bottom)) max(14px,var(--safe-left)); background: rgba(3,5,8,.9); }
+    .account-layer.open { display: grid; }
+    .account-dialog { width: min(510px,100%); max-height: calc(100dvh - 36px); overflow: auto; border: 1px solid var(--line-strong); border-radius: 20px; background: #0e1319; box-shadow: 0 28px 90px rgba(0,0,0,.5); }
+    .account-dialog__head { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 18px; border-bottom: 1px solid var(--line); background: #121820; }
+    .account-dialog__eyebrow { color: var(--accent); font-size: 8px; font-weight: 760; letter-spacing: .14em; text-transform: uppercase; }
+    .account-dialog h2 { margin: 5px 0 0; font-size: 25px; letter-spacing: -.04em; }
+    .account-close { width: 42px; height: 42px; display: grid; flex: 0 0 auto; place-items: center; border: 1px solid var(--line); border-radius: 10px; background: #171d25; color: #c9ced5; cursor: pointer; }
+    .account-close .icon { width: 16px; height: 16px; }
+    .account-body { display: grid; gap: 13px; padding: 18px; }
+    .account-intro { display: grid; grid-template-columns: 54px minmax(0,1fr); gap: 13px; align-items: center; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.025); }
+    .account-avatar { width: 54px; height: 54px; display: grid; place-items: center; border: 1px solid color-mix(in srgb,var(--accent) 38%,transparent); border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 18px; font-weight: 820; text-transform: uppercase; }
+    .account-intro strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+    .account-intro span { display: block; margin-top: 4px; overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+    .account-copy { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .account-google { width: 100%; min-height: 50px; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid rgba(255,255,255,.23); border-radius: 12px; background: #f8fafc; color: #17212d; cursor: pointer; font-size: 11px; font-weight: 760; }
+    .google-mark { width: 25px; height: 25px; display: grid; place-items: center; border: 1px solid #d9dee5; border-radius: 50%; background: white; color: #4285f4; font-size: 14px; font-weight: 850; }
+    .account-stats { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; }
+    .account-stat { padding: 12px 9px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,255,255,.025); text-align: center; }
+    .account-stat strong { display: block; color: white; font-size: 20px; }
+    .account-stat span { display: block; margin-top: 4px; color: var(--muted-2); font-size: 8px; text-transform: uppercase; letter-spacing: .06em; }
+    .account-sync-status { display: flex; align-items: flex-start; gap: 9px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,255,255,.02); color: #b9c0c9; font-size: 10px; line-height: 1.45; }
+    .account-sync-status .icon { width: 17px; height: 17px; color: var(--accent); }
+    .account-sync-status.is-error { color: #ff999d; border-color: rgba(240,68,76,.35); }
+    .account-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .account-action { min-height: 43px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: #171d25; color: #cbd0d7; cursor: pointer; font-size: 10px; font-weight: 720; }
+    .account-action .icon { width: 15px; height: 15px; }
+    .account-action--primary { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+    .account-action:disabled { opacity: .48; cursor: not-allowed; }
+    .account-privacy { margin: 0; color: var(--muted-2); font-size: 9px; line-height: 1.5; }
+    .account-setup { padding: 12px; border: 1px solid rgba(240,181,61,.3); border-radius: 11px; background: rgba(240,181,61,.06); color: #e2c27e; font-size: 10px; line-height: 1.55; }
+    .account-setup code { color: white; }
+
+    html[data-theme="light"] .header-action--account.is-signed-in { color: #173b61; }
+    html[data-theme="light"] .account-layer { background: rgba(213,228,243,.94); }
+    html[data-theme="light"] .account-dialog { color: #143454; border-color: rgba(255,255,255,.95); background: #f6faff; box-shadow: 0 28px 90px rgba(45,91,143,.22); }
+    html[data-theme="light"] .account-dialog__head { background: #edf6ff; }
+    html[data-theme="light"] .account-close,html[data-theme="light"] .account-action { border-color: rgba(42,102,168,.16); background: #e8f2fc; color: #315777; }
+    html[data-theme="light"] .account-intro,html[data-theme="light"] .account-stat,html[data-theme="light"] .account-sync-status { border-color: rgba(42,102,168,.14); background: rgba(255,255,255,.62); }
+    html[data-theme="light"] .account-intro strong,html[data-theme="light"] .account-stat strong { color: #173b61; }
+    html[data-theme="light"] .account-copy,html[data-theme="light"] .account-intro span { color: #526f8d; }
+    html[data-theme="light"] .account-sync-status { color: #365877; }
+    html[data-theme="light"] .account-action--primary { background: var(--accent); color: white; }
+    html[data-theme="light"] .account-setup code { color: #173b61; }
+
+    @media (max-width: 430px) {
+      .header-action--account { width: 38px; min-width: 38px; padding: 0; }
+      .header-action--account .header-action__text { display: none; }
+      .header-action--favorites { width: 38px !important; min-width: 38px !important; padding: 0 !important; }
+      .header-action--favorites .header-action__text { display: none !important; }
+      .account-layer { padding: 0; }
+      .account-dialog { width: 100%; height: 100dvh; max-height: none; border: 0; border-radius: 0; }
+      .account-dialog__head { min-height: calc(74px + var(--safe-top)); align-items: flex-end; padding: calc(12px + var(--safe-top)) 13px 12px; }
+      .account-dialog h2 { font-size: 22px; }
+      .account-body { padding: 14px 13px calc(20px + var(--safe-bottom)); }
+      .account-actions { grid-template-columns: 1fr; }
+    }
+
+    /* On-demand 3D body viewer. Models and renderer are loaded only after a click. */
+    .model3d-button { height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 10px; border: 1px solid color-mix(in srgb,var(--accent) 36%,var(--line)); border-radius: 9px; background: var(--accent-soft); color: var(--accent); cursor: pointer; font-size: 9px; font-weight: 760; white-space: nowrap; }
+    .model3d-button .icon { width: 15px; height: 15px; }
+    .model3d-layer { position: fixed; inset: 0; z-index: 255; display: none; place-items: center; padding: max(16px,var(--safe-top)) max(14px,var(--safe-right)) max(16px,var(--safe-bottom)) max(14px,var(--safe-left)); background: rgba(3,5,8,.94); }
+    .model3d-layer.open { display: grid; }
+    .model3d-dialog { width: min(1040px,100%); height: min(760px,calc(100dvh - 32px)); display: grid; grid-template-rows: auto minmax(300px,1fr) auto auto auto; overflow: hidden; border: 1px solid var(--line-strong); border-radius: 22px; background: #0d1218; box-shadow: 0 28px 90px rgba(0,0,0,.55); }
+    .model3d-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 17px 18px; border-bottom: 1px solid var(--line); background: #111820; }
+    .model3d-eyebrow { color: var(--accent); font-size: 8px; font-weight: 780; letter-spacing: .15em; text-transform: uppercase; }
+    .model3d-head h2 { margin: 5px 0 0; font-size: 25px; letter-spacing: -.04em; }
+    .model3d-head p { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+    .model3d-close { width: 43px; height: 43px; display: grid; flex: 0 0 auto; place-items: center; border: 1px solid var(--line); border-radius: 11px; background: #171e27; color: #d0d5dc; cursor: pointer; }
+    .model3d-close .icon { width: 17px; height: 17px; }
+    .model3d-stage { position: relative; min-height: 0; overflow: hidden; background: radial-gradient(circle at 50% 58%,rgba(173,255,47,.09),transparent 34%),linear-gradient(180deg,#18212b,#0b1016); }
+    .model3d-stage::before { content: ""; position: absolute; inset: auto 0 0; height: 44%; pointer-events: none; background: linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px); background-size: 34px 34px; transform: perspective(360px) rotateX(62deg) scale(1.35); transform-origin: center bottom; }
+    #model3dViewer { position: relative; z-index: 1; width: 100%; height: 100%; min-height: 300px; background: transparent; touch-action: none; --poster-color: transparent; --progress-bar-color: var(--accent); --progress-bar-height: 2px; }
+    .model3d-loading { position: absolute; z-index: 2; left: 50%; bottom: 17px; width: min(330px,calc(100% - 32px)); display: grid; gap: 7px; transform: translateX(-50%); pointer-events: none; color: #d3d8df; text-align: center; font-size: 9px; }
+    .model3d-stage.loaded .model3d-loading { display: none; }
+    .model3d-progress { height: 3px; overflow: hidden; border-radius: 3px; background: rgba(255,255,255,.13); }
+    .model3d-progress i { display: block; width: 0; height: 100%; background: var(--accent); }
+    .model3d-controls { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: end; gap: 13px; padding: 12px 16px; border-top: 1px solid var(--line); background: #111820; }
+    .model3d-controls > div > span { display: block; margin-bottom: 7px; color: var(--muted-2); font-size: 8px; letter-spacing: .09em; text-transform: uppercase; }
+    .model3d-choices { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+    .model3d-choices::-webkit-scrollbar { display: none; }
+    .model3d-choice { min-height: 35px; flex: 0 0 auto; padding: 0 10px; border: 1px solid var(--line); border-radius: 9px; background: #171e27; color: #aeb7c2; cursor: pointer; font-size: 9px; font-weight: 700; }
+    .model3d-choice[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+    .model3d-reset { min-height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 12px; border: 1px solid var(--line); border-radius: 9px; background: #171e27; color: #c6cdd6; cursor: pointer; font-size: 9px; font-weight: 700; }
+    .model3d-reset .icon { width: 14px; height: 14px; }
+    .model3d-notice { margin: 0; padding: 9px 16px 2px; color: var(--muted); font-size: 9px; line-height: 1.5; }
+    .model3d-notice strong { color: #d2d7de; }
+    .model3d-credit { display: inline-flex; align-items: center; gap: 5px; width: max-content; margin: 4px 16px 12px; color: var(--accent); font-size: 9px; }
+    .model3d-credit .icon { width: 12px; height: 12px; }
+
+    html[data-theme="light"] .model3d-button { color: #1668bf; }
+    html[data-theme="light"] .model3d-layer { background: rgba(213,228,243,.96); }
+    html[data-theme="light"] .model3d-dialog { border-color: rgba(255,255,255,.96); background: #f6faff; box-shadow: 0 28px 90px rgba(45,91,143,.22); }
+    html[data-theme="light"] .model3d-head,html[data-theme="light"] .model3d-controls { border-color: rgba(42,102,168,.14); background: #edf6ff; }
+    html[data-theme="light"] .model3d-head h2 { color: #173b61; }
+    html[data-theme="light"] .model3d-head p,html[data-theme="light"] .model3d-notice { color: #526f8d; }
+    html[data-theme="light"] .model3d-stage { background: radial-gradient(circle at 50% 58%,rgba(35,128,255,.14),transparent 34%),linear-gradient(180deg,#eaf4ff,#dcecfb); }
+    html[data-theme="light"] .model3d-stage::before { background: linear-gradient(rgba(35,89,145,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(35,89,145,.07) 1px,transparent 1px); background-size: 34px 34px; }
+    html[data-theme="light"] .model3d-close,html[data-theme="light"] .model3d-choice,html[data-theme="light"] .model3d-reset { border-color: rgba(42,102,168,.16); background: #e6f1fc; color: #315777; }
+    html[data-theme="light"] .model3d-choice[aria-pressed="true"] { background: var(--accent); color: white; }
+    html[data-theme="light"] .model3d-notice strong { color: #173b61; }
+
+    @media (max-width: 620px) {
+      .model3d-button { min-height: 44px; grid-column: 1 / -1; }
+      .model3d-layer { padding: 0; }
+      .model3d-dialog { width: 100%; height: 100dvh; border: 0; border-radius: 0; grid-template-rows: auto minmax(250px,1fr) auto auto auto; }
+      .model3d-head { min-height: calc(73px + var(--safe-top)); align-items: flex-end; padding: calc(11px + var(--safe-top)) 12px 11px; }
+      .model3d-head h2 { font-size: 21px; }
+      .model3d-head p { max-width: 255px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      #model3dViewer { min-height: 250px; }
+      .model3d-controls { grid-template-columns: 1fr; align-items: stretch; gap: 9px; padding: 10px 12px; }
+      .model3d-choice { min-height: 42px; }
+      .model3d-reset { min-height: 43px; }
+      .model3d-notice { padding: 8px 12px 2px; font-size: 8px; }
+      .model3d-credit { margin: 4px 12px calc(9px + var(--safe-bottom)); }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; }
     }
@@ -1616,6 +1741,10 @@
     <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
     <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 15.2A8.5 8.5 0 0 1 8.8 4 8.6 8.6 0 1 0 20 15.2z"/></symbol>
     <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v5c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V6z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.2 3.4-6.4 8-6.4s7.2 2.2 8 6.4"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .6-7.9A6 6 0 0 0 6.2 9 4.5 4.5 0 0 0 7 18z"/><path d="m9.5 14 2 2 3.5-4"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 5H5v14h5M14 8l4 4-4 4m4-4H9"/></symbol>
+    <symbol id="i-cube" viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></symbol>
     <symbol id="body-any" viewBox="0 0 72 32"><path d="M5 22h62M10 22l5-8h27l9 8M42 14h9l10 8"/><circle cx="20" cy="23" r="4"/><circle cx="54" cy="23" r="4"/></symbol>
     <symbol id="body-sedan" viewBox="0 0 72 32"><path d="M5 22 9 17l11-2 8-8h18l11 9 9 2 2 4H5zM27 15h26M35 8v7"/><circle cx="19" cy="23" r="4"/><circle cx="55" cy="23" r="4"/></symbol>
     <symbol id="body-universal" viewBox="0 0 72 32"><path d="M5 22 9 17l11-2 7-8h29l8 9 4 2v4H5zM26 15h36M35 8v7M54 8v7"/><circle cx="19" cy="23" r="4"/><circle cx="56" cy="23" r="4"/></symbol>
@@ -1647,6 +1776,7 @@
             <button class="theme-choice" type="button" data-theme-choice="dark" aria-pressed="true" title="Тёмная тема"><svg class="icon" aria-hidden="true"><use href="#i-moon"></use></svg><span>Тёмная</span></button>
             <button class="theme-choice" type="button" data-theme-choice="light" aria-pressed="false" title="Светлая тема"><svg class="icon" aria-hidden="true"><use href="#i-sun"></use></svg><span>Светлая</span></button>
           </div>
+          <button class="header-action header-action--account" id="accountButton" type="button" title="Войти в аккаунт" aria-label="Открыть аккаунт" aria-haspopup="dialog" aria-controls="accountPanel"><svg class="icon" aria-hidden="true"><use href="#i-user"></use></svg><span class="header-action__text" id="accountButtonText">Войти</span><span class="account-sync-dot" id="accountSyncDot" aria-hidden="true"></span></button>
           <button class="header-action header-action--favorites" id="personalPanelButton" type="button" title="Избранные автомобили" aria-label="Открыть избранные автомобили" aria-haspopup="dialog" aria-controls="personalPanel"><svg class="icon" aria-hidden="true"><use href="#i-heart"></use></svg><span class="header-action__text">Избранное</span><span class="header-action__badge" id="personalBadge" hidden>0</span></button>
         </div>
       </div>
@@ -1892,6 +2022,16 @@
     </div>
   </footer>
 
+  <div class="account-layer" id="accountPanel" role="presentation">
+    <section class="account-dialog" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
+      <div class="account-dialog__head">
+        <div><div class="account-dialog__eyebrow">Синхронизация между устройствами</div><h2 id="accountTitle">Аккаунт MOTOR.BY</h2></div>
+        <button class="account-close" type="button" data-account-action="close" aria-label="Закрыть аккаунт"><svg class="icon"><use href="#i-close"></use></svg></button>
+      </div>
+      <div id="accountContent"></div>
+    </section>
+  </div>
+
   <div class="personal-layer" id="personalPanel" role="presentation">
     <section class="personal-dialog" role="dialog" aria-modal="true" aria-labelledby="personalPanelTitle">
       <div class="personal-dialog__head">
@@ -1924,7 +2064,7 @@
           <input id="personalImportInput" type="file" accept="application/json,.json" hidden>
         </div>
       </div>
-      <p class="personal-footnote">IndexedDB хранит эти данные в вашем браузере. MOTOR.BY не отправляет избранное, историю и заметки на сервер.</p>
+      <p class="personal-footnote">Без аккаунта данные остаются только в IndexedDB этого браузера. После входа через Google личная копия синхронизируется с защищённой строкой Supabase и доступна на других устройствах.</p>
     </section>
   </div>
 
@@ -1940,6 +2080,25 @@
         <div class="compare-dialog__head-actions"><button type="button" data-compare-action="share"><svg class="icon" aria-hidden="true"><use href="#i-share"></use></svg> Поделиться подборкой</button><button class="compare-close" type="button" data-compare-action="close" aria-label="Закрыть сравнение"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button></div>
       </div>
       <div class="compare-content" id="compareContent"></div>
+    </section>
+  </div>
+
+  <div class="model3d-layer" id="model3dPanel" role="presentation">
+    <section class="model3d-dialog" role="dialog" aria-modal="true" aria-labelledby="model3dTitle" aria-describedby="model3dNotice">
+      <div class="model3d-head">
+        <div><div class="model3d-eyebrow">Интерактивный обзор кузова</div><h2 id="model3dTitle">3D-модель автомобиля</h2><p id="model3dSubtitle">Демонстрационная модель</p></div>
+        <button class="model3d-close" type="button" data-model3d-action="close" aria-label="Закрыть 3D-обзор"><svg class="icon"><use href="#i-close"></use></svg></button>
+      </div>
+      <div class="model3d-stage">
+        <model-viewer id="model3dViewer" alt="Интерактивная демонстрационная 3D-модель кузова автомобиля" camera-controls disable-pan touch-action="none" interaction-prompt="none" loading="eager" reveal="auto" shadow-intensity="1" shadow-softness=".8" exposure="1" camera-orbit="35deg 70deg auto" min-camera-orbit="auto 42deg auto" max-camera-orbit="auto 88deg auto" min-field-of-view="18deg" max-field-of-view="52deg"></model-viewer>
+        <div class="model3d-loading" id="model3dLoading"><span id="model3dStatus">Подготавливаем 3D-просмотр…</span><span class="model3d-progress"><i id="model3dProgress"></i></span></div>
+      </div>
+      <div class="model3d-controls">
+        <div><span>Тип модели</span><div class="model3d-choices" id="model3dChoices"></div></div>
+        <button class="model3d-reset" type="button" data-model3d-action="reset"><svg class="icon" aria-hidden="true"><use href="#i-refresh"></use></svg> Исходный ракурс</button>
+      </div>
+      <p class="model3d-notice" id="model3dNotice"><strong>Иллюстративная модель.</strong> Геометрия, цвет, диски, салон и комплектация могут отличаться от автомобиля в объявлении. Модели Kenney Car Kit, лицензия CC0.</p>
+      <a class="model3d-credit" href="https://kenney.nl/assets/car-kit" target="_blank" rel="noopener">Источник моделей · Kenney <svg class="icon" aria-hidden="true"><use href="#i-external"></use></svg></a>
     </section>
   </div>
 
@@ -1977,6 +2136,18 @@
     const MAX_COMPARE_ITEMS = 3;
     const FALLBACK_USD_BYN_RATE = 3.03;
     const EXCHANGE_REFRESH_MS = 60 * 60 * 1000;
+    const CLOUD_SYNC_DELAY = 1800;
+    const CLOUD_PULL_INTERVAL = 5 * 60 * 1000;
+    const CLOUD_TABLE = 'motorby_user_state';
+    const ACCOUNT_OWNER_KEY = 'motorby:account-owner';
+    const MODEL3D_CATALOG = Object.freeze({
+      sedan: { label: 'Седан', src: '/assets/models/sedan.glb' },
+      hatchback: { label: 'Хэтчбек', src: '/assets/models/hatchback.glb' },
+      suv: { label: 'SUV', src: '/assets/models/suv.glb' },
+      coupe: { label: 'Купе', src: '/assets/models/coupe.glb' },
+      van: { label: 'Фургон', src: '/assets/models/van.glb' },
+      pickup: { label: 'Пикап', src: '/assets/models/pickup.glb' },
+    });
     const avBrowserCache = new Map();
     const personalDb = { db: null, available: false };
     const noteTimers = new Map();
@@ -1984,6 +2155,9 @@
     const mobileFilterMedia = matchMedia('(max-width: 430px), (max-height: 430px) and (orientation: landscape)');
     let mobileSourceTimer = null;
     let mobileScrollTimer = null;
+    let supabaseScriptPromise = null;
+    let modelViewerScriptPromise = null;
+    let model3dRequestId = 0;
 
     const state = {
       brands: [], models: [], generations: [], generationIds: [],
@@ -1992,6 +2166,8 @@
       detailQueued: new Set(), observer: null, viewObserver: null, viewTimers: new Map(),
       personalRecords: new Map(), preferences: new Map(), savedSearches: [], density: 'comfortable', theme: document.documentElement.dataset.theme === 'light' ? 'light' : 'dark', favoriteFeed: false,
       compared: new Map(), priceCurrency: 'BYN', exchangeRate: FALLBACK_USD_BYN_RATE, exchangeLive: false, exchangeDate: null, exchangeCheckedAt: 0, exchangePromise: null,
+      account: { enabled: false, ready: false, client: null, session: null, user: null, loadedUserId: '', applying: false, syncing: false, pending: false, syncTimer: null, lastPullAt: 0, lastPushAt: 0, remoteUpdatedAt: null, error: '' },
+      model3d: { listingId: null, key: 'sedan', loaded: false },
       vinListingId: null, vinRequestId: 0, lightbox: { id: null, index: 0 },
     };
     try {
@@ -2028,6 +2204,8 @@
       priceCurrency: $('#priceCurrency'), priceFieldLabel: $('#priceFieldLabel'), priceRate: $('#priceRate'), priceFrom: $('#priceFrom'), priceTo: $('#priceTo'),
       mobileSettings: $('#mobileSettingsButton'), mobileSummary: $('#mobileFilterSummary'),
       installButton: $('#installAppButton'), themeToggle: $('#themePicker'), themeMeta: $('meta[name="theme-color"]'), personalButton: $('#personalPanelButton'), personalBadge: $('#personalBadge'),
+      accountButton: $('#accountButton'), accountButtonText: $('#accountButtonText'), accountSyncDot: $('#accountSyncDot'), accountPanel: $('#accountPanel'), accountContent: $('#accountContent'),
+      model3dPanel: $('#model3dPanel'), model3dViewer: $('#model3dViewer'), model3dTitle: $('#model3dTitle'), model3dSubtitle: $('#model3dSubtitle'), model3dChoices: $('#model3dChoices'), model3dLoading: $('#model3dLoading'), model3dStatus: $('#model3dStatus'), model3dProgress: $('#model3dProgress'),
       personalPanel: $('#personalPanel'), personalImport: $('#personalImportInput'), savedSearches: $('#savedSearches'), personalActivity: $('#personalActivity'),
       personalFavorites: $('#personalFavorites'), favoritesSection: $('#personalFavoritesSection'), showFavorites: $('#showFavoritesButton'),
       personalFavoriteCount: $('#personalFavoriteCount'), personalViewedCount: $('#personalViewedCount'), personalChangeCount: $('#personalChangeCount'),
@@ -2186,7 +2364,6 @@
       bobruisk: 'Бобруйск', borisov: 'Борисов', baranovichi: 'Барановичи', molodechno: 'Молодечно',
       soligorsk: 'Солигорск', polotsk: 'Полоцк',
     };
-
     const avBrowserText = (value) => value === null || value === undefined ? '' : String(value).replaceAll('\u00a0', ' ').trim();
     function avBrowserNumber(value) {
       if (value === null || value === undefined || value === '') return null;
@@ -2729,21 +2906,31 @@
       return idbRequest(personalDb.db.transaction(storeName, 'readonly').objectStore(storeName).getAll());
     }
     function personalPut(storeName, value) {
-      if (!personalDb.db) return Promise.resolve(value);
-      return new Promise((resolve, reject) => {
+      const task = !personalDb.db ? Promise.resolve(value) : new Promise((resolve, reject) => {
         const tx = personalDb.db.transaction(storeName, 'readwrite');
         tx.objectStore(storeName).put(value);
         tx.oncomplete = () => resolve(value);
         tx.onerror = () => reject(tx.error || new Error('Не удалось сохранить данные'));
       }).catch(error => { console.warn('[personal db]', error); return value; });
+      task.then(() => scheduleCloudSync());
+      return task;
     }
     function personalDelete(storeName, key) {
-      if (!personalDb.db) return Promise.resolve();
-      return new Promise((resolve, reject) => {
+      const task = !personalDb.db ? Promise.resolve() : new Promise((resolve, reject) => {
         const tx = personalDb.db.transaction(storeName, 'readwrite');
         tx.objectStore(storeName).delete(key);
         tx.oncomplete = resolve; tx.onerror = () => reject(tx.error || new Error('Не удалось удалить данные'));
       }).catch(error => { console.warn('[personal db]', error); });
+      task.then(() => scheduleCloudSync());
+      return task;
+    }
+    function personalClearStores() {
+      if (!personalDb.db) return Promise.resolve();
+      return new Promise((resolve, reject) => {
+        const tx = personalDb.db.transaction(['listings', 'preferences', 'searches'], 'readwrite');
+        tx.objectStore('listings').clear(); tx.objectStore('preferences').clear(); tx.objectStore('searches').clear();
+        tx.oncomplete = resolve; tx.onerror = () => reject(tx.error || new Error('Не удалось очистить локальную базу'));
+      });
     }
     function personalPreference(key, fallback = null) {
       return state.preferences.has(key) ? state.preferences.get(key) : fallback;
@@ -2753,6 +2940,273 @@
       try { localStorage.setItem(`motorby:pref:${key}`, JSON.stringify(value)); } catch (_) {}
       return personalPut('preferences', { key, value, updatedAt: new Date().toISOString() });
     }
+    function accountDisplayName(user = state.account.user) {
+      return String(user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'Пользователь').trim();
+    }
+    function accountInitials(user = state.account.user) {
+      const words = accountDisplayName(user).split(/\s+/).filter(Boolean);
+      return (words.length > 1 ? `${words[0][0]}${words[1][0]}` : words[0]?.slice(0, 2) || 'MB').toUpperCase();
+    }
+    function accountSyncTime() {
+      const time = Math.max(state.account.lastPushAt || 0, state.account.lastPullAt || 0);
+      return time ? new Intl.DateTimeFormat('ru-BY', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }).format(new Date(time)) : '';
+    }
+    function accountSyncMessage() {
+      if (state.account.error) return state.account.error;
+      if (state.account.syncing) return 'Синхронизация с аккаунтом…';
+      if (state.account.pending) return 'Есть локальные изменения — сохраняем автоматически';
+      const time = accountSyncTime();
+      return time ? `Облачная копия актуальна · ${time}` : 'Облачная копия готова к первой синхронизации';
+    }
+    function renderAccountPanel() {
+      if (!els.accountContent) return;
+      if (!state.account.ready) {
+        els.accountContent.innerHTML = `<div class="account-body"><div class="account-sync-status">${icon('cloud')}<span>Проверяем доступность аккаунтов…</span></div></div>`;
+        return;
+      }
+      if (!state.account.enabled) {
+        els.accountContent.innerHTML = `<div class="account-body"><div class="account-intro"><div class="account-avatar">G</div><div><strong>Google-аккаунт</strong><span>Синхронизация пока не подключена</span></div></div><p class="account-copy">После настройки Supabase здесь появятся безопасный вход через Google и синхронизация избранного, сравнений, заметок, истории, фильтров и настроек между устройствами.</p><div class="account-setup">Администратору нужно выполнить <code>supabase/schema.sql</code> и добавить в Render переменные <code>SUPABASE_URL</code> и <code>SUPABASE_ANON_KEY</code>.</div></div>`;
+        return;
+      }
+      if (!state.account.user) {
+        els.accountContent.innerHTML = `<div class="account-body"><div class="account-intro"><div class="account-avatar">G</div><div><strong>Один аккаунт на всех устройствах</strong><span>Вход выполняется только через Google</span></div></div><p class="account-copy">После входа облачная копия становится основной: сохранённые автомобили, сравнение, заметки, история, фильтры и настройки загружаются из вашего приватного профиля.</p>${state.account.error ? `<div class="account-sync-status is-error">${icon('alert')}<span>${escapeHTML(state.account.error)}</span></div>` : ''}<button class="account-google" type="button" data-account-action="sign-in"><span class="google-mark">G</span> Продолжить с Google</button><p class="account-privacy">MOTOR.BY получает от Google имя, email и идентификатор аккаунта через Supabase Auth. Пароль Google сайту не передаётся.</p></div>`;
+        return;
+      }
+      const statusClass = state.account.error ? ' is-error' : '';
+      els.accountContent.innerHTML = `<div class="account-body"><div class="account-intro"><div class="account-avatar">${escapeHTML(accountInitials())}</div><div><strong>${escapeHTML(accountDisplayName())}</strong><span>${escapeHTML(state.account.user.email || 'Google-аккаунт')}</span></div></div><div class="account-stats"><div class="account-stat"><strong>${state.favorites.size}</strong><span>Избранное</span></div><div class="account-stat"><strong>${state.compared.size}</strong><span>Сравнение</span></div><div class="account-stat"><strong>${state.savedSearches.length}</strong><span>Фильтры</span></div></div><div class="account-sync-status${statusClass}">${icon('cloud')}<span>${escapeHTML(accountSyncMessage())}</span></div><div class="account-actions"><button class="account-action account-action--primary" type="button" data-account-action="push" ${state.account.syncing ? 'disabled' : ''}>${icon('cloud')} Сохранить сейчас</button><button class="account-action" type="button" data-account-action="pull" ${state.account.syncing ? 'disabled' : ''}>${icon('refresh')} Загрузить из облака</button><button class="account-action" type="button" data-account-action="sign-out" ${state.account.syncing ? 'disabled' : ''}>${icon('logout')} Выйти</button></div><p class="account-privacy">Данные защищены Supabase Row Level Security: авторизованный пользователь может читать и изменять только строку со своим Google ID. После выхода личная локальная копия очищается с этого устройства.</p></div>`;
+    }
+    function updateAccountUI() {
+      const signedIn = Boolean(state.account.user);
+      els.accountButton?.classList.toggle('is-signed-in', signedIn);
+      els.accountButton?.classList.toggle('is-syncing', state.account.syncing || state.account.pending);
+      els.accountButton?.classList.toggle('has-sync-error', Boolean(state.account.error));
+      if (els.accountButtonText) els.accountButtonText.textContent = signedIn ? accountDisplayName().split(/\s+/)[0] : 'Войти';
+      if (els.accountButton) {
+        els.accountButton.title = signedIn ? `${accountDisplayName()} · ${accountSyncMessage()}` : state.account.enabled ? 'Войти через Google' : 'Настроить аккаунт';
+        els.accountButton.setAttribute('aria-label', signedIn ? `Аккаунт ${accountDisplayName()}` : 'Войти в аккаунт');
+      }
+      if (els.accountPanel?.classList.contains('open')) renderAccountPanel();
+    }
+    function openAccountPanel() { renderAccountPanel(); els.accountPanel.classList.add('open'); syncBodyModal(); $('.account-close', els.accountPanel)?.focus(); }
+    function closeAccountPanel() { els.accountPanel?.classList.remove('open'); syncBodyModal(); els.accountButton?.focus(); }
+    function cloudListingRecord(record) {
+      const snapshot = listingSnapshot(record);
+      delete snapshot.vin;
+      snapshot.images = (snapshot.images || []).slice(0, 10);
+      snapshot.description = String(snapshot.description || '').slice(0, 3000);
+      return {
+        id: record.id, ...snapshot,
+        favorite: state.favorites.has(record.id) || Boolean(record.favorite), note: String(record.note || '').slice(0, 5000),
+        firstSeenAt: record.firstSeenAt || null, lastSeenAt: record.lastSeenAt || null, lastCheckedAt: record.lastCheckedAt || null,
+        viewedAt: record.viewedAt || null, firstViewedAt: record.firstViewedAt || null, viewCount: Number(record.viewCount || 0), favoriteAt: record.favoriteAt || null,
+        available: record.available !== false, lastPriceChange: record.lastPriceChange || null, returnedAt: record.returnedAt || null,
+        noteUpdatedAt: record.noteUpdatedAt || null, history: Array.isArray(record.history) ? record.history.slice(-PERSONAL_HISTORY_LIMIT) : [],
+      };
+    }
+    function cloudComparisonRecord(record) {
+      const copy = { ...record, images: (record.images || []).slice(0, 8), description: String(record.description || '').slice(0, 1200) };
+      delete copy.vin;
+      return copy;
+    }
+    function buildCloudPayload() {
+      const comparisonIds = new Set(state.compared.keys());
+      const listings = [...state.personalRecords.values()]
+        .filter(record => state.favorites.has(record.id) || record.note || record.viewedAt || comparisonIds.has(record.id) || record.lastPriceChange || record.available === false)
+        .map(cloudListingRecord);
+      const payload = {
+        product: 'MOTOR.BY', schema: 1, savedAt: new Date().toISOString(),
+        listings, favorites: [...state.favorites], comparisons: comparisonItems().map(cloudComparisonRecord),
+        searches: state.savedSearches.slice(0, 30), preferences: Object.fromEntries(state.preferences),
+      };
+      const size = new Blob([JSON.stringify(payload)]).size;
+      if (size > 4 * 1024 * 1024) throw new Error('Облачная копия превысила 4 МБ. Удалите часть истории или заметок.');
+      return payload;
+    }
+    function scheduleCloudSync(delay = CLOUD_SYNC_DELAY) {
+      if (!state.account.ready || !state.account.enabled || !state.account.user || state.account.applying) return;
+      state.account.pending = true; state.account.error = '';
+      clearTimeout(state.account.syncTimer);
+      state.account.syncTimer = setTimeout(() => flushCloudState(), delay);
+      updateAccountUI();
+    }
+    async function flushCloudState({ notify = false } = {}) {
+      if (!state.account.client || !state.account.user || state.account.applying) return false;
+      if (state.account.syncing) { state.account.pending = true; return false; }
+      clearTimeout(state.account.syncTimer); state.account.syncTimer = null;
+      state.account.syncing = true; state.account.pending = false; state.account.error = ''; updateAccountUI();
+      try {
+        const payload = buildCloudPayload();
+        const updatedAt = new Date().toISOString();
+        const { error } = await state.account.client.from(CLOUD_TABLE).upsert({
+          user_id: state.account.user.id, payload, schema_version: 1, updated_at: updatedAt,
+        }, { onConflict: 'user_id' });
+        if (error) throw error;
+        state.account.lastPushAt = Date.now(); state.account.remoteUpdatedAt = updatedAt;
+        if (notify) toast('Данные аккаунта сохранены в облаке');
+        return true;
+      } catch (error) {
+        state.account.error = `Не удалось сохранить: ${error.message || error}`;
+        if (notify) toast(state.account.error, 'error');
+        return false;
+      } finally {
+        state.account.syncing = false; updateAccountUI();
+        if (state.account.pending) scheduleCloudSync(700);
+      }
+    }
+    async function applyCloudPayload(payload) {
+      if (!payload || typeof payload !== 'object') throw new Error('Облачная копия имеет неверный формат');
+      state.account.applying = true;
+      clearTimeout(state.account.syncTimer); state.account.syncTimer = null; state.account.pending = false;
+      try {
+        await personalClearStores();
+        for (const key of Object.keys(localStorage)) if (key.startsWith('motorby:pref:')) localStorage.removeItem(key);
+        localStorage.removeItem('motorby:favorites'); localStorage.removeItem(COMPARE_STORAGE_KEY);
+        state.personalRecords.clear(); state.preferences.clear(); state.savedSearches = []; state.favorites.clear(); state.compared.clear();
+
+        const listings = Array.isArray(payload.listings) ? payload.listings.filter(item => item?.id).slice(0, 500) : [];
+        for (const record of listings) { state.personalRecords.set(record.id, record); await personalPut('listings', record); }
+        const favoriteIds = Array.isArray(payload.favorites) ? payload.favorites.filter(id => typeof id === 'string') : [];
+        state.favorites = new Set(favoriteIds);
+        for (const id of state.favorites) {
+          const record = state.personalRecords.get(id); if (record) { record.favorite = true; state.personalRecords.set(id, record); await personalPut('listings', record); }
+        }
+        const searches = Array.isArray(payload.searches) ? payload.searches.filter(item => item?.id).slice(0, 30) : [];
+        state.savedSearches = searches;
+        for (const search of searches) await personalPut('searches', search);
+        const preferences = payload.preferences && typeof payload.preferences === 'object' ? payload.preferences : {};
+        for (const [key, value] of Object.entries(preferences)) {
+          state.preferences.set(key, value); localStorage.setItem(`motorby:pref:${key}`, JSON.stringify(value));
+          await personalPut('preferences', { key, value, updatedAt: new Date().toISOString() });
+        }
+        for (const item of (Array.isArray(payload.comparisons) ? payload.comparisons : []).slice(0, MAX_COMPARE_ITEMS)) if (item?.id) state.compared.set(item.id, item);
+        localStorage.setItem('motorby:favorites', JSON.stringify([...state.favorites]));
+        localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify([...state.compared.values()]));
+
+        applyDensity(personalPreference('density', state.density), false);
+        applyTheme(personalPreference('theme', state.theme), false);
+        setPriceCurrency(personalPreference('priceCurrency', state.priceCurrency), { convert: false, persist: false });
+        const sort = personalPreference('sort', els.sort.value || 'fresh');
+        if ([...els.sort.options].some(option => option.value === sort)) els.sort.value = sort;
+        renderPersonalPanel(); syncCompareUI();
+        if (state.order.length) sortAndRender();
+      } finally { state.account.applying = false; }
+    }
+    async function pullCloudState({ notify = false } = {}) {
+      if (!state.account.client || !state.account.user || state.account.syncing) return false;
+      clearTimeout(state.account.syncTimer); state.account.syncTimer = null; state.account.pending = false;
+      state.account.syncing = true; state.account.error = ''; updateAccountUI();
+      try {
+        const { data, error } = await state.account.client.from(CLOUD_TABLE)
+          .select('payload,updated_at,schema_version').eq('user_id', state.account.user.id).maybeSingle();
+        if (error) throw error;
+        if (data?.payload) {
+          await applyCloudPayload(data.payload); state.account.remoteUpdatedAt = data.updated_at || null;
+          if (notify) toast('Данные загружены из аккаунта');
+        } else {
+          const payload = buildCloudPayload();
+          const updatedAt = new Date().toISOString();
+          const { error: createError } = await state.account.client.from(CLOUD_TABLE).upsert({
+            user_id: state.account.user.id, payload, schema_version: 1, updated_at: updatedAt,
+          }, { onConflict: 'user_id' });
+          if (createError) throw createError;
+          state.account.lastPushAt = Date.now(); state.account.remoteUpdatedAt = updatedAt;
+          if (notify) toast('Первая облачная копия создана');
+        }
+        state.account.lastPullAt = Date.now();
+        return true;
+      } catch (error) {
+        state.account.error = `Не удалось загрузить аккаунт: ${error.message || error}`;
+        if (notify) toast(state.account.error, 'error');
+        return false;
+      } finally {
+        state.account.syncing = false; updateAccountUI();
+        if (state.account.pending) scheduleCloudSync(700);
+      }
+    }
+    async function clearLocalAccountData() {
+      const appearance = { theme: state.theme, density: state.density, priceCurrency: state.priceCurrency, sort: els.sort.value || 'fresh' };
+      state.account.applying = true;
+      try {
+        await personalClearStores();
+        for (const key of Object.keys(localStorage)) if (key.startsWith('motorby:pref:')) localStorage.removeItem(key);
+        localStorage.removeItem('motorby:favorites'); localStorage.removeItem(COMPARE_STORAGE_KEY); localStorage.removeItem(ACCOUNT_OWNER_KEY);
+        state.personalRecords.clear(); state.preferences.clear(); state.savedSearches = []; state.favorites.clear(); state.compared.clear();
+        for (const [key, value] of Object.entries(appearance)) {
+          state.preferences.set(key, value); localStorage.setItem(`motorby:pref:${key}`, JSON.stringify(value));
+          await personalPut('preferences', { key, value, updatedAt: new Date().toISOString() });
+        }
+        renderPersonalPanel(); syncCompareUI(); if (state.order.length) sortAndRender();
+      } finally { state.account.applying = false; }
+    }
+    async function handleAccountSession(session, { pull = true } = {}) {
+      const previousId = state.account.loadedUserId;
+      const storedOwnerId = localStorage.getItem(ACCOUNT_OWNER_KEY) || '';
+      state.account.session = session || null; state.account.user = session?.user || null;
+      const nextId = state.account.user?.id || '';
+      state.account.loadedUserId = nextId; state.account.error = '';
+      updateAccountUI();
+      if (!nextId) {
+        if (previousId || storedOwnerId) await clearLocalAccountData();
+        updateAccountUI(); return;
+      }
+      if ((previousId && previousId !== nextId) || (storedOwnerId && storedOwnerId !== nextId)) await clearLocalAccountData();
+      if (pull || previousId !== nextId) await pullCloudState();
+      localStorage.setItem(ACCOUNT_OWNER_KEY, nextId);
+      updateAccountUI();
+    }
+    function loadSupabaseClient() {
+      if (window.supabase?.createClient) return Promise.resolve(window.supabase);
+      if (supabaseScriptPromise) return supabaseScriptPromise;
+      supabaseScriptPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = '/assets/supabase-js-2.116.0.js'; script.async = true;
+        script.onload = () => window.supabase?.createClient ? resolve(window.supabase) : reject(new Error('Supabase JS не инициализирован'));
+        script.onerror = () => reject(new Error('Не удалось загрузить Supabase JS'));
+        document.head.append(script);
+      });
+      return supabaseScriptPromise;
+    }
+    async function initAccountSystem() {
+      renderAccountPanel();
+      try {
+        const config = await api('/api/account-config');
+        state.account.enabled = config?.enabled === true;
+        if (!state.account.enabled) { state.account.ready = true; updateAccountUI(); return; }
+        await loadSupabaseClient();
+        state.account.client = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey, {
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'implicit', storageKey: 'motorby-supabase-auth' },
+        });
+        const { data, error } = await state.account.client.auth.getSession();
+        if (error) throw error;
+        state.account.ready = true;
+        await handleAccountSession(data?.session || null, { pull: true });
+        state.account.client.auth.onAuthStateChange((event, session) => {
+          if (!['SIGNED_IN', 'SIGNED_OUT'].includes(event)) return;
+          setTimeout(() => handleAccountSession(session, { pull: event === 'SIGNED_IN' && state.account.loadedUserId !== session?.user?.id }), 0);
+        });
+      } catch (error) {
+        state.account.ready = true; state.account.error = `Аккаунт недоступен: ${error.message || error}`;
+        updateAccountUI();
+      }
+    }
+    async function signInWithGoogle() {
+      if (!state.account.client) { toast('Сначала настройте Supabase в Render', 'error'); return; }
+      try {
+        const redirectTo = `${location.origin}${location.pathname}`;
+        const { error } = await state.account.client.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } });
+        if (error) throw error;
+      } catch (error) { state.account.error = `Вход не выполнен: ${error.message || error}`; updateAccountUI(); toast(state.account.error, 'error'); }
+    }
+    async function signOutAccount() {
+      if (!state.account.client || !state.account.user) return;
+      if (state.account.syncing) { toast('Дождитесь завершения синхронизации'); return; }
+      const saved = await flushCloudState();
+      if (!saved && !confirm('Последние изменения не удалось сохранить в облаке. Всё равно выйти и очистить их с устройства?')) return;
+      const { error } = await state.account.client.auth.signOut();
+      if (error) { toast(`Не удалось выйти: ${error.message}`, 'error'); return; }
+      await handleAccountSession(null, { pull: false }); closeAccountPanel(); toast('Вы вышли из аккаунта');
+    }
+
     function applyTheme(value, persist = true) {
       state.theme = value === 'light' ? 'light' : 'dark';
       document.documentElement.dataset.theme = state.theme;
@@ -2839,6 +3293,7 @@
     }
     function persistComparison() {
       try { localStorage.setItem(COMPARE_STORAGE_KEY, JSON.stringify([...state.compared.values()])); } catch (_) {}
+      scheduleCloudSync();
     }
     function comparisonItems() { return [...state.compared.values()].slice(0, MAX_COMPARE_ITEMS); }
     function compareBestIndexes(values, mode) {
@@ -2898,6 +3353,7 @@
         if (button) { button.setAttribute('aria-pressed', String(selected)); button.title = selected ? 'Убрать из сравнения' : 'Добавить к сравнению'; const label = $('span', button); if (label) label.textContent = selected ? 'В сравнении' : 'Сравнить'; }
       });
       if (els.comparePanel?.classList.contains('open')) renderComparison();
+      if (els.accountPanel?.classList.contains('open')) renderAccountPanel();
     }
     function toggleComparisonItem(id) {
       if (state.compared.has(id)) state.compared.delete(id);
@@ -2995,6 +3451,7 @@
         els.personalButton.title = favorites ? `Избранные автомобили: ${favorites}` : 'Избранные автомобили';
         els.personalButton.setAttribute('aria-label', favorites ? `Открыть избранные автомобили, сохранено: ${favorites}` : 'Открыть избранные автомобили');
       }
+      updateAccountUI();
     }
     function savedSearchName() {
       const summary = mobileSummaryText();
@@ -3243,8 +3700,97 @@
       });
       await Promise.allSettled(workers); renderPersonalPanel();
     }
+    function model3dKeyForItem(item) {
+      const body = String(item?.body || '').toLowerCase();
+      if (/внедорож|кроссов|suv|crossover/.test(body)) return 'suv';
+      if (/хэтч|лифтбек|hatch/.test(body)) return 'hatchback';
+      if (/купе|кабри|родстер|спорт|coupe|roadster/.test(body)) return 'coupe';
+      if (/пикап|pickup/.test(body)) return 'pickup';
+      if (/фургон|минивэн|микроавтобус|minivan|minibus|van/.test(body)) return 'van';
+      return 'sedan';
+    }
+    function loadModelViewerLibrary() {
+      if (customElements.get('model-viewer')) return Promise.resolve();
+      if (modelViewerScriptPromise) return modelViewerScriptPromise;
+      modelViewerScriptPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.type = 'module'; script.src = '/assets/model-viewer-4.3.1.min.js';
+        script.onload = () => customElements.whenDefined('model-viewer').then(resolve, error => { modelViewerScriptPromise = null; reject(error); });
+        script.onerror = () => { modelViewerScriptPromise = null; reject(new Error('Не удалось загрузить модуль 3D-просмотра')); };
+        document.head.append(script);
+      });
+      return modelViewerScriptPromise;
+    }
+    function renderModel3dChoices() {
+      els.model3dChoices.innerHTML = Object.entries(MODEL3D_CATALOG).map(([key, model]) => `<button class="model3d-choice" type="button" data-model3d-key="${key}" aria-pressed="${state.model3d.key === key}">${escapeHTML(model.label)}</button>`).join('');
+    }
+    function wireModel3dViewer() {
+      if (els.model3dViewer.dataset.wired === '1') return;
+      els.model3dViewer.dataset.wired = '1';
+      els.model3dViewer.addEventListener('progress', event => {
+        const progress = Math.max(0, Math.min(1, Number(event.detail?.totalProgress || 0)));
+        els.model3dProgress.style.width = `${Math.round(progress * 100)}%`;
+        els.model3dStatus.textContent = `Загрузка модели · ${Math.round(progress * 100)}%`;
+      });
+      els.model3dViewer.addEventListener('load', () => {
+        if (!els.model3dPanel.classList.contains('open')) return;
+        state.model3d.loaded = true; $('.model3d-stage', els.model3dPanel)?.classList.add('loaded');
+        els.model3dStatus.textContent = 'Модель готова';
+      });
+      els.model3dViewer.addEventListener('error', () => {
+        state.model3d.loaded = false; $('.model3d-stage', els.model3dPanel)?.classList.remove('loaded');
+        els.model3dStatus.textContent = navigator.onLine ? 'Не удалось открыть модель. Попробуйте другой тип кузова.' : 'Для первой загрузки 3D-модели нужна сеть.';
+      });
+    }
+    function setModel3d(key) {
+      const model = MODEL3D_CATALOG[key]; if (!model) return;
+      state.model3d.key = key; state.model3d.loaded = false;
+      els.model3dSubtitle.textContent = `${model.label} · вращайте пальцем или мышкой, масштабируйте щипком`;
+      renderModel3dChoices();
+      $('.model3d-stage', els.model3dPanel)?.classList.remove('loaded');
+      els.model3dProgress.style.width = '0%'; els.model3dStatus.textContent = `Загрузка · ${model.label}`;
+      els.model3dViewer.setAttribute('camera-orbit', '35deg 70deg auto');
+      els.model3dViewer.setAttribute('field-of-view', '30deg');
+      els.model3dViewer.setAttribute('src', model.src);
+    }
+    async function openModel3d(id) {
+      const item = state.items.get(id) || state.personalRecords.get(id) || state.compared.get(id);
+      if (!item) { toast('Не удалось найти данные автомобиля', 'error'); return; }
+      const requestId = ++model3dRequestId;
+      state.model3d.listingId = id; state.model3d.key = model3dKeyForItem(item); state.model3d.loaded = false;
+      els.model3dTitle.textContent = item.title || '3D-модель автомобиля';
+      els.model3dSubtitle.textContent = `${MODEL3D_CATALOG[state.model3d.key].label} · вращайте пальцем или мышкой, масштабируйте щипком`;
+      const poster = mediaUrl((item.images || [item.image]).filter(Boolean)[0] || fallbackImage);
+      els.model3dViewer.setAttribute('poster', poster);
+      els.model3dViewer.removeAttribute('src');
+      renderModel3dChoices();
+      $('.model3d-stage', els.model3dPanel)?.classList.remove('loaded');
+      els.model3dProgress.style.width = '0%'; els.model3dStatus.textContent = 'Подготавливаем 3D-просмотр…';
+      els.model3dPanel.classList.add('open'); syncBodyModal(); els.model3dPanel.querySelector('.model3d-close')?.focus();
+      try {
+        await loadModelViewerLibrary();
+        if (requestId !== model3dRequestId || !els.model3dPanel.classList.contains('open')) return;
+        wireModel3dViewer(); setModel3d(state.model3d.key);
+      } catch (error) {
+        if (requestId !== model3dRequestId) return;
+        els.model3dStatus.textContent = error.message || '3D-просмотр недоступен';
+      }
+    }
+    function resetModel3dCamera() {
+      if (!state.model3d.loaded) return;
+      els.model3dViewer.setAttribute('camera-orbit', '35deg 70deg auto');
+      els.model3dViewer.setAttribute('field-of-view', '30deg');
+      els.model3dViewer.jumpCameraToGoal?.();
+    }
+    function closeModel3d() {
+      const listingId = state.model3d.listingId;
+      model3dRequestId += 1; state.model3d.listingId = null; state.model3d.loaded = false;
+      els.model3dPanel.classList.remove('open'); els.model3dViewer.removeAttribute('src'); els.model3dViewer.removeAttribute('poster');
+      $('.model3d-stage', els.model3dPanel)?.classList.remove('loaded'); syncBodyModal();
+      if (listingId) state.items.get(listingId) && $(`.listing-card[data-id="${CSS.escape(listingId)}"] [data-action="open-3d"]`)?.focus();
+    }
     function syncBodyModal() {
-      document.body.classList.toggle('modal-open', els.lightbox.classList.contains('open') || els.personalPanel.classList.contains('open') || els.vinPanel.classList.contains('open') || els.comparePanel.classList.contains('open'));
+      document.body.classList.toggle('modal-open', els.lightbox.classList.contains('open') || els.personalPanel.classList.contains('open') || els.accountPanel.classList.contains('open') || els.model3dPanel.classList.contains('open') || els.vinPanel.classList.contains('open') || els.comparePanel.classList.contains('open'));
     }
     const VIN_CHECK_FALLBACK = [
       { title: 'ДТП в Беларуси и России', coverage: 'Зарегистрированные аварии и страховые события' },
@@ -4144,6 +4690,7 @@
           <div class="listing-footer">
             <div class="seller-meta"><strong data-seller>${escapeHTML(item.seller?.name || 'Продавец')}</strong><span>${icon('pin')} ${escapeHTML(item.location || 'Беларусь')}</span></div>
             <div class="card-buttons">
+              <button class="model3d-button" type="button" data-action="open-3d" aria-label="Открыть интерактивную 3D-модель кузова">${icon('cube')} 3D-обзор</button>
               <button class="detail-button" type="button" data-action="extra-toggle" aria-label="Все данные объявления" aria-expanded="false">${icon('sliders')} Все данные</button>
               ${vinButtonHTML(item)}
               <a class="original-button" href="${validUrl(item.sourceUrl)}" target="_blank" rel="noopener">Оригинал ${icon('external')}</a>
@@ -4555,6 +5102,7 @@
       window.addEventListener('online', () => {
         document.body.classList.remove('is-offline'); toast('Связь восстановлена');
         loadExchangeRate(); revalidateFavorites();
+        if (state.account.user) state.account.pending ? flushCloudState() : pullCloudState();
         if (state.offlineMode && !state.loading) runSearch({ scroll: false });
       });
     }
@@ -4611,6 +5159,7 @@
     document.addEventListener('pointerdown', event => { if (els.bodyPicker.classList.contains('open') && !els.bodyPicker.contains(event.target)) closeBodyPicker(); });
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && els.bodyPicker.classList.contains('open')) { event.preventDefault(); closeBodyPicker({ focus: true }); } });
     els.installButton.addEventListener('click', requestAppInstall);
+    els.accountButton.addEventListener('click', openAccountPanel);
     els.personalButton.addEventListener('click', openPersonalPanel);
     $$('input[name="source"]', els.form).forEach(input => input.addEventListener('change', () => queueMobileSourceRefresh(input)));
     els.generationTrack.addEventListener('click', event => {
@@ -4644,6 +5193,7 @@
       const card = actionNode.closest('.listing-card'); if (!card) return;
       const id = card.dataset.id;
       if (action === 'compare-toggle') { event.stopPropagation(); toggleComparisonItem(id); return; }
+      if (action === 'open-3d') { event.stopPropagation(); openModel3d(id); return; }
       if (action === 'vin-report') { event.stopPropagation(); openVinReport(id); return; }
       if (action === 'favorite') {
         event.stopPropagation();
@@ -4671,6 +5221,26 @@
         actionNode.setAttribute('aria-expanded', String(expanded));
         if (card.dataset.detailLoaded !== '1') queueDetail(id, true);
       }
+    });
+
+    els.model3dPanel.addEventListener('click', event => {
+      if (event.target === els.model3dPanel) { closeModel3d(); return; }
+      const choice = event.target.closest('[data-model3d-key]');
+      if (choice) { setModel3d(choice.dataset.model3dKey); return; }
+      const action = event.target.closest('[data-model3d-action]')?.dataset.model3dAction;
+      if (action === 'close') closeModel3d();
+      else if (action === 'reset') resetModel3dCamera();
+    });
+
+    els.accountPanel.addEventListener('click', event => {
+      if (event.target === els.accountPanel) { closeAccountPanel(); return; }
+      const button = event.target.closest('[data-account-action]'); if (!button) return;
+      const action = button.dataset.accountAction;
+      if (action === 'close') closeAccountPanel();
+      else if (action === 'sign-in') signInWithGoogle();
+      else if (action === 'push') flushCloudState({ notify: true });
+      else if (action === 'pull' && confirm('Заменить локальные данные последней облачной копией аккаунта?')) pullCloudState({ notify: true });
+      else if (action === 'sign-out') signOutAccount();
     });
 
     els.personalPanel.addEventListener('click', event => {
@@ -4818,8 +5388,10 @@
         }
         return;
       }
+      if (event.key === 'Escape' && els.model3dPanel.classList.contains('open')) { closeModel3d(); return; }
       if (event.key === 'Escape' && els.vinPanel.classList.contains('open')) { closeVinReport(); return; }
       if (event.key === 'Escape' && els.comparePanel.classList.contains('open')) { closeComparison(); return; }
+      if (event.key === 'Escape' && els.accountPanel.classList.contains('open')) { closeAccountPanel(); return; }
       if (event.key === 'Escape' && els.personalPanel.classList.contains('open')) { closePersonalPanel(); return; }
       if (!els.lightbox.classList.contains('open')) return;
       if (event.key === 'Escape') closeLightbox();
@@ -4830,7 +5402,11 @@
     mobileFilterMedia.addEventListener?.('change', syncMobileLayout);
     window.setInterval(() => { if (navigator.onLine) loadExchangeRate(); }, EXCHANGE_REFRESH_MS);
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && navigator.onLine && Date.now() - state.exchangeCheckedAt >= EXCHANGE_REFRESH_MS) loadExchangeRate();
+      if (document.visibilityState !== 'visible' || !navigator.onLine) return;
+      if (Date.now() - state.exchangeCheckedAt >= EXCHANGE_REFRESH_MS) loadExchangeRate();
+      if (state.account.user && Date.now() - state.account.lastPullAt >= CLOUD_PULL_INTERVAL) {
+        state.account.pending ? flushCloudState() : pullCloudState();
+      }
     });
 
     // Phones open directly on the expanded filters and wait for an explicit
@@ -4841,7 +5417,7 @@
     initPwa();
     (async function bootstrap() {
       await initPersonalDatabase();
-      const [, catalogLoaded] = await Promise.all([loadExchangeRate(), loadBrands()]);
+      const [, , catalogLoaded] = await Promise.all([initAccountSystem(), loadExchangeRate(), loadBrands()]);
       if (!navigator.onLine && restoreOfflinePersonalState()) {
         setTimeout(revalidateFavorites, 2500); return;
       }

@@ -15,7 +15,19 @@ const { performance } = require('node:perf_hooks');
 
 const PORT = Number(process.env.PORT || 8080);
 const ROOT = __dirname;
-const APP_VERSION = '1.6.2';
+const APP_VERSION = '1.8.1';
+const SUPABASE_URL = String(process.env.SUPABASE_URL || '').trim().replace(/\/$/, '');
+const SUPABASE_ANON_KEY = String(process.env.SUPABASE_ANON_KEY || '').trim();
+const ACCOUNT_SYNC_ENABLED = /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(SUPABASE_URL) && isSafeSupabaseBrowserKey(SUPABASE_ANON_KEY);
+const SUPABASE_ORIGIN = ACCOUNT_SYNC_ENABLED ? new URL(SUPABASE_URL).origin : '';
+function isSafeSupabaseBrowserKey(value) {
+  if (/^sb_publishable_[A-Za-z0-9_-]{16,}$/.test(value)) return true;
+  if (!/^eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(value)) return false;
+  try {
+    const payload = JSON.parse(Buffer.from(value.split('.')[1], 'base64url').toString('utf8'));
+    return payload?.role === 'anon';
+  } catch (_) { return false; }
+}
 const USER_AGENT = process.env.SOURCE_USER_AGENT ||
   `MotorBY-Aggregator/${APP_VERSION} (+https://render.com; low-rate cached public catalogue reader)`;
 const SEARCH_TTL = clampInt(process.env.SEARCH_CACHE_TTL, 30, 900, 180);
@@ -135,6 +147,15 @@ const avRuntime = {
   lastError: '',
   // Do not retry a known-blocked direct route for every user request. Render
   // deployments with an allowed egress still discover and prefer it.
+  directRetryAt: 0,
+};
+const onlinerRuntime = {
+  transport: null,
+  lastSuccessAt: null,
+  lastFailureAt: null,
+  lastError: '',
+  // Some Render egress ranges cannot establish a route to Onlíner. Remember
+  // that condition briefly and use the bounded real-data relay immediately.
   directRetryAt: 0,
 };
 
@@ -352,7 +373,7 @@ async function getUsdBynRate() {
 }
 
 async function getOnlinerSchema() {
-  return cache.remember('onliner:schema', CATALOG_TTL, () => sourceFetch(ONLINER_SCHEMA, { source: 'onliner', type: 'json' }));
+  return cache.remember('onliner:schema', CATALOG_TTL, () => fetchOnlinerJson(ONLINER_SCHEMA));
 }
 
 function syntheticCatalogId(kind, ...values) {
@@ -453,7 +474,7 @@ async function getModels(brandId) {
   let brandName = syntheticBrands.get(brandId)?.name || '';
   if (brandId > 0) {
     onlinerData = await cache.remember(`onliner:models:${brandId}`, CATALOG_TTL,
-      () => sourceFetch(`${ONLINER_API}/manufacturers/${brandId}`, { source: 'onliner', type: 'json' }));
+      () => fetchOnlinerJson(`${ONLINER_API}/manufacturers/${brandId}`));
     brandName = cleanText(onlinerData.name);
   }
 
@@ -515,7 +536,7 @@ async function getGenerations(brandId, modelId) {
     };
   }
   const data = await cache.remember(`onliner:generations:${brandId}:${modelId}`, CATALOG_TTL,
-    () => sourceFetch(`${ONLINER_API}/manufacturers/${brandId}/models/${modelId}`, { source: 'onliner', type: 'json' }));
+    () => fetchOnlinerJson(`${ONLINER_API}/manufacturers/${brandId}/models/${modelId}`));
   return {
     brand: { id: brandId },
     model: { id: data.id, name: data.name, slug: data.slug },
@@ -691,7 +712,7 @@ async function searchOnliner(filters) {
   const sourceUrl = buildOnlinerUrl(filters);
   const key = `onliner:search:${sourceUrl}`;
   const data = await cache.remember(key, SEARCH_TTL,
-    () => sourceFetch(sourceUrl, { source: 'onliner', type: 'json', timeout: 14000 }),
+    () => fetchOnlinerJson(sourceUrl, { timeout: 14000 }),
     { staleSeconds: 1800 });
   if (!Array.isArray(data.adverts)) {
     throw new SourceError('onliner', 'format_changed', 'Onlíner изменил формат каталога');
@@ -1047,14 +1068,15 @@ function noteAvFailure(error) {
   avRuntime.lastError = cleanText(error?.publicMessage || error?.message || 'AV.BY недоступен');
 }
 
-function reserveJinaRequest() {
+function reserveJinaRequest(source = 'av') {
   const now = Date.now();
   while (jinaRequestTimes.length && jinaRequestTimes[0] <= now - 60000) jinaRequestTimes.shift();
   // Reader currently advertises a 20 requests / 60 seconds limit. Keep two
   // requests in reserve and fail this adapter cleanly instead of causing a burst.
   if (jinaRequestTimes.length >= 18) {
-    throw new SourceError('av', 'relay_rate_limit',
-      'Резервный транспорт AV.BY достиг минутного лимита; повторите поиск немного позже');
+    const label = source === 'onliner' ? 'Onlíner' : 'AV.BY';
+    throw new SourceError(source, 'relay_rate_limit',
+      `Резервный транспорт ${label} достиг минутного лимита; повторите поиск немного позже`);
   }
   jinaRequestTimes.push(now);
 }
@@ -1160,6 +1182,96 @@ async function fetchAvJson(resource, { timeout = AV_REQUEST_TIMEOUT } = {}) {
     return { data, transport: 'reader', targetUrl: target.href };
   } catch (error) {
     noteAvFailure(error);
+    throw error;
+  }
+}
+
+function noteOnlinerSuccess(transport) {
+  onlinerRuntime.transport = transport;
+  onlinerRuntime.lastSuccessAt = new Date().toISOString();
+  onlinerRuntime.lastError = '';
+}
+
+function noteOnlinerFailure(error) {
+  onlinerRuntime.lastFailureAt = new Date().toISOString();
+  onlinerRuntime.lastError = cleanText(error?.publicMessage || error?.message || 'Onlíner недоступен');
+}
+
+async function fetchOnlinerViaReader(target, timeout) {
+  reserveJinaRequest('onliner');
+  let response;
+  try {
+    response = await fetch(`${JINA_READER}${target.href}`, {
+      headers: {
+        'user-agent': USER_AGENT,
+        accept: 'application/json',
+        'x-return-format': 'markdown',
+      },
+      redirect: 'follow',
+      signal: AbortSignal.timeout(timeout),
+    });
+  } catch (error) {
+    const timedOut = error?.name === 'TimeoutError' || error?.name === 'AbortError';
+    throw new SourceError('onliner', timedOut ? 'timeout' : 'network',
+      timedOut ? 'Резервный транспорт Onlíner не ответил вовремя' : 'Резервный транспорт Onlíner недоступен', error.message);
+  }
+  if (!response.ok) {
+    const limited = response.status === 429;
+    throw new SourceError('onliner', limited ? 'relay_rate_limit' : `relay_http_${response.status}`,
+      limited ? 'Резервный транспорт Onlíner достиг минутного лимита; повторите поиск позже'
+        : `Резервный транспорт Onlíner ответил с кодом ${response.status}`,
+      `${response.status} ${response.statusText} — ${target}`);
+  }
+
+  let wrapper;
+  try { wrapper = await response.json(); }
+  catch (error) {
+    throw new SourceError('onliner', 'format_changed', 'Резервный транспорт Onlíner изменил формат ответа', error.message);
+  }
+  const targetStatus = asNumber(wrapper?.data?.httpStatus);
+  if (targetStatus !== null && (targetStatus < 200 || targetStatus >= 300)) {
+    const blocked = [403, 429, 468].includes(targetStatus);
+    throw new SourceError('onliner', blocked ? 'blocked' : `http_${targetStatus}`,
+      blocked ? 'Onlíner временно ограничил автоматический доступ' : `Onlíner ответил с кодом ${targetStatus}`);
+  }
+  if (typeof wrapper?.data?.content !== 'string') {
+    throw new SourceError('onliner', 'format_changed', 'Резервный транспорт не вернул данные Onlíner');
+  }
+  const normalized = cleanText(wrapper.data.content)
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/, '');
+  try { return JSON.parse(normalized); }
+  catch (error) {
+    throw new SourceError('onliner', 'format_changed', 'Onlíner изменил формат ответа', error.message);
+  }
+}
+
+async function fetchOnlinerJson(resource, { timeout = 14000 } = {}) {
+  const target = new URL(resource);
+  const allowedOrigins = new Set([new URL(ONLINER_API).origin, new URL(ONLINER_SEARCH).origin]);
+  if (target.protocol !== 'https:' || !allowedOrigins.has(target.origin)) {
+    throw new SourceError('onliner', 'invalid_target', 'Некорректный адрес каталога Onlíner');
+  }
+
+  if (Date.now() >= onlinerRuntime.directRetryAt) {
+    try {
+      const data = await sourceFetch(target.href, { source: 'onliner', type: 'json', timeout: Math.min(timeout, 4500) });
+      noteOnlinerSuccess('direct');
+      return data;
+    } catch (error) {
+      // A removed advert or another deterministic client error says nothing
+      // about transport health and must not send all following traffic to relay.
+      if (/^http_4\d\d$/.test(error?.code || '') && error?.code !== 'http_429') throw error;
+      onlinerRuntime.directRetryAt = Date.now() + (error?.code === 'blocked' ? 15 * 60 : 5 * 60) * 1000;
+    }
+  }
+
+  try {
+    const data = await fetchOnlinerViaReader(target, timeout);
+    noteOnlinerSuccess('reader');
+    return data;
+  } catch (error) {
+    noteOnlinerFailure(error);
     throw error;
   }
 }
@@ -1945,7 +2057,7 @@ async function inferUnambiguousGeneration(brandName, modelName, year) {
       const brand = (field?.['x-enum'] || []).find((item) => brandIdentity(item.title) === brandIdentity(brandName));
       if (!brand) return null;
       const manufacturer = await cache.remember(`onliner:models:${brand.value}`, CATALOG_TTL,
-        () => sourceFetch(`${ONLINER_API}/manufacturers/${brand.value}`, { source: 'onliner', type: 'json' }));
+        () => fetchOnlinerJson(`${ONLINER_API}/manufacturers/${brand.value}`));
       const model = (manufacturer.models || []).find((item) => modelIdentity(item.name) === modelIdentity(modelName));
       if (!model) return null;
       const catalog = await getGenerations(Number(brand.value), Number(model.id));
@@ -2080,7 +2192,7 @@ function sourceFailureStatus(source, label, sourceUrl, error, elapsed) {
 
 async function getOnlinerDetail(id) {
   const data = await cache.remember(`onliner:detail:${id}`, DETAIL_TTL,
-    () => sourceFetch(`${ONLINER_API}/adverts/${encodeURIComponent(id)}`, { source: 'onliner', type: 'json', timeout: 12000 }),
+    () => fetchOnlinerJson(`${ONLINER_API}/adverts/${encodeURIComponent(id)}`, { timeout: 12000 }),
     { staleSeconds: 3600 });
   let generationInfo = null;
   if (data.manufacturer?.id && data.model?.id && data.generation?.id) {
@@ -2152,7 +2264,7 @@ async function resolveOnlinerMarketTaxonomy(filters) {
     }
     if (brandId && !modelId && filters.modelName) {
       const data = await cache.remember(`onliner:models:${brandId}`, CATALOG_TTL,
-        () => sourceFetch(`${ONLINER_API}/manufacturers/${brandId}`, { source: 'onliner', type: 'json' }));
+        () => fetchOnlinerJson(`${ONLINER_API}/manufacturers/${brandId}`));
       const model = (data?.models || []).find((item) => modelIdentity(item.name) === modelIdentity(filters.modelName));
       modelId = model ? Number(model.id) : null;
     }
@@ -2401,12 +2513,14 @@ async function serveMedia(req, res, url) {
 }
 
 function securityHeaders(contentType = '') {
+  const connectSources = ["'self'", 'https://android-api.av.by'];
+  if (SUPABASE_ORIGIN) connectSources.push(SUPABASE_ORIGIN);
   const headers = {
     'x-content-type-options': 'nosniff',
     'referrer-policy': 'strict-origin-when-cross-origin',
     'permissions-policy': 'camera=(), microphone=(), geolocation=()',
     // Do not set X-Frame-Options/frame-ancestors: Render and Arena previews use a sandboxed iframe.
-    'content-security-policy': "default-src 'self'; img-src 'self' data: https://content.onliner.by https://imgproxy.onliner.by https://rms.kufar.by https://avcdn.av.by https://io.activecloud.com https://dealers-service.atlantm.by; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://android-api.av.by; worker-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'",  
+    'content-security-policy': `default-src 'self'; img-src 'self' data: https://content.onliner.by https://imgproxy.onliner.by https://rms.kufar.by https://avcdn.av.by https://io.activecloud.com https://dealers-service.atlantm.by; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; connect-src ${connectSources.join(' ')}; worker-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'`,
   };
   if (contentType) headers['content-type'] = contentType;
   return headers;
@@ -2449,6 +2563,7 @@ async function serveStatic(req, res, pathname) {
       '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
       '.webmanifest': 'application/manifest+json; charset=utf-8', '.json': 'application/json; charset=utf-8',
       '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.ico': 'image/x-icon',
+      '.glb': 'model/gltf-binary',
     };
     const revalidated = ['index.html', 'manifest.webmanifest', 'sw.js'].includes(safePath);
     const headers = {
@@ -2504,11 +2619,20 @@ const server = http.createServer(async (req, res) => {
             api: 'public-keyless-stock',
           },
           exchange: { pair: 'USD/BYN', source: 'НБРБ', api: 'public-keyless', ttlSeconds: 3600 },
+          accounts: { enabled: ACCOUNT_SYNC_ENABLED, provider: 'google', storage: 'supabase-rls' },
           businessCatalogs: {
             coverage: 'Belarus',
             dealerProviders: ['atlant-m-stock', 'av-by-companies-new'],
             autohouseProviders: ['atlant-m-used-stock', 'av-by-companies-used'],
             delivery: 'server-plus-browser-direct',
+          },
+          onliner: {
+            transport: onlinerRuntime.transport,
+            searchDelivery: 'server-direct-with-relay-fallback',
+            detailDelivery: 'server-direct-with-relay-fallback',
+            lastSuccessAt: onlinerRuntime.lastSuccessAt,
+            lastFailureAt: onlinerRuntime.lastFailureAt,
+            lastError: onlinerRuntime.lastError || null,
           },
           av: {
             transport: avRuntime.transport,
@@ -2522,6 +2646,17 @@ const server = http.createServer(async (req, res) => {
             readerBudgetUsed: jinaRequestTimes.filter((time) => time > Date.now() - 60000).length,
           },
           cache: cache.stats(),
+        });
+        return;
+      }
+
+      if (pathname === '/api/account-config') {
+        sendJson(res, 200, {
+          enabled: ACCOUNT_SYNC_ENABLED,
+          provider: 'google',
+          storage: 'supabase',
+          supabaseUrl: ACCOUNT_SYNC_ENABLED ? SUPABASE_URL : null,
+          supabaseAnonKey: ACCOUNT_SYNC_ENABLED ? SUPABASE_ANON_KEY : null,
         });
         return;
       }

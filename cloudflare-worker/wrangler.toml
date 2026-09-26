@@ -1,0 +1,10 @@
+name = "motor-by-keep-awake"
+main = "src/index.js"
+compatibility_date = "2026-09-17"
+workers_dev = true
+
+[triggers]
+crons = ["*/10 * * * *"]
+
+[vars]
+RENDER_HEALTH_URL = "https://avtopodbor-rb.onrender.com/api/health"
