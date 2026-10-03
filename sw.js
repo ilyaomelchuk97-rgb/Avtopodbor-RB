@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '1.8.1';
+const VERSION = '1.9.0';
 const SHELL_CACHE = `motor-by-shell-${VERSION}`;
 const IMAGE_CACHE = `motor-by-images-${VERSION}`;
 const CACHE_PREFIX = 'motor-by-';
@@ -75,8 +75,11 @@ self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
+  // Do not route cross-origin marketplace photos through the Service Worker.
+  // Some Safari/Cache API combinations reject opaque CDN responses after the
+  // network request succeeded, which makes AV.BY/Onlíner photos disappear.
   if (request.destination === 'image') {
-    event.respondWith(imageResponse(request));
+    if (url.origin === self.location.origin) event.respondWith(imageResponse(request));
     return;
   }
   if (url.origin === self.location.origin && url.pathname.startsWith('/api/')) return;

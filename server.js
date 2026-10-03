@@ -15,7 +15,7 @@ const { performance } = require('node:perf_hooks');
 
 const PORT = Number(process.env.PORT || 8080);
 const ROOT = __dirname;
-const APP_VERSION = '1.8.1';
+const APP_VERSION = '1.9.0';
 const SUPABASE_URL = String(process.env.SUPABASE_URL || '').trim().replace(/\/$/, '');
 const SUPABASE_ANON_KEY = String(process.env.SUPABASE_ANON_KEY || '').trim();
 const ACCOUNT_SYNC_ENABLED = /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(SUPABASE_URL) && isSafeSupabaseBrowserKey(SUPABASE_ANON_KEY);
@@ -2520,7 +2520,7 @@ function securityHeaders(contentType = '') {
     'referrer-policy': 'strict-origin-when-cross-origin',
     'permissions-policy': 'camera=(), microphone=(), geolocation=()',
     // Do not set X-Frame-Options/frame-ancestors: Render and Arena previews use a sandboxed iframe.
-    'content-security-policy': `default-src 'self'; img-src 'self' data: https://content.onliner.by https://imgproxy.onliner.by https://rms.kufar.by https://avcdn.av.by https://io.activecloud.com https://dealers-service.atlantm.by; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; connect-src ${connectSources.join(' ')}; worker-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'`,
+    'content-security-policy': `default-src 'self'; img-src 'self' data: https://content.onliner.by https://imgproxy.onliner.by https://rms.kufar.by https://avcdn.av.by https://io.activecloud.com https://dealers-service.atlantm.by; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src ${connectSources.join(' ')}; worker-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'`,
   };
   if (contentType) headers['content-type'] = contentType;
   return headers;
@@ -2563,7 +2563,6 @@ async function serveStatic(req, res, pathname) {
       '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
       '.webmanifest': 'application/manifest+json; charset=utf-8', '.json': 'application/json; charset=utf-8',
       '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.ico': 'image/x-icon',
-      '.glb': 'model/gltf-binary',
     };
     const revalidated = ['index.html', 'manifest.webmanifest', 'sw.js'].includes(safePath);
     const headers = {

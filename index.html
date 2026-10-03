@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#080a0d">
-  <meta name="application-version" content="1.8.1">
+  <meta name="application-version" content="1.9.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="MOTOR.BY">
@@ -1660,7 +1660,13 @@
     .model3d-close .icon { width: 17px; height: 17px; }
     .model3d-stage { position: relative; min-height: 0; overflow: hidden; background: radial-gradient(circle at 50% 58%,rgba(173,255,47,.09),transparent 34%),linear-gradient(180deg,#18212b,#0b1016); }
     .model3d-stage::before { content: ""; position: absolute; inset: auto 0 0; height: 44%; pointer-events: none; background: linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px); background-size: 34px 34px; transform: perspective(360px) rotateX(62deg) scale(1.35); transform-origin: center bottom; }
-    #model3dViewer { position: relative; z-index: 1; width: 100%; height: 100%; min-height: 300px; background: transparent; touch-action: none; --poster-color: transparent; --progress-bar-color: var(--accent); --progress-bar-height: 2px; }
+    .photo3d-viewport { position: relative; z-index: 1; width: 100%; height: 100%; min-height: 300px; overflow: hidden; perspective: 1100px; perspective-origin: 50% 48%; background: transparent; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+    .photo3d-viewport.dragging { cursor: grabbing; }
+    .photo3d-world { --photo-radius: clamp(190px,34vw,390px); --photo-yaw: 0deg; --photo-pitch: -5deg; --photo-scale: 1; position: absolute; left: 50%; top: 50%; width: clamp(260px,66vw,620px); aspect-ratio: 16 / 10; transform-style: preserve-3d; transform: translate(-50%,-50%) translateZ(calc(var(--photo-radius) * -1)) rotateX(var(--photo-pitch)) rotateY(var(--photo-yaw)) scale(var(--photo-scale)); }
+    .photo3d-panel { position: absolute; inset: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.24); border-radius: 16px; background: #080b0f; box-shadow: 0 20px 55px rgba(0,0,0,.42); backface-visibility: hidden; transform: rotateY(var(--panel-angle)) translateZ(var(--photo-radius)); }
+    .photo3d-panel img { width: 100%; height: 100%; display: block; object-fit: contain; background: #080b0f; pointer-events: none; }
+    .photo3d-panel span { position: absolute; right: 10px; bottom: 9px; padding: 5px 8px; border-radius: 7px; background: rgba(4,7,10,.76); color: #f3f6fa; font-size: 9px; font-weight: 750; }
+    .photo3d-empty { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; color: var(--muted); text-align: center; font-size: 11px; }
     .model3d-loading { position: absolute; z-index: 2; left: 50%; bottom: 17px; width: min(330px,calc(100% - 32px)); display: grid; gap: 7px; transform: translateX(-50%); pointer-events: none; color: #d3d8df; text-align: center; font-size: 9px; }
     .model3d-stage.loaded .model3d-loading { display: none; }
     .model3d-progress { height: 3px; overflow: hidden; border-radius: 3px; background: rgba(255,255,255,.13); }
@@ -1687,6 +1693,8 @@
     html[data-theme="light"] .model3d-stage { background: radial-gradient(circle at 50% 58%,rgba(35,128,255,.14),transparent 34%),linear-gradient(180deg,#eaf4ff,#dcecfb); }
     html[data-theme="light"] .model3d-stage::before { background: linear-gradient(rgba(35,89,145,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(35,89,145,.07) 1px,transparent 1px); background-size: 34px 34px; }
     html[data-theme="light"] .model3d-close,html[data-theme="light"] .model3d-choice,html[data-theme="light"] .model3d-reset { border-color: rgba(42,102,168,.16); background: #e6f1fc; color: #315777; }
+    html[data-theme="light"] .photo3d-panel { border-color: rgba(255,255,255,.96); background: #dcecfb; box-shadow: 0 20px 55px rgba(45,91,143,.22); }
+    html[data-theme="light"] .photo3d-panel img { background: #dcecfb; }
     html[data-theme="light"] .model3d-choice[aria-pressed="true"] { background: var(--accent); color: white; }
     html[data-theme="light"] .model3d-notice strong { color: #173b61; }
 
@@ -1697,7 +1705,9 @@
       .model3d-head { min-height: calc(73px + var(--safe-top)); align-items: flex-end; padding: calc(11px + var(--safe-top)) 12px 11px; }
       .model3d-head h2 { font-size: 21px; }
       .model3d-head p { max-width: 255px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      #model3dViewer { min-height: 250px; }
+      .photo3d-viewport { min-height: 250px; perspective: 820px; }
+      .photo3d-world { --photo-radius: clamp(155px,45vw,235px); width: min(78vw,430px); }
+      .photo3d-panel { border-radius: 12px; }
       .model3d-controls { grid-template-columns: 1fr; align-items: stretch; gap: 9px; padding: 10px 12px; }
       .model3d-choice { min-height: 42px; }
       .model3d-reset { min-height: 43px; }
@@ -2086,19 +2096,21 @@
   <div class="model3d-layer" id="model3dPanel" role="presentation">
     <section class="model3d-dialog" role="dialog" aria-modal="true" aria-labelledby="model3dTitle" aria-describedby="model3dNotice">
       <div class="model3d-head">
-        <div><div class="model3d-eyebrow">Интерактивный обзор кузова</div><h2 id="model3dTitle">3D-модель автомобиля</h2><p id="model3dSubtitle">Демонстрационная модель</p></div>
-        <button class="model3d-close" type="button" data-model3d-action="close" aria-label="Закрыть 3D-обзор"><svg class="icon"><use href="#i-close"></use></svg></button>
+        <div><div class="model3d-eyebrow">Персональная 3D-фотомодель</div><h2 id="model3dTitle">3D по фотографиям автомобиля</h2><p id="model3dSubtitle">Фотографии конкретного объявления</p></div>
+        <button class="model3d-close" type="button" data-model3d-action="close" aria-label="Закрыть 3D-фотомодель"><svg class="icon"><use href="#i-close"></use></svg></button>
       </div>
       <div class="model3d-stage">
-        <model-viewer id="model3dViewer" alt="Интерактивная демонстрационная 3D-модель кузова автомобиля" camera-controls disable-pan touch-action="none" interaction-prompt="none" loading="eager" reveal="auto" shadow-intensity="1" shadow-softness=".8" exposure="1" camera-orbit="35deg 70deg auto" min-camera-orbit="auto 42deg auto" max-camera-orbit="auto 88deg auto" min-field-of-view="18deg" max-field-of-view="52deg"></model-viewer>
-        <div class="model3d-loading" id="model3dLoading"><span id="model3dStatus">Подготавливаем 3D-просмотр…</span><span class="model3d-progress"><i id="model3dProgress"></i></span></div>
+        <div id="model3dViewer" class="photo3d-viewport" role="img" aria-label="Пространственный просмотр фотографий автомобиля">
+          <div class="photo3d-world" id="model3dWorld"></div>
+        </div>
+        <div class="model3d-loading" id="model3dLoading"><span id="model3dStatus">Загружаем фотографии автомобиля…</span><span class="model3d-progress"><i id="model3dProgress"></i></span></div>
       </div>
       <div class="model3d-controls">
-        <div><span>Тип модели</span><div class="model3d-choices" id="model3dChoices"></div></div>
+        <div><span>Ракурсы этого автомобиля</span><div class="model3d-choices" id="model3dChoices"></div></div>
         <button class="model3d-reset" type="button" data-model3d-action="reset"><svg class="icon" aria-hidden="true"><use href="#i-refresh"></use></svg> Исходный ракурс</button>
       </div>
-      <p class="model3d-notice" id="model3dNotice"><strong>Иллюстративная модель.</strong> Геометрия, цвет, диски, салон и комплектация могут отличаться от автомобиля в объявлении. Модели Kenney Car Kit, лицензия CC0.</p>
-      <a class="model3d-credit" href="https://kenney.nl/assets/car-kit" target="_blank" rel="noopener">Источник моделей · Kenney <svg class="icon" aria-hidden="true"><use href="#i-external"></use></svg></a>
+      <p class="model3d-notice" id="model3dNotice"><strong>Модель создана из фотографий именно этого объявления.</strong> Вращайте мышкой или пальцем, масштабируйте колесом или щипком. Это пространственный фотопросмотр реального автомобиля, а не выдуманная геометрия невидимых на снимках частей.</p>
+      <a class="model3d-credit" id="model3dCredit" href="#" target="_blank" rel="noopener">Оригинал фотографий <svg class="icon" aria-hidden="true"><use href="#i-external"></use></svg></a>
     </section>
   </div>
 
@@ -2140,14 +2152,6 @@
     const CLOUD_PULL_INTERVAL = 5 * 60 * 1000;
     const CLOUD_TABLE = 'motorby_user_state';
     const ACCOUNT_OWNER_KEY = 'motorby:account-owner';
-    const MODEL3D_CATALOG = Object.freeze({
-      sedan: { label: 'Седан', src: '/assets/models/sedan.glb' },
-      hatchback: { label: 'Хэтчбек', src: '/assets/models/hatchback.glb' },
-      suv: { label: 'SUV', src: '/assets/models/suv.glb' },
-      coupe: { label: 'Купе', src: '/assets/models/coupe.glb' },
-      van: { label: 'Фургон', src: '/assets/models/van.glb' },
-      pickup: { label: 'Пикап', src: '/assets/models/pickup.glb' },
-    });
     const avBrowserCache = new Map();
     const personalDb = { db: null, available: false };
     const noteTimers = new Map();
@@ -2156,8 +2160,6 @@
     let mobileSourceTimer = null;
     let mobileScrollTimer = null;
     let supabaseScriptPromise = null;
-    let modelViewerScriptPromise = null;
-    let model3dRequestId = 0;
 
     const state = {
       brands: [], models: [], generations: [], generationIds: [],
@@ -2167,7 +2169,10 @@
       personalRecords: new Map(), preferences: new Map(), savedSearches: [], density: 'comfortable', theme: document.documentElement.dataset.theme === 'light' ? 'light' : 'dark', favoriteFeed: false,
       compared: new Map(), priceCurrency: 'BYN', exchangeRate: FALLBACK_USD_BYN_RATE, exchangeLive: false, exchangeDate: null, exchangeCheckedAt: 0, exchangePromise: null,
       account: { enabled: false, ready: false, client: null, session: null, user: null, loadedUserId: '', applying: false, syncing: false, pending: false, syncTimer: null, lastPullAt: 0, lastPushAt: 0, remoteUpdatedAt: null, error: '' },
-      model3d: { listingId: null, key: 'sedan', loaded: false },
+      model3d: {
+        listingId: null, loaded: false, images: [], panels: [], active: 0,
+        yaw: 0, pitch: -5, scale: 1, wired: false, pointers: new Map(), pinchDistance: 0,
+      },
       vinListingId: null, vinRequestId: 0, lightbox: { id: null, index: 0 },
     };
     try {
@@ -2205,7 +2210,7 @@
       mobileSettings: $('#mobileSettingsButton'), mobileSummary: $('#mobileFilterSummary'),
       installButton: $('#installAppButton'), themeToggle: $('#themePicker'), themeMeta: $('meta[name="theme-color"]'), personalButton: $('#personalPanelButton'), personalBadge: $('#personalBadge'),
       accountButton: $('#accountButton'), accountButtonText: $('#accountButtonText'), accountSyncDot: $('#accountSyncDot'), accountPanel: $('#accountPanel'), accountContent: $('#accountContent'),
-      model3dPanel: $('#model3dPanel'), model3dViewer: $('#model3dViewer'), model3dTitle: $('#model3dTitle'), model3dSubtitle: $('#model3dSubtitle'), model3dChoices: $('#model3dChoices'), model3dLoading: $('#model3dLoading'), model3dStatus: $('#model3dStatus'), model3dProgress: $('#model3dProgress'),
+      model3dPanel: $('#model3dPanel'), model3dViewer: $('#model3dViewer'), model3dWorld: $('#model3dWorld'), model3dTitle: $('#model3dTitle'), model3dSubtitle: $('#model3dSubtitle'), model3dChoices: $('#model3dChoices'), model3dLoading: $('#model3dLoading'), model3dStatus: $('#model3dStatus'), model3dProgress: $('#model3dProgress'), model3dCredit: $('#model3dCredit'),
       personalPanel: $('#personalPanel'), personalImport: $('#personalImportInput'), savedSearches: $('#savedSearches'), personalActivity: $('#personalActivity'),
       personalFavorites: $('#personalFavorites'), favoritesSection: $('#personalFavoritesSection'), showFavorites: $('#showFavoritesButton'),
       personalFavoriteCount: $('#personalFavoriteCount'), personalViewedCount: $('#personalViewedCount'), personalChangeCount: $('#personalChangeCount'),
@@ -2235,9 +2240,12 @@
       try {
         const url = new URL(value, location.origin);
         if (url.origin === location.origin) return `${url.pathname}${url.search}`;
-        // AV.BY returns HTTP 423 to shared Render egress addresses. Let the
-        // visitor's browser load this strictly allowlisted public CDN directly.
-        if (url.protocol === 'https:' && url.hostname === 'avcdn.av.by') return url.href;
+        // Render egress is intermittently rejected by AV.BY and Onlíner media
+        // hosts. Images do not need CORS for display, so load these three
+        // strictly allowlisted CDNs in the visitor's browser with no referrer.
+        if (url.protocol === 'https:' && ['avcdn.av.by', 'content.onliner.by', 'imgproxy.onliner.by'].includes(url.hostname)) {
+          return url.href;
+        }
         if (url.protocol === 'https:' && (mediaHosts.has(url.hostname) || /^rms\d+\.kufar\.by$/i.test(url.hostname))) {
           return `/api/media?url=${encodeURIComponent(url.href)}`;
         }
@@ -3700,92 +3708,163 @@
       });
       await Promise.allSettled(workers); renderPersonalPanel();
     }
-    function model3dKeyForItem(item) {
-      const body = String(item?.body || '').toLowerCase();
-      if (/внедорож|кроссов|suv|crossover/.test(body)) return 'suv';
-      if (/хэтч|лифтбек|hatch/.test(body)) return 'hatchback';
-      if (/купе|кабри|родстер|спорт|coupe|roadster/.test(body)) return 'coupe';
-      if (/пикап|pickup/.test(body)) return 'pickup';
-      if (/фургон|минивэн|микроавтобус|minivan|minibus|van/.test(body)) return 'van';
-      return 'sedan';
+    function model3dImagesForItem(item) {
+      const seen = new Set(), images = [];
+      const candidates = [...(item?.images || []), item?.image, item?.generationImage].filter(Boolean);
+      for (const candidate of candidates) {
+        const url = mediaUrl(candidate);
+        if (!url || seen.has(url)) continue;
+        seen.add(url); images.push({ original: candidate, url });
+        if (images.length >= 8) break;
+      }
+      if (!images.length) images.push({ original: fallbackImage, url: fallbackImage });
+      return images;
     }
-    function loadModelViewerLibrary() {
-      if (customElements.get('model-viewer')) return Promise.resolve();
-      if (modelViewerScriptPromise) return modelViewerScriptPromise;
-      modelViewerScriptPromise = new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.type = 'module'; script.src = '/assets/model-viewer-4.3.1.min.js';
-        script.onload = () => customElements.whenDefined('model-viewer').then(resolve, error => { modelViewerScriptPromise = null; reject(error); });
-        script.onerror = () => { modelViewerScriptPromise = null; reject(new Error('Не удалось загрузить модуль 3D-просмотра')); };
-        document.head.append(script);
-      });
-      return modelViewerScriptPromise;
+    function photo3dPanelIndex() {
+      const count = state.model3d.panels.length;
+      if (!count) return 0;
+      const step = 360 / count;
+      return ((Math.round(-state.model3d.yaw / step) % count) + count) % count;
     }
-    function renderModel3dChoices() {
-      els.model3dChoices.innerHTML = Object.entries(MODEL3D_CATALOG).map(([key, model]) => `<button class="model3d-choice" type="button" data-model3d-key="${key}" aria-pressed="${state.model3d.key === key}">${escapeHTML(model.label)}</button>`).join('');
-    }
-    function wireModel3dViewer() {
-      if (els.model3dViewer.dataset.wired === '1') return;
-      els.model3dViewer.dataset.wired = '1';
-      els.model3dViewer.addEventListener('progress', event => {
-        const progress = Math.max(0, Math.min(1, Number(event.detail?.totalProgress || 0)));
-        els.model3dProgress.style.width = `${Math.round(progress * 100)}%`;
-        els.model3dStatus.textContent = `Загрузка модели · ${Math.round(progress * 100)}%`;
-      });
-      els.model3dViewer.addEventListener('load', () => {
-        if (!els.model3dPanel.classList.contains('open')) return;
-        state.model3d.loaded = true; $('.model3d-stage', els.model3dPanel)?.classList.add('loaded');
-        els.model3dStatus.textContent = 'Модель готова';
-      });
-      els.model3dViewer.addEventListener('error', () => {
-        state.model3d.loaded = false; $('.model3d-stage', els.model3dPanel)?.classList.remove('loaded');
-        els.model3dStatus.textContent = navigator.onLine ? 'Не удалось открыть модель. Попробуйте другой тип кузова.' : 'Для первой загрузки 3D-модели нужна сеть.';
+    function syncPhoto3dChoices() {
+      const originalCount = Math.max(1, state.model3d.images.length);
+      state.model3d.active = photo3dPanelIndex() % originalCount;
+      $$('[data-model3d-index]', els.model3dChoices).forEach(button => {
+        button.setAttribute('aria-pressed', String(Number(button.dataset.model3dIndex) === state.model3d.active));
       });
     }
-    function setModel3d(key) {
-      const model = MODEL3D_CATALOG[key]; if (!model) return;
-      state.model3d.key = key; state.model3d.loaded = false;
-      els.model3dSubtitle.textContent = `${model.label} · вращайте пальцем или мышкой, масштабируйте щипком`;
-      renderModel3dChoices();
-      $('.model3d-stage', els.model3dPanel)?.classList.remove('loaded');
-      els.model3dProgress.style.width = '0%'; els.model3dStatus.textContent = `Загрузка · ${model.label}`;
-      els.model3dViewer.setAttribute('camera-orbit', '35deg 70deg auto');
-      els.model3dViewer.setAttribute('field-of-view', '30deg');
-      els.model3dViewer.setAttribute('src', model.src);
+    function applyPhoto3dTransform() {
+      if (!els.model3dWorld) return;
+      els.model3dWorld.style.setProperty('--photo-yaw', `${state.model3d.yaw}deg`);
+      els.model3dWorld.style.setProperty('--photo-pitch', `${state.model3d.pitch}deg`);
+      els.model3dWorld.style.setProperty('--photo-scale', String(state.model3d.scale));
     }
-    async function openModel3d(id) {
+    function selectPhoto3d(index) {
+      const count = state.model3d.panels.length;
+      const originalCount = state.model3d.images.length;
+      if (!count || !originalCount) return;
+      const target = Math.max(0, Math.min(originalCount - 1, Number(index) || 0));
+      state.model3d.active = target;
+      state.model3d.yaw = -(360 / count) * target;
+      applyPhoto3dTransform(); syncPhoto3dChoices();
+    }
+    function renderPhoto3dChoices() {
+      els.model3dChoices.innerHTML = state.model3d.images.map((_, index) =>
+        `<button class="model3d-choice" type="button" data-model3d-index="${index}" aria-pressed="${index === state.model3d.active}">Фото ${index + 1}</button>`).join('');
+    }
+    function proxyMediaUrl(value) {
+      try {
+        const url = new URL(value, location.origin);
+        if (url.origin === location.origin) return '';
+        if (url.protocol === 'https:' && (mediaHosts.has(url.hostname) || /^rms\d+\.kufar\.by$/i.test(url.hostname))) {
+          return `/api/media?url=${encodeURIComponent(url.href)}`;
+        }
+      } catch (_) {}
+      return '';
+    }
+    function renderPhoto3dPanels() {
+      const unique = state.model3d.images;
+      const panels = unique.length === 1
+        ? [unique[0], unique[0], unique[0], unique[0]]
+        : unique.length === 2 ? [unique[0], unique[1], unique[0], unique[1]] : unique;
+      state.model3d.panels = panels;
+      const step = 360 / panels.length;
+      els.model3dWorld.innerHTML = panels.map((image, index) =>
+        `<figure class="photo3d-panel" style="--panel-angle:${step * index}deg" aria-label="Фото ${index % unique.length + 1} из ${unique.length}"><img alt="Фотография автомобиля · ракурс ${index % unique.length + 1}" decoding="async" referrerpolicy="no-referrer"><span>${index % unique.length + 1} / ${unique.length}</span></figure>`).join('');
+
+      const photos = $$('.photo3d-panel img', els.model3dWorld);
+      let settled = 0, successful = 0;
+      const stage = $('.model3d-stage', els.model3dPanel);
+      const finish = (ok) => {
+        settled += 1; if (ok) successful += 1;
+        const progress = Math.round(settled / Math.max(1, photos.length) * 100);
+        els.model3dProgress.style.width = `${progress}%`;
+        els.model3dStatus.textContent = `Фотографии · ${Math.min(settled, photos.length)} из ${photos.length}`;
+        if (successful > 0) {
+          state.model3d.loaded = true; stage?.classList.add('loaded');
+        }
+        if (settled === photos.length && !successful) {
+          state.model3d.loaded = false; stage?.classList.remove('loaded');
+          els.model3dStatus.textContent = 'Фотографии этого объявления сейчас недоступны';
+        }
+      };
+      photos.forEach((image, index) => {
+        const source = panels[index];
+        let finished = false, retried = false;
+        const done = ok => { if (finished) return; finished = true; finish(ok); };
+        image.onload = () => done(image.src !== new URL(fallbackImage, location.origin).href);
+        image.onerror = () => {
+          const fallback = !retried && proxyMediaUrl(source.original);
+          if (fallback) { retried = true; image.src = fallback; return; }
+          image.onerror = null; image.src = fallbackImage; done(false);
+        };
+        image.src = source.url;
+      });
+    }
+    function wirePhoto3dViewer() {
+      if (state.model3d.wired) return;
+      state.model3d.wired = true;
+      const viewer = els.model3dViewer;
+      const clampScale = value => Math.max(.68, Math.min(1.55, value));
+      const clampPitch = value => Math.max(-24, Math.min(16, value));
+      const pointDistance = points => points.length < 2 ? 0 : Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+      const pointCenter = points => points.length ? {
+        x: points.reduce((sum, point) => sum + point.x, 0) / points.length,
+        y: points.reduce((sum, point) => sum + point.y, 0) / points.length,
+      } : { x: 0, y: 0 };
+      viewer.addEventListener('pointerdown', event => {
+        viewer.setPointerCapture?.(event.pointerId);
+        state.model3d.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        viewer.classList.add('dragging');
+      });
+      viewer.addEventListener('pointermove', event => {
+        const previous = state.model3d.pointers.get(event.pointerId); if (!previous) return;
+        const beforePoints = [...state.model3d.pointers.values()];
+        const beforeCenter = pointCenter(beforePoints), beforeDistance = pointDistance(beforePoints);
+        state.model3d.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        const afterPoints = [...state.model3d.pointers.values()];
+        const afterCenter = pointCenter(afterPoints), afterDistance = pointDistance(afterPoints);
+        state.model3d.yaw += (afterCenter.x - beforeCenter.x) * .34;
+        state.model3d.pitch = clampPitch(state.model3d.pitch - (afterCenter.y - beforeCenter.y) * .18);
+        if (beforeDistance > 8 && afterDistance > 8) state.model3d.scale = clampScale(state.model3d.scale * afterDistance / beforeDistance);
+        applyPhoto3dTransform();
+      });
+      const finishPointer = event => {
+        state.model3d.pointers.delete(event.pointerId);
+        if (!state.model3d.pointers.size) { viewer.classList.remove('dragging'); syncPhoto3dChoices(); }
+      };
+      viewer.addEventListener('pointerup', finishPointer);
+      viewer.addEventListener('pointercancel', finishPointer);
+      viewer.addEventListener('wheel', event => {
+        event.preventDefault();
+        state.model3d.scale = clampScale(state.model3d.scale * (event.deltaY > 0 ? .9 : 1.1));
+        applyPhoto3dTransform();
+      }, { passive: false });
+      viewer.addEventListener('dblclick', resetModel3dCamera);
+    }
+    function openModel3d(id) {
       const item = state.items.get(id) || state.personalRecords.get(id) || state.compared.get(id);
       if (!item) { toast('Не удалось найти данные автомобиля', 'error'); return; }
-      const requestId = ++model3dRequestId;
-      state.model3d.listingId = id; state.model3d.key = model3dKeyForItem(item); state.model3d.loaded = false;
-      els.model3dTitle.textContent = item.title || '3D-модель автомобиля';
-      els.model3dSubtitle.textContent = `${MODEL3D_CATALOG[state.model3d.key].label} · вращайте пальцем или мышкой, масштабируйте щипком`;
-      const poster = mediaUrl((item.images || [item.image]).filter(Boolean)[0] || fallbackImage);
-      els.model3dViewer.setAttribute('poster', poster);
-      els.model3dViewer.removeAttribute('src');
-      renderModel3dChoices();
+      state.model3d.listingId = id; state.model3d.loaded = false;
+      state.model3d.images = model3dImagesForItem(item); state.model3d.panels = []; state.model3d.active = 0;
+      state.model3d.yaw = 0; state.model3d.pitch = -5; state.model3d.scale = 1; state.model3d.pointers.clear();
+      els.model3dTitle.textContent = item.title || '3D по фотографиям автомобиля';
+      els.model3dSubtitle.textContent = `${state.model3d.images.length} ${state.model3d.images.length === 1 ? 'фотография' : 'фотографий'} именно этого объявления · вращайте и масштабируйте`;
+      els.model3dCredit.href = validUrl(item.sourceUrl);
+      els.model3dCredit.innerHTML = `Оригинал фотографий · ${escapeHTML(item.sourceLabel || item.provider || 'источник')} ${icon('external')}`;
       $('.model3d-stage', els.model3dPanel)?.classList.remove('loaded');
-      els.model3dProgress.style.width = '0%'; els.model3dStatus.textContent = 'Подготавливаем 3D-просмотр…';
+      els.model3dProgress.style.width = '0%'; els.model3dStatus.textContent = 'Загружаем фотографии автомобиля…';
+      renderPhoto3dChoices(); renderPhoto3dPanels(); applyPhoto3dTransform(); wirePhoto3dViewer();
       els.model3dPanel.classList.add('open'); syncBodyModal(); els.model3dPanel.querySelector('.model3d-close')?.focus();
-      try {
-        await loadModelViewerLibrary();
-        if (requestId !== model3dRequestId || !els.model3dPanel.classList.contains('open')) return;
-        wireModel3dViewer(); setModel3d(state.model3d.key);
-      } catch (error) {
-        if (requestId !== model3dRequestId) return;
-        els.model3dStatus.textContent = error.message || '3D-просмотр недоступен';
-      }
     }
     function resetModel3dCamera() {
-      if (!state.model3d.loaded) return;
-      els.model3dViewer.setAttribute('camera-orbit', '35deg 70deg auto');
-      els.model3dViewer.setAttribute('field-of-view', '30deg');
-      els.model3dViewer.jumpCameraToGoal?.();
+      state.model3d.yaw = 0; state.model3d.pitch = -5; state.model3d.scale = 1; state.model3d.active = 0;
+      applyPhoto3dTransform(); syncPhoto3dChoices();
     }
     function closeModel3d() {
       const listingId = state.model3d.listingId;
-      model3dRequestId += 1; state.model3d.listingId = null; state.model3d.loaded = false;
-      els.model3dPanel.classList.remove('open'); els.model3dViewer.removeAttribute('src'); els.model3dViewer.removeAttribute('poster');
+      state.model3d.listingId = null; state.model3d.loaded = false; state.model3d.images = []; state.model3d.panels = []; state.model3d.pointers.clear();
+      els.model3dPanel.classList.remove('open'); els.model3dWorld.replaceChildren(); els.model3dChoices.replaceChildren();
       $('.model3d-stage', els.model3dPanel)?.classList.remove('loaded'); syncBodyModal();
       if (listingId) state.items.get(listingId) && $(`.listing-card[data-id="${CSS.escape(listingId)}"] [data-action="open-3d"]`)?.focus();
     }
@@ -4690,7 +4769,7 @@
           <div class="listing-footer">
             <div class="seller-meta"><strong data-seller>${escapeHTML(item.seller?.name || 'Продавец')}</strong><span>${icon('pin')} ${escapeHTML(item.location || 'Беларусь')}</span></div>
             <div class="card-buttons">
-              <button class="model3d-button" type="button" data-action="open-3d" aria-label="Открыть интерактивную 3D-модель кузова">${icon('cube')} 3D-обзор</button>
+              <button class="model3d-button" type="button" data-action="open-3d" aria-label="Открыть персональную 3D-фотомодель этого автомобиля">${icon('cube')} 3D по фото</button>
               <button class="detail-button" type="button" data-action="extra-toggle" aria-label="Все данные объявления" aria-expanded="false">${icon('sliders')} Все данные</button>
               ${vinButtonHTML(item)}
               <a class="original-button" href="${validUrl(item.sourceUrl)}" target="_blank" rel="noopener">Оригинал ${icon('external')}</a>
@@ -5087,12 +5166,24 @@
       });
       if ('serviceWorker' in navigator) window.addEventListener('load', async () => {
         try {
+          const controlledAtStart = Boolean(navigator.serviceWorker.controller);
+          let refreshing = false;
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!controlledAtStart || refreshing) return;
+            refreshing = true; location.reload();
+          });
           const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-          if (registration.waiting && navigator.serviceWorker.controller) toast('Обновление MOTOR.BY готово и включится при следующем открытии');
+          if (registration.waiting) {
+            toast('Применяем обновление MOTOR.BY…');
+            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+          }
           registration.addEventListener('updatefound', () => {
             const worker = registration.installing;
             worker?.addEventListener('statechange', () => {
-              if (worker.state === 'installed' && navigator.serviceWorker.controller) toast('Новая версия сохранена для офлайн-режима');
+              if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+                toast('Применяем новую версию MOTOR.BY…');
+                worker.postMessage({ type: 'SKIP_WAITING' });
+              }
             });
           });
         } catch (error) { console.warn('[service worker]', error); }
@@ -5225,8 +5316,8 @@
 
     els.model3dPanel.addEventListener('click', event => {
       if (event.target === els.model3dPanel) { closeModel3d(); return; }
-      const choice = event.target.closest('[data-model3d-key]');
-      if (choice) { setModel3d(choice.dataset.model3dKey); return; }
+      const choice = event.target.closest('[data-model3d-index]');
+      if (choice) { selectPhoto3d(choice.dataset.model3dIndex); return; }
       const action = event.target.closest('[data-model3d-action]')?.dataset.model3dAction;
       if (action === 'close') closeModel3d();
       else if (action === 'reset') resetModel3dCamera();
@@ -5388,7 +5479,15 @@
         }
         return;
       }
-      if (event.key === 'Escape' && els.model3dPanel.classList.contains('open')) { closeModel3d(); return; }
+      if (els.model3dPanel.classList.contains('open')) {
+        if (event.key === 'Escape') { closeModel3d(); return; }
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+          event.preventDefault();
+          const count = state.model3d.images.length;
+          if (count) selectPhoto3d((state.model3d.active + (event.key === 'ArrowRight' ? 1 : -1) + count) % count);
+          return;
+        }
+      }
       if (event.key === 'Escape' && els.vinPanel.classList.contains('open')) { closeVinReport(); return; }
       if (event.key === 'Escape' && els.comparePanel.classList.contains('open')) { closeComparison(); return; }
       if (event.key === 'Escape' && els.accountPanel.classList.contains('open')) { closeAccountPanel(); return; }

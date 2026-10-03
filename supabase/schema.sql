@@ -1,4 +1,4 @@
--- MOTOR.BY 1.8.1 — one encrypted-in-transit JSON state row per Google account.
+-- MOTOR.BY 1.9.0 — one encrypted-in-transit JSON state row per Google account.
 -- Run once in Supabase Dashboard → SQL Editor → New query → Run.
 
 create table if not exists public.motorby_user_state (
