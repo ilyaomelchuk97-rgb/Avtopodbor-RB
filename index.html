@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#080a0d">
-  <meta name="application-version" content="1.9.0">
+  <meta name="application-version" content="1.10.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="MOTOR.BY">
@@ -285,8 +285,12 @@
     .results-section { padding: 33px 0 100px; min-height: 600px; }
     .results-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 22px; }
     .results-title__overline { color: var(--accent); font-size: 10px; font-weight: 720; text-transform: uppercase; letter-spacing: .16em; }
-    .results-title h2 { margin: 7px 0 0; font-size: clamp(28px, 3vw, 42px); letter-spacing: -.052em; }
+    .results-heading-row { display: flex; align-items: center; gap: 11px; margin-top: 7px; }
+    .results-title h2 { min-width: 0; margin: 0; font-size: clamp(28px, 3vw, 42px); letter-spacing: -.052em; }
     .results-title h2 span { color: var(--muted-2); font-weight: 500; }
+    .tinder-mode-button { width: 45px; height: 45px; display: grid; flex: 0 0 auto; place-items: center; border: 1px solid color-mix(in srgb,var(--accent) 40%,var(--line)); border-radius: 11px; background: var(--accent-soft); color: var(--accent); cursor: pointer; }
+    .tinder-mode-button .icon { width: 21px; height: 21px; }
+    .tinder-mode-button:disabled { opacity: .34; cursor: not-allowed; }
     .results-tools { display: flex; align-items: center; gap: 9px; }
     .results-sort { position: relative; min-width: 250px; height: 46px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,.3); border-radius: 12px; background: linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,255,255,.025)); box-shadow: 0 0 20px rgba(255,255,255,.04); overflow: hidden; }
     .sort-icon { width: 17px; height: 17px; margin-left: 13px; color: white; pointer-events: none; }
@@ -1646,7 +1650,7 @@
       .account-actions { grid-template-columns: 1fr; }
     }
 
-    /* On-demand 3D body viewer. Models and renderer are loaded only after a click. */
+    /* On-demand spatial photo viewer. Listing photos are loaded only after a click. */
     .model3d-button { height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 10px; border: 1px solid color-mix(in srgb,var(--accent) 36%,var(--line)); border-radius: 9px; background: var(--accent-soft); color: var(--accent); cursor: pointer; font-size: 9px; font-weight: 760; white-space: nowrap; }
     .model3d-button .icon { width: 15px; height: 15px; }
     .model3d-layer { position: fixed; inset: 0; z-index: 255; display: none; place-items: center; padding: max(16px,var(--safe-top)) max(14px,var(--safe-right)) max(16px,var(--safe-bottom)) max(14px,var(--safe-left)); background: rgba(3,5,8,.94); }
@@ -1663,8 +1667,8 @@
     .photo3d-viewport { position: relative; z-index: 1; width: 100%; height: 100%; min-height: 300px; overflow: hidden; perspective: 1100px; perspective-origin: 50% 48%; background: transparent; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
     .photo3d-viewport.dragging { cursor: grabbing; }
     .photo3d-world { --photo-radius: clamp(190px,34vw,390px); --photo-yaw: 0deg; --photo-pitch: -5deg; --photo-scale: 1; position: absolute; left: 50%; top: 50%; width: clamp(260px,66vw,620px); aspect-ratio: 16 / 10; transform-style: preserve-3d; transform: translate(-50%,-50%) translateZ(calc(var(--photo-radius) * -1)) rotateX(var(--photo-pitch)) rotateY(var(--photo-yaw)) scale(var(--photo-scale)); }
-    .photo3d-panel { position: absolute; inset: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.24); border-radius: 16px; background: #080b0f; box-shadow: 0 20px 55px rgba(0,0,0,.42); backface-visibility: hidden; transform: rotateY(var(--panel-angle)) translateZ(var(--photo-radius)); }
-    .photo3d-panel img { width: 100%; height: 100%; display: block; object-fit: contain; background: #080b0f; pointer-events: none; }
+    .photo3d-panel { position: absolute; inset: 0; margin: 0; overflow: hidden; border: 0; border-radius: 0; background: #080b0f; box-shadow: none; backface-visibility: hidden; transform: rotateY(var(--panel-angle)) translateZ(var(--photo-radius)); }
+    .photo3d-panel img { width: 100%; height: 100%; display: block; object-fit: cover; background: #080b0f; pointer-events: none; }
     .photo3d-panel span { position: absolute; right: 10px; bottom: 9px; padding: 5px 8px; border-radius: 7px; background: rgba(4,7,10,.76); color: #f3f6fa; font-size: 9px; font-weight: 750; }
     .photo3d-empty { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; color: var(--muted); text-align: center; font-size: 11px; }
     .model3d-loading { position: absolute; z-index: 2; left: 50%; bottom: 17px; width: min(330px,calc(100% - 32px)); display: grid; gap: 7px; transform: translateX(-50%); pointer-events: none; color: #d3d8df; text-align: center; font-size: 9px; }
@@ -1693,7 +1697,7 @@
     html[data-theme="light"] .model3d-stage { background: radial-gradient(circle at 50% 58%,rgba(35,128,255,.14),transparent 34%),linear-gradient(180deg,#eaf4ff,#dcecfb); }
     html[data-theme="light"] .model3d-stage::before { background: linear-gradient(rgba(35,89,145,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(35,89,145,.07) 1px,transparent 1px); background-size: 34px 34px; }
     html[data-theme="light"] .model3d-close,html[data-theme="light"] .model3d-choice,html[data-theme="light"] .model3d-reset { border-color: rgba(42,102,168,.16); background: #e6f1fc; color: #315777; }
-    html[data-theme="light"] .photo3d-panel { border-color: rgba(255,255,255,.96); background: #dcecfb; box-shadow: 0 20px 55px rgba(45,91,143,.22); }
+    html[data-theme="light"] .photo3d-panel { background: #dcecfb; box-shadow: none; }
     html[data-theme="light"] .photo3d-panel img { background: #dcecfb; }
     html[data-theme="light"] .model3d-choice[aria-pressed="true"] { background: var(--accent); color: white; }
     html[data-theme="light"] .model3d-notice strong { color: #173b61; }
@@ -1701,18 +1705,118 @@
     @media (max-width: 620px) {
       .model3d-button { min-height: 44px; grid-column: 1 / -1; }
       .model3d-layer { padding: 0; }
-      .model3d-dialog { width: 100%; height: 100dvh; border: 0; border-radius: 0; grid-template-rows: auto minmax(250px,1fr) auto auto auto; }
-      .model3d-head { min-height: calc(73px + var(--safe-top)); align-items: flex-end; padding: calc(11px + var(--safe-top)) 12px 11px; }
-      .model3d-head h2 { font-size: 21px; }
-      .model3d-head p { max-width: 255px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .photo3d-viewport { min-height: 250px; perspective: 820px; }
-      .photo3d-world { --photo-radius: clamp(155px,45vw,235px); width: min(78vw,430px); }
-      .photo3d-panel { border-radius: 12px; }
-      .model3d-controls { grid-template-columns: 1fr; align-items: stretch; gap: 9px; padding: 10px 12px; }
-      .model3d-choice { min-height: 42px; }
-      .model3d-reset { min-height: 43px; }
-      .model3d-notice { padding: 8px 12px 2px; font-size: 8px; }
-      .model3d-credit { margin: 4px 12px calc(9px + var(--safe-bottom)); }
+      .model3d-dialog { width: 100%; height: 100dvh; border: 0; border-radius: 0; grid-template-rows: auto minmax(210px,1fr) auto auto auto; }
+      .model3d-head { min-height: calc(64px + var(--safe-top)); align-items: flex-end; padding: calc(8px + var(--safe-top)) 10px 8px; }
+      .model3d-head h2 { margin-top: 3px; font-size: 19px; }
+      .model3d-head p { max-width: 270px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 9px; }
+      .model3d-close { width: 39px; height: 39px; }
+      .photo3d-viewport { min-height: 210px; perspective: 820px; }
+      .photo3d-world { --photo-radius: clamp(155px,45vw,235px); width: min(82vw,430px); }
+      .model3d-controls { grid-template-columns: minmax(0,1fr) 43px; align-items: end; gap: 7px; padding: 7px 9px; }
+      .model3d-controls > div { min-width: 0; }
+      .model3d-controls > div > span { margin-bottom: 4px; }
+      .model3d-choice { min-height: 38px; padding-inline: 9px; }
+      .model3d-reset { width: 43px; min-height: 38px; padding: 0; }
+      .model3d-reset span { display: none; }
+      .model3d-notice { padding: 6px 10px 1px; font-size: 7.5px; line-height: 1.35; }
+      .model3d-credit { margin: 3px 10px calc(6px + var(--safe-bottom)); font-size: 8px; }
+    }
+
+    /* Swipe-card mode for the current filtered result set. */
+    .tinder-layer { position: fixed; inset: 0; z-index: 257; display: none; place-items: center; padding: max(12px,var(--safe-top)) max(12px,var(--safe-right)) max(12px,var(--safe-bottom)) max(12px,var(--safe-left)); background: rgba(3,5,8,.95); }
+    .tinder-layer.open { display: grid; }
+    .tinder-dialog { width: min(440px,100%); height: min(790px,calc(100dvh - 24px)); min-height: 0; display: grid; grid-template-rows: auto minmax(0,1fr) auto; overflow: hidden; border: 1px solid var(--line-strong); border-radius: 22px; background: #0d1218; box-shadow: 0 28px 90px rgba(0,0,0,.58); }
+    .tinder-head { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 13px 10px 15px; border-bottom: 1px solid var(--line); background: #111820; }
+    .tinder-eyebrow { color: var(--accent); font-size: 7px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    .tinder-head h2 { margin: 3px 0 0; font-size: 19px; letter-spacing: -.035em; }
+    .tinder-head p { margin: 2px 0 0; color: var(--muted-2); font-size: 8px; }
+    .tinder-close { width: 39px; height: 39px; display: grid; flex: 0 0 auto; place-items: center; border: 1px solid var(--line); border-radius: 10px; background: #171e27; color: #d0d5dc; cursor: pointer; }
+    .tinder-close .icon { width: 16px; height: 16px; }
+    .tinder-stage { position: relative; min-height: 0; display: grid; place-items: stretch; overflow: hidden; padding: 10px; touch-action: none; background: radial-gradient(circle at 50% 38%,rgba(173,255,47,.06),transparent 42%),#090d12; }
+    .tinder-swipe-card { --tinder-x: 0px; --tinder-rotate: 0deg; min-width: 0; min-height: 0; height: 100%; display: grid; grid-template-rows: minmax(190px,40%) minmax(0,1fr); overflow: hidden; border: 1px solid rgba(255,255,255,.28); border-radius: 18px; background: #11161d; box-shadow: 0 16px 45px rgba(0,0,0,.42); transform: translate3d(var(--tinder-x),0,0) rotate(var(--tinder-rotate)); transform-origin: center 82%; }
+    .tinder-card-media { position: relative; min-height: 0; overflow: hidden; background: #151a21 url('/assets/category-city.jpg') center / cover no-repeat; }
+    .tinder-card-media img { width: 100%; height: 100%; display: block; object-fit: cover; pointer-events: none; user-select: none; -webkit-user-drag: none; }
+    .tinder-card-media::after { content: ""; position: absolute; inset: auto 0 0; height: 38%; background: linear-gradient(transparent,rgba(5,8,11,.68)); pointer-events: none; }
+    .tinder-card-source { position: absolute; z-index: 2; top: 10px; left: 10px; padding: 6px 8px; border-radius: 7px; background: rgba(5,8,11,.78); color: white; font-size: 8px; font-weight: 760; }
+    .tinder-card-photos { position: absolute; z-index: 2; right: 10px; bottom: 9px; padding: 5px 7px; border-radius: 7px; background: rgba(5,8,11,.72); color: #eef1f4; font-size: 8px; }
+    .tinder-decision { position: absolute; z-index: 3; top: 16px; padding: 7px 10px; border: 2px solid currentColor; border-radius: 8px; background: rgba(7,10,13,.72); opacity: 0; font-size: 13px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; pointer-events: none; }
+    .tinder-decision--skip { left: 13px; color: #ff777d; transform: rotate(-6deg); }
+    .tinder-decision--like { right: 13px; color: var(--accent); transform: rotate(6deg); }
+    .tinder-card-body { min-height: 0; display: flex; flex-direction: column; gap: 7px; overflow: hidden; padding: 11px 12px 10px; }
+    .tinder-card-kicker { color: var(--muted-2); font-size: 7px; letter-spacing: .1em; text-transform: uppercase; }
+    .tinder-card-title-row { min-width: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 9px; }
+    .tinder-card-title { min-width: 0; margin: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: 18px; line-height: 1.1; letter-spacing: -.035em; }
+    .tinder-card-price { flex: 0 0 auto; color: var(--accent); text-align: right; white-space: nowrap; }
+    .tinder-card-price strong { display: block; font-size: 17px; }
+    .tinder-card-price small { display: block; margin-top: 2px; color: var(--muted-2); font-size: 7px; }
+    .tinder-specs { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1px; overflow: hidden; border: 1px solid var(--line); border-radius: 9px; background: var(--line); }
+    .tinder-spec { min-width: 0; padding: 7px 6px 6px; background: #0c1015; }
+    .tinder-spec span { display: block; color: var(--muted-2); font-size: 6px; letter-spacing: .06em; text-transform: uppercase; }
+    .tinder-spec strong { display: block; margin-top: 3px; overflow: hidden; color: #dce0e5; text-overflow: ellipsis; white-space: nowrap; font-size: 9px; }
+    .tinder-generation { overflow: hidden; color: #c8ced6; text-overflow: ellipsis; white-space: nowrap; font-size: 8px; }
+    .tinder-generation strong { color: var(--accent); }
+    .tinder-comment { margin: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: #9da6b1; font-size: 8px; line-height: 1.35; }
+    .tinder-card-footer { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 9px; margin-top: auto; padding-top: 7px; border-top: 1px solid var(--line); }
+    .tinder-seller { min-width: 0; overflow: hidden; color: #aeb6c0; text-overflow: ellipsis; white-space: nowrap; font-size: 8px; }
+    .tinder-original { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 4px; color: var(--accent); font-size: 8px; font-weight: 740; }
+    .tinder-original .icon { width: 11px; height: 11px; }
+    .tinder-actions { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 9px 10px calc(9px + var(--safe-bottom)); border-top: 1px solid var(--line); background: #111820; }
+    .tinder-actions p { display: grid; gap: 2px; margin: 0; color: var(--muted-2); text-align: center; font-size: 6px; text-transform: uppercase; white-space: nowrap; }
+    .tinder-action { min-width: 0; min-height: 45px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 10px; border: 1px solid var(--line); border-radius: 11px; cursor: pointer; font-size: 9px; font-weight: 770; }
+    .tinder-action .icon { width: 17px; height: 17px; }
+    .tinder-action--skip { background: rgba(240,68,76,.07); border-color: rgba(240,68,76,.25); color: #ff8c91; }
+    .tinder-action--like { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .tinder-action--like .icon { fill: currentColor; }
+    .tinder-action:disabled { opacity: .34; cursor: not-allowed; }
+    .tinder-empty { height: 100%; display: grid; place-items: center; padding: 24px; border: 1px dashed var(--line-strong); border-radius: 16px; color: var(--muted); text-align: center; }
+    .tinder-empty .icon { width: 42px; height: 42px; margin-bottom: 11px; color: var(--accent); }
+    .tinder-empty h3 { margin: 0; color: #eef1f4; font-size: 18px; }
+    .tinder-empty p { max-width: 280px; margin: 7px auto 0; font-size: 10px; line-height: 1.5; }
+    .tinder-restart { margin-top: 14px; min-height: 40px; padding: 0 14px; border: 0; border-radius: 9px; background: var(--accent); color: var(--accent-ink); cursor: pointer; font-size: 9px; font-weight: 760; }
+
+    html[data-theme="light"] .tinder-mode-button { color: #1668bf; }
+    html[data-theme="light"] .tinder-layer { background: rgba(213,228,243,.96); }
+    html[data-theme="light"] .tinder-dialog { border-color: rgba(255,255,255,.96); background: #f6faff; box-shadow: 0 28px 90px rgba(45,91,143,.22); }
+    html[data-theme="light"] .tinder-head,html[data-theme="light"] .tinder-actions { border-color: rgba(42,102,168,.14); background: #edf6ff; }
+    html[data-theme="light"] .tinder-head h2,html[data-theme="light"] .tinder-empty h3 { color: #173b61; }
+    html[data-theme="light"] .tinder-close { border-color: rgba(42,102,168,.16); background: #e6f1fc; color: #315777; }
+    html[data-theme="light"] .tinder-stage { background: radial-gradient(circle at 50% 38%,rgba(35,128,255,.1),transparent 42%),#dcecfb; }
+    html[data-theme="light"] .tinder-swipe-card { border-color: rgba(255,255,255,.98); background: #f8fbff; box-shadow: 0 16px 42px rgba(45,91,143,.19); }
+    html[data-theme="light"] .tinder-spec { background: #edf5fd; }
+    html[data-theme="light"] .tinder-spec strong,html[data-theme="light"] .tinder-card-title { color: #173b61; }
+    html[data-theme="light"] .tinder-generation,html[data-theme="light"] .tinder-seller { color: #456681; }
+    html[data-theme="light"] .tinder-comment { color: #58738d; }
+    html[data-theme="light"] .tinder-empty { color: #526f8d; }
+
+    @media (max-width: 430px) {
+      .results-heading-row { width: 100%; align-items: center; justify-content: space-between; gap: 8px; }
+      .results-title { min-width: 0; width: 100%; }
+      .results-title h2 { min-width: 0; font-size: 25px; line-height: 1.05; }
+      .tinder-mode-button { width: 42px; height: 42px; border-radius: 10px; }
+      .tinder-layer { padding: 0; }
+      .tinder-dialog { width: 100%; height: 100dvh; max-height: none; border: 0; border-radius: 0; }
+      .tinder-head { min-height: calc(62px + var(--safe-top)); padding: calc(7px + var(--safe-top)) 9px 7px 11px; }
+      .tinder-head h2 { font-size: 17px; }
+      .tinder-close { width: 38px; height: 38px; }
+      .tinder-stage { padding: 7px 8px; }
+      .tinder-swipe-card { grid-template-rows: minmax(184px,38%) minmax(0,1fr); border-radius: 14px; }
+      .tinder-card-body { gap: 5px; padding: 8px 9px 7px; }
+      .tinder-card-title { font-size: 16px; }
+      .tinder-card-price strong { font-size: 15px; }
+      .tinder-spec { padding: 5px 5px 4px; }
+      .tinder-comment { font-size: 7.5px; }
+      .tinder-actions { gap: 6px; padding: 7px 8px calc(7px + var(--safe-bottom)); }
+      .tinder-action { min-height: 43px; padding-inline: 8px; }
+      .tinder-actions p { font-size: 5.5px; }
+    }
+
+    @media (max-height: 700px) and (max-width: 430px) {
+      .tinder-head { min-height: calc(54px + var(--safe-top)); }
+      .tinder-eyebrow,.tinder-head p { display: none; }
+      .tinder-swipe-card { grid-template-rows: minmax(150px,35%) minmax(0,1fr); }
+      .tinder-comment { display: none; }
+      .tinder-actions { padding-top: 5px; padding-bottom: calc(5px + var(--safe-bottom)); }
+      .tinder-action { min-height: 39px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1741,6 +1845,7 @@
     <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
     <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></symbol>
     <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></symbol>
+    <symbol id="i-cards" viewBox="0 0 24 24"><rect x="7" y="4" width="13" height="16" rx="2"/><path d="M7 8H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h9M10 8h7M10 12h7M10 16h4"/></symbol>
     <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></symbol>
     <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 5-5m-5 5-5-5M4 20h16"/></symbol>
     <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></symbol>
@@ -1990,7 +2095,10 @@
         <div class="results-header">
           <div class="results-title">
             <div class="results-title__overline" id="resultsOverline">Живая выдача</div>
-            <h2 id="results-heading"><span id="resultsHeadingText">Свежие объявления</span> <span id="shownCount"></span></h2>
+            <div class="results-heading-row">
+              <h2 id="results-heading"><span id="resultsHeadingText">Свежие объявления</span> <span id="shownCount"></span></h2>
+              <button class="tinder-mode-button" id="tinderOpenButton" type="button" title="Открыть режим карточек" aria-label="Открыть режим свайпа карточек" disabled><svg class="icon" aria-hidden="true"><use href="#i-cards"></use></svg></button>
+            </div>
           </div>
           <div class="results-tools">
             <div class="results-sort">
@@ -2107,10 +2215,25 @@
       </div>
       <div class="model3d-controls">
         <div><span>Ракурсы этого автомобиля</span><div class="model3d-choices" id="model3dChoices"></div></div>
-        <button class="model3d-reset" type="button" data-model3d-action="reset"><svg class="icon" aria-hidden="true"><use href="#i-refresh"></use></svg> Исходный ракурс</button>
+        <button class="model3d-reset" type="button" data-model3d-action="reset"><svg class="icon" aria-hidden="true"><use href="#i-refresh"></use></svg><span>Исходный ракурс</span></button>
       </div>
       <p class="model3d-notice" id="model3dNotice"><strong>Модель создана из фотографий именно этого объявления.</strong> Вращайте мышкой или пальцем, масштабируйте колесом или щипком. Это пространственный фотопросмотр реального автомобиля, а не выдуманная геометрия невидимых на снимках частей.</p>
       <a class="model3d-credit" id="model3dCredit" href="#" target="_blank" rel="noopener">Оригинал фотографий <svg class="icon" aria-hidden="true"><use href="#i-external"></use></svg></a>
+    </section>
+  </div>
+
+  <div class="tinder-layer" id="tinderPanel" role="presentation">
+    <section class="tinder-dialog" role="dialog" aria-modal="true" aria-labelledby="tinderTitle" aria-describedby="tinderHint">
+      <header class="tinder-head">
+        <div><div class="tinder-eyebrow">Режим карточек</div><h2 id="tinderTitle">Выберите автомобиль</h2><p id="tinderProgress">0 из 0</p></div>
+        <button class="tinder-close" type="button" data-tinder-action="close" aria-label="Закрыть режим карточек"><svg class="icon"><use href="#i-close"></use></svg></button>
+      </header>
+      <div class="tinder-stage" id="tinderStage" aria-live="polite"></div>
+      <div class="tinder-actions">
+        <button class="tinder-action tinder-action--skip" type="button" data-tinder-action="skip"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg><span>Пропустить</span></button>
+        <p id="tinderHint"><span>← пропустить</span><span>в избранное →</span></p>
+        <button class="tinder-action tinder-action--like" type="button" data-tinder-action="like"><svg class="icon" aria-hidden="true"><use href="#i-heart"></use></svg><span>В избранное</span></button>
+      </div>
     </section>
   </div>
 
@@ -2173,6 +2296,7 @@
         listingId: null, loaded: false, images: [], panels: [], active: 0,
         yaw: 0, pitch: -5, scale: 1, wired: false, pointers: new Map(), pinchDistance: 0,
       },
+      tinder: { queue: [], index: 0, pointerId: null, startX: 0, startY: 0, dx: 0, dy: 0, dragging: false },
       vinListingId: null, vinRequestId: 0, lightbox: { id: null, index: 0 },
     };
     try {
@@ -2203,7 +2327,8 @@
       header: $('#siteHeader'), form: $('#searchForm'), searchButton: $('#searchButton'), resetButton: $('#resetButton'),
       brand: $('#brandSelect'), model: $('#modelSelect'), catalogStatus: $('#catalogStatus'),
       generationPicker: $('#generationPicker'), generationTrack: $('#generationTrack'), generationHint: $('#generationHint'),
-      grid: $('#resultsGrid'), statuses: $('#sourceStatuses'), shown: $('#shownCount'), overline: $('#resultsOverline'), headingText: $('#resultsHeadingText'),
+      grid: $('#resultsGrid'), statuses: $('#sourceStatuses'), shown: $('#shownCount'), overline: $('#resultsOverline'), headingText: $('#resultsHeadingText'), tinderOpen: $('#tinderOpenButton'),
+      tinderPanel: $('#tinderPanel'), tinderStage: $('#tinderStage'), tinderProgress: $('#tinderProgress'),
       sort: $('#sortSelect'), density: $('#densityToggle'), paginationShell: $('#paginationShell'), pagination: $('#resultsPagination'), paginationPages: $('#paginationPages'), paginationMeta: $('#paginationMeta'), paginationPrev: $('#paginationPrev'), paginationNext: $('#paginationNext'),
       shareSearch: $('#shareSearchButton'), compareOpen: $('#compareOpenButton'), compareToolbarCount: $('#compareToolbarCount'), compareDock: $('#compareDock'), compareDockCars: $('#compareDockCars'), compareDockText: $('#compareDockText'), compareDockOpen: $('#compareDockOpen'), comparePanel: $('#comparePanel'), compareContent: $('#compareContent'),
       priceCurrency: $('#priceCurrency'), priceFieldLabel: $('#priceFieldLabel'), priceRate: $('#priceRate'), priceFrom: $('#priceFrom'), priceTo: $('#priceTo'),
@@ -3629,7 +3754,7 @@
         sortAndRender();
         els.grid.insertAdjacentHTML('afterbegin', favoritesFeedBannerHTML(records.length));
       } else {
-        els.shown.textContent = '· 0';
+        els.shown.textContent = ': 0';
         els.grid.innerHTML = `${favoritesFeedBannerHTML(0)}<div class="empty-state"><div><div class="empty-state__icon">${icon('heart')}</div><h3>В избранном пока пусто</h3><p>Вернитесь к общей выдаче и нажмите сердце на нужном автомобиле.</p><button type="button" data-action="return-search">Вернуться к поиску</button></div></div>`;
       }
       if (closePanel && els.personalPanel.classList.contains('open')) closePersonalPanel();
@@ -3733,6 +3858,15 @@
         button.setAttribute('aria-pressed', String(Number(button.dataset.model3dIndex) === state.model3d.active));
       });
     }
+    function syncPhoto3dGeometry() {
+      const count = state.model3d.panels.length;
+      const width = Number(els.model3dWorld?.offsetWidth || 0);
+      if (!count || !width) return;
+      // Radius of a regular polygon whose side equals the photo width. A tiny
+      // overlap prevents sub-pixel light seams between neighboring planes.
+      const radius = count > 2 ? width / (2 * Math.tan(Math.PI / count)) : width / 2;
+      els.model3dWorld.style.setProperty('--photo-radius', `${Math.max(1, radius - .75)}px`);
+    }
     function applyPhoto3dTransform() {
       if (!els.model3dWorld) return;
       els.model3dWorld.style.setProperty('--photo-yaw', `${state.model3d.yaw}deg`);
@@ -3771,6 +3905,7 @@
       const step = 360 / panels.length;
       els.model3dWorld.innerHTML = panels.map((image, index) =>
         `<figure class="photo3d-panel" style="--panel-angle:${step * index}deg" aria-label="Фото ${index % unique.length + 1} из ${unique.length}"><img alt="Фотография автомобиля · ракурс ${index % unique.length + 1}" decoding="async" referrerpolicy="no-referrer"><span>${index % unique.length + 1} / ${unique.length}</span></figure>`).join('');
+      requestAnimationFrame(syncPhoto3dGeometry);
 
       const photos = $$('.photo3d-panel img', els.model3dWorld);
       let settled = 0, successful = 0;
@@ -3841,6 +3976,9 @@
         applyPhoto3dTransform();
       }, { passive: false });
       viewer.addEventListener('dblclick', resetModel3dCamera);
+      if ('ResizeObserver' in window) new ResizeObserver(() => {
+        if (els.model3dPanel.classList.contains('open')) syncPhoto3dGeometry();
+      }).observe(els.model3dWorld);
     }
     function openModel3d(id) {
       const item = state.items.get(id) || state.personalRecords.get(id) || state.compared.get(id);
@@ -3854,8 +3992,9 @@
       els.model3dCredit.innerHTML = `Оригинал фотографий · ${escapeHTML(item.sourceLabel || item.provider || 'источник')} ${icon('external')}`;
       $('.model3d-stage', els.model3dPanel)?.classList.remove('loaded');
       els.model3dProgress.style.width = '0%'; els.model3dStatus.textContent = 'Загружаем фотографии автомобиля…';
+      els.model3dPanel.classList.add('open'); syncBodyModal();
       renderPhoto3dChoices(); renderPhoto3dPanels(); applyPhoto3dTransform(); wirePhoto3dViewer();
-      els.model3dPanel.classList.add('open'); syncBodyModal(); els.model3dPanel.querySelector('.model3d-close')?.focus();
+      syncPhoto3dGeometry(); els.model3dPanel.querySelector('.model3d-close')?.focus();
     }
     function resetModel3dCamera() {
       state.model3d.yaw = 0; state.model3d.pitch = -5; state.model3d.scale = 1; state.model3d.active = 0;
@@ -3868,8 +4007,98 @@
       $('.model3d-stage', els.model3dPanel)?.classList.remove('loaded'); syncBodyModal();
       if (listingId) state.items.get(listingId) && $(`.listing-card[data-id="${CSS.escape(listingId)}"] [data-action="open-3d"]`)?.focus();
     }
+    function tinderCardHTML(item) {
+      const images = item.images?.length ? item.images : [fallbackImage];
+      const updated = item.updatedAt || item.createdAt;
+      const comment = item.descriptionLoaded ? (item.description || 'Описание не добавлено продавцом.') : 'Полное описание доступно в карточке объявления.';
+      const generation = [item.brand, item.model, item.generation].filter(Boolean).join(' ');
+      const specs = [
+        ['Год', item.year || '—'], ['Пробег', formatMileage(item.mileage)], ['Двигатель', engineLabel(item)],
+        ['Коробка', item.transmission || '—'], ['Кузов', item.body || '—'], ['Привод', item.drivetrain || '—'],
+      ];
+      return `<article class="tinder-swipe-card" data-tinder-id="${escapeHTML(item.id)}">
+        <div class="tinder-card-media">
+          <img src="${mediaUrl(images[0])}" alt="${escapeHTML(item.title)}" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackImage}'">
+          <span class="tinder-card-source">${escapeHTML(item.sourceLabel || item.provider || item.source)}</span>
+          <span class="tinder-card-photos">${icon('camera')} ${images.length}</span>
+          <span class="tinder-decision tinder-decision--skip" data-tinder-skip>Пропустить</span>
+          <span class="tinder-decision tinder-decision--like" data-tinder-like>В избранное</span>
+        </div>
+        <div class="tinder-card-body">
+          <div class="tinder-card-kicker">${escapeHTML(item.state || 'Автомобиль')}${updated ? ` · ${escapeHTML(relativeDate(updated))}` : ''}</div>
+          <div class="tinder-card-title-row"><h3 class="tinder-card-title">${escapeHTML(item.title)}</h3><div class="tinder-card-price"><strong>${escapeHTML(formatPrice(item.priceByn))}</strong><small>${escapeHTML(formatUsd(item.priceUsd, item.priceByn))}</small></div></div>
+          <div class="tinder-specs">${specs.map(([label,value]) => `<div class="tinder-spec"><span>${escapeHTML(label)}</span><strong title="${escapeHTML(value)}">${escapeHTML(value)}</strong></div>`).join('')}</div>
+          <div class="tinder-generation"><strong>Поколение:</strong> ${escapeHTML(generation || 'не указано площадкой')}${formatYears(item.generationYears) ? ` · ${escapeHTML(formatYears(item.generationYears))}` : ''}</div>
+          <p class="tinder-comment">${escapeHTML(comment)}</p>
+          <div class="tinder-card-footer"><span class="tinder-seller">${icon('pin')} ${escapeHTML(item.location || 'Беларусь')} · ${escapeHTML(item.seller?.name || 'Продавец')}</span><a class="tinder-original" href="${validUrl(item.sourceUrl)}" target="_blank" rel="noopener">Оригинал ${icon('external')}</a></div>
+        </div>
+      </article>`;
+    }
+    function setTinderActionsDisabled(disabled) {
+      $$('[data-tinder-action="skip"],[data-tinder-action="like"]', els.tinderPanel).forEach(button => { button.disabled = disabled; });
+    }
+    function resetTinderDrag() {
+      const card = $('.tinder-swipe-card', els.tinderStage);
+      if (card) {
+        card.style.setProperty('--tinder-x', '0px'); card.style.setProperty('--tinder-rotate', '0deg');
+        $('[data-tinder-skip]', card)?.style.setProperty('opacity', '0');
+        $('[data-tinder-like]', card)?.style.setProperty('opacity', '0');
+      }
+      state.tinder.pointerId = null; state.tinder.dx = 0; state.tinder.dy = 0; state.tinder.dragging = false;
+    }
+    function preloadTinderAhead() {
+      for (let offset = 1; offset <= 3; offset += 1) {
+        const next = state.items.get(state.tinder.queue[state.tinder.index + offset]);
+        const image = next?.images?.[0]; if (image) preloadImage(image).catch(() => {});
+      }
+    }
+    function renderTinderCard() {
+      const total = state.tinder.queue.length;
+      const id = state.tinder.queue[state.tinder.index];
+      const item = id ? state.items.get(id) : null;
+      if (!item) {
+        els.tinderProgress.textContent = total ? `${total} из ${total}` : 'Нет карточек';
+        els.tinderStage.innerHTML = `<div class="tinder-empty"><div><svg class="icon" aria-hidden="true"><use href="#i-cards"></use></svg><h3>${total ? 'Карточки закончились' : 'Нет объявлений для свайпа'}</h3><p>${total ? 'Вы просмотрели всю текущую выдачу. Избранные автомобили уже сохранены.' : 'Сначала выполните поиск с нужными фильтрами.'}</p>${total ? '<button class="tinder-restart" type="button" data-tinder-action="restart">Начать заново</button>' : ''}</div></div>`;
+        setTinderActionsDisabled(true); return;
+      }
+      els.tinderProgress.textContent = `${state.tinder.index + 1} из ${total}`;
+      els.tinderStage.innerHTML = tinderCardHTML(item);
+      setTinderActionsDisabled(false); resetTinderDrag(); preloadTinderAhead();
+    }
+    function openTinderMode() {
+      if (state.loading) { toast('Дождитесь окончания поиска'); return; }
+      const queue = sortedIds().filter(id => state.items.has(id));
+      if (!queue.length || state.favoriteFeed) { toast('Сначала выполните поиск объявлений', 'error'); return; }
+      state.tinder.queue = queue; state.tinder.index = 0;
+      renderTinderCard(); els.tinderPanel.classList.add('open'); syncBodyModal();
+      els.tinderPanel.querySelector('.tinder-close')?.focus();
+    }
+    function closeTinderMode() {
+      resetTinderDrag(); els.tinderPanel.classList.remove('open'); syncBodyModal(); els.tinderOpen?.focus();
+    }
+    function tinderFavorite(id) {
+      if (!id) return;
+      state.favorites.add(id); setListingFavorite(id, true);
+      const card = cardById(id), button = card && $('[data-action="favorite"]', card);
+      if (button) { button.classList.add('active'); button.setAttribute('aria-label', 'Удалить из избранного'); }
+    }
+    function advanceTinder(direction) {
+      const id = state.tinder.queue[state.tinder.index]; if (!id) return;
+      markListingViewed(id);
+      if (direction === 'like') tinderFavorite(id);
+      state.tinder.index += 1; renderTinderCard();
+    }
+    function applyTinderDrag(dx) {
+      const card = $('.tinder-swipe-card', els.tinderStage); if (!card) return;
+      const limited = Math.max(-innerWidth * .9, Math.min(innerWidth * .9, dx));
+      card.style.setProperty('--tinder-x', `${limited}px`);
+      card.style.setProperty('--tinder-rotate', `${limited * .025}deg`);
+      const strength = Math.min(1, Math.abs(limited) / 90);
+      $('[data-tinder-skip]', card)?.style.setProperty('opacity', limited < 0 ? String(strength) : '0');
+      $('[data-tinder-like]', card)?.style.setProperty('opacity', limited > 0 ? String(strength) : '0');
+    }
     function syncBodyModal() {
-      document.body.classList.toggle('modal-open', els.lightbox.classList.contains('open') || els.personalPanel.classList.contains('open') || els.accountPanel.classList.contains('open') || els.model3dPanel.classList.contains('open') || els.vinPanel.classList.contains('open') || els.comparePanel.classList.contains('open'));
+      document.body.classList.toggle('modal-open', els.lightbox.classList.contains('open') || els.personalPanel.classList.contains('open') || els.accountPanel.classList.contains('open') || els.model3dPanel.classList.contains('open') || els.tinderPanel.classList.contains('open') || els.vinPanel.classList.contains('open') || els.comparePanel.classList.contains('open'));
     }
     const VIN_CHECK_FALLBACK = [
       { title: 'ДТП в Беларуси и России', coverage: 'Зарегистрированные аварии и страховые события' },
@@ -4403,6 +4632,7 @@
     }
 
     function showSkeletons(count = 6) {
+      els.tinderOpen.disabled = true;
       els.paginationShell.classList.remove('visible');
       els.grid.innerHTML = Array.from({ length: count }, () => `<article class="skeleton-card" aria-hidden="true"><div class="skeleton-media"></div><div class="skeleton-body"><div class="skeleton-line" style="width:24%;height:8px"></div><div class="skeleton-line skeleton-line--title"></div><div class="skeleton-offer"><div><div class="skeleton-line skeleton-line--price"></div><div class="skeleton-line" style="width:52%;height:8px"></div></div><div><div class="skeleton-line" style="width:72%;height:8px"></div><div class="skeleton-line" style="width:100%;height:6px"></div></div></div><div class="skeleton-specs">${Array.from({ length: 6 }, () => '<span class="skeleton-spec"></span>').join('')}</div><div class="skeleton-line" style="width:82%;margin-top:17px"></div></div></article>`).join('');
     }
@@ -4570,7 +4800,8 @@
       state.page = Math.max(1, Math.min(state.page, state.totalPages));
       const pageIds = paginated ? ids.slice((state.page - 1) * RESULT_PAGE_SIZE, state.page * RESULT_PAGE_SIZE) : ids;
       els.grid.innerHTML = pageIds.map(id => cardHTML(state.items.get(id))).join('');
-      els.shown.textContent = `· ${ids.length}`;
+      els.shown.textContent = `: ${ids.length}`;
+      els.tinderOpen.disabled = !ids.length || state.favoriteFeed || state.offlineMode;
       renderPagination(ids.length, pageIds.length); syncCompareUI();
       setupDetailObserver(); setupCardViewObserver();
       queueMicrotask(queueMarketEnrichment);
@@ -4790,13 +5021,15 @@
     function equipmentHTML(item) { return `<span class="equipment-tag" title="${escapeHTML(item.group || '')}">${escapeHTML(item.name)}${item.value ? ` · ${escapeHTML(item.value)}` : ''}</span>`; }
 
     function renderEmpty() {
-      els.shown.textContent = '· 0';
+      els.tinderOpen.disabled = true;
+      els.shown.textContent = ': 0';
       const hasErrors = state.sourceStatus.length && state.sourceStatus.every(status => ['error', 'blocked'].includes(status.state));
       els.grid.innerHTML = `<div class="empty-state"><div><div class="empty-state__icon">${icon(hasErrors ? 'alert' : 'search')}</div><h3>${hasErrors ? 'Источники не ответили' : 'Объявлений не найдено'}</h3><p>${hasErrors ? 'Это не заменено демонстрационными карточками. Попробуйте ещё раз позже или отключите источник со статусом ошибки.' : 'Попробуйте расширить диапазон цены и года, убрать поколение или выбрать всю Беларусь.'}</p><button type="button" data-action="reset-search">Сбросить фильтры</button></div></div>`;
       state.totalPages = 1; state.page = 1; els.paginationShell.classList.remove('visible');
     }
     function renderFatalError(message) {
       state.sourceStatus = [];
+      els.tinderOpen.disabled = true;
       els.shown.textContent = '';
       els.paginationShell.classList.remove('visible');
       els.grid.innerHTML = `<div class="empty-state"><div><div class="empty-state__icon">${icon('alert')}</div><h3>Поиск временно недоступен</h3><p>${escapeHTML(message)}. Фиктивные объявления не показываются.</p><button type="button" data-action="retry-search">Повторить</button></div></div>`;
@@ -5323,6 +5556,40 @@
       else if (action === 'reset') resetModel3dCamera();
     });
 
+    els.tinderOpen.addEventListener('click', openTinderMode);
+    els.tinderPanel.addEventListener('click', event => {
+      if (event.target === els.tinderPanel) { closeTinderMode(); return; }
+      const action = event.target.closest('[data-tinder-action]')?.dataset.tinderAction;
+      if (action === 'close') closeTinderMode();
+      else if (action === 'skip') advanceTinder('skip');
+      else if (action === 'like') advanceTinder('like');
+      else if (action === 'restart') { state.tinder.index = 0; renderTinderCard(); }
+    });
+    els.tinderStage.addEventListener('pointerdown', event => {
+      const card = event.target.closest('.tinder-swipe-card');
+      if (!card || event.target.closest('a,button') || state.tinder.pointerId !== null) return;
+      state.tinder.pointerId = event.pointerId; state.tinder.startX = event.clientX; state.tinder.startY = event.clientY;
+      state.tinder.dx = 0; state.tinder.dy = 0; state.tinder.dragging = false;
+      card.setPointerCapture?.(event.pointerId);
+    });
+    els.tinderStage.addEventListener('pointermove', event => {
+      if (event.pointerId !== state.tinder.pointerId) return;
+      state.tinder.dx = event.clientX - state.tinder.startX; state.tinder.dy = event.clientY - state.tinder.startY;
+      if (Math.abs(state.tinder.dx) > 6 && Math.abs(state.tinder.dx) > Math.abs(state.tinder.dy)) state.tinder.dragging = true;
+      if (state.tinder.dragging) { event.preventDefault(); applyTinderDrag(state.tinder.dx); }
+    });
+    const finishTinderPointer = event => {
+      if (event.pointerId !== state.tinder.pointerId) return;
+      const card = $('.tinder-swipe-card', els.tinderStage);
+      const threshold = Math.min(105, Math.max(62, Number(card?.getBoundingClientRect().width || 320) * .2));
+      const dx = state.tinder.dx, dragging = state.tinder.dragging;
+      state.tinder.pointerId = null;
+      if (dragging && Math.abs(dx) >= threshold) advanceTinder(dx > 0 ? 'like' : 'skip');
+      else resetTinderDrag();
+    };
+    els.tinderStage.addEventListener('pointerup', finishTinderPointer);
+    els.tinderStage.addEventListener('pointercancel', event => { if (event.pointerId === state.tinder.pointerId) resetTinderDrag(); });
+
     els.accountPanel.addEventListener('click', event => {
       if (event.target === els.accountPanel) { closeAccountPanel(); return; }
       const button = event.target.closest('[data-account-action]'); if (!button) return;
@@ -5478,6 +5745,12 @@
           else setLightboxZoom(lightboxZoom.scale * (event.key === '-' ? .8 : 1.25));
         }
         return;
+      }
+      if (els.tinderPanel.classList.contains('open')) {
+        if (event.key === 'Escape') { closeTinderMode(); return; }
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+          event.preventDefault(); advanceTinder(event.key === 'ArrowRight' ? 'like' : 'skip'); return;
+        }
       }
       if (els.model3dPanel.classList.contains('open')) {
         if (event.key === 'Escape') { closeModel3d(); return; }
